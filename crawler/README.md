@@ -6,7 +6,7 @@ Dependencies:
 The pagedir.c module hardcodes the prefix for the directory where pages are saved. That prefix is ../data as indicated
 in the preparing files.
 
-Known Bus:
+Known Bugs:
 
 Sleep:
 Could not implement sleep function to wait a second before fetching. Even when I set the sleeping parameters to small millisecond amounts
@@ -17,3 +17,6 @@ Depth:
 My depth counter has the wrong pointer and I'm so exhausted to even worry about it so the output data as of now does
 not accurately reflect page depth. I'm sure it's an easy fix but I can worry about it later.
 
+Memory Leaks:
+At the very end of going through testing I've discovered there's a great deal of memory leaks which I simply don't have time to
+squash before the deadline. I'll probably work on that tomorrow, I doubt it's a difficult fix.
