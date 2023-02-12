@@ -18,6 +18,9 @@ bool pagedir_init(const char* pageDirectory);
 
 void pagedir_save(const webpage_t* page, const char* pageDirectory, const int docID);
 
+bool pagedir_val(const char* pageDirectory);
+
+webpage_t* pagedir_parse(const char* path);
 
 /********** pagedir_init **********/
 
@@ -104,4 +107,81 @@ pagedir_save(const webpage_t* page, const char* pageDirectory, const int docID){
   free(docstr);  // free docID string
   closedir(wowdir);   // close directory
 }
-        
+
+/********** pagedir_val **********/
+
+bool
+pagedir_val(const char* pageDirectory){
+  // Check prefix
+  char* canonicalPrefix = "../data";
+  char homebase[strlen(pageDirectory)];
+  strcpy(homebase, pageDirectory); // copy pageDirectory into homebase
+  char homebasePrefix[strlen(canonicalPrefix)];
+
+  strncpy(homebasePrefix, homebase, strlen(canonicalPrefix));
+  
+  if (strcmp(canonicalPrefix, homebasePrefix) != 0){
+    // print to stderr, incompatible prefix, must be of type ../data/
+    fprintf(stderr, "Error: Incompatible prefix, must be of type '%s' not '%s'\n", canonicalPrefix, homebasePrefix);
+    return false;
+  }
+  
+  // Check to make sure the page exists in the directory
+  DIR* wowdir = opendir(homebase); // open directory
+  if (wowdir == NULL){
+    fprintf(stderr, "Error: Invalid Directory %s please try again\n", homebase);
+    closedir(wowdir);
+    return false;
+  }
+  struct dirent* cyclethru;
+  int check = 0;
+  char* canonicalCF = ".crawler"; // assigns canonical crawler file indicator
+  
+  while ((cyclethru = readdir(wowdir)) != NULL){
+    if (strcmp(cyclethru->d_name, canonicalCF) == 0){
+      check++; // if you fine the canonical crawler file in the pageDirectory, increment
+    }
+  }
+  if (check == 0){
+    fprintf(stderr, "Error, Canonical crawler file indicator %s not found\n", canonicalCF);
+    closedir(wowdir);
+    return false;
+  }
+
+  closedir(wowdir);
+  return true;
+}
+
+/********** pagedir_parse **********/
+webpage_t*
+pagedir_parse(const char* path){
+  // Initialize path into a new webpage
+  // Return new webpage if initialized
+  // Read first two lines of document for url and depth
+  // and leave html NULL. Save them, then
+  // construct the page with webpage_new()
+  // and webpage_fetch()
+  
+  FILE* fp = fopen(path, "r");
+  if (fp == NULL){
+    fprintf(stderr, "Webpage parsing error: \tCould not open file at %s\n", path);
+    exit(1);
+  }
+  char* URL = mem_malloc(sizeof(char)*100); // must be freed later
+  char depth[5];
+
+  fscanf(fp, "%s\n%s", URL, depth);
+  char* dummyptr;
+  long depthn;
+  depthn = strtol(depth, &dummyptr, 10); // turn str depth into long int 
+  
+  webpage_t* page = webpage_new(URL, (int)(depthn), NULL);
+
+  bool fetch = webpage_fetch(page);
+  if (fetch == false){
+    fprintf(stderr, "Webpage parsing error: \tCould not fetch page at %s\n", path);
+    exit(1);
+  }
+  // if fetch was successful, page now initialized with URL, depth, and HTML
+  return page;  
+}

@@ -1,7 +1,7 @@
 
 
 
-OBJS = pagedir.o
+OBJS = pagedir.o index.o word.o
 LIB = common.a
 
 $(LIB): $(OBJS)
