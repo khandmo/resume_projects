@@ -6,7 +6,7 @@ Describes the abstract data structures and pseudo code for querier
 
 STRUCTURES:
 
-Two distinct structures are used: the doubleCounters and the scoreCheck.
+Two unique structures are used: the doubleCounters and the scoreCheck.
 
 doubleCounters is an object that holds two counters for the sake of easy
 modification through existing iterate functions for the hashtable and counter data
@@ -50,7 +50,7 @@ the query result.
                  Reload while loop
                  Reset scum
               else if next token is AND
-                 Intersect scum and next next token
+                 Intersect scum and next next token (token after AND)
                  Reload while loop
               else (next token is not literal)
                  Intersect scum and next token

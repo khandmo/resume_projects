@@ -48,7 +48,8 @@ void index_delete(index_t* indexObj);
  * NOT responsible for closing the file
  */
 
-index_t* index_save(FILE* loadedFile);
+index_t*
+index_save(FILE* loadedFile);
 
 /*************** indexPrint() ***************/
 // itemprint type function, meant to print each word and cycle through
@@ -58,5 +59,6 @@ index_t* index_save(FILE* loadedFile);
 
 void
 indexPrint(void* file, const char* word, void* counter);
+
 
 #endif // __INDEX_H

@@ -18,10 +18,16 @@
 /******************** local function ********************/
 static void indexWrite(void* file, const int docID, const int count);
 // is used by indexPrint, should not be accessed from outside
+// used to transcript a counters object into a file in index standard
+// format (word docID count docID count ...)
 
-static void indexHelper(void* counter);
+static void indexDeleteHelper(void* counter);
 // is used by index_delete to delete all intialized counter objects
 // and prevent memory loss
+
+//static void dataHelper(char* dataLine, const int docID, const int count);
+// is used by wordToData to transcript a counters object into a line
+// in index standard (the other helper functions here print to files)
 
 /******************** struct ********************/
 
@@ -47,7 +53,7 @@ index_delete(index_t* indexObj){
   if (indexObj == NULL){
   } else {
     // loop through hashtable and delete all full counters type objects
-    hashtable_delete(indexObj->hashTable, indexHelper); // delete hash table
+    hashtable_delete(indexObj->hashTable, indexDeleteHelper); // delete hash table
     mem_free(indexObj); // free the index
   }
 }
@@ -55,9 +61,9 @@ index_delete(index_t* indexObj){
 /********************* index_save() *********************/
 index_t*
 index_save(FILE* loadedFile){
-  // Create index object
-  index_t* theIndex = index_new();
 
+  index_t* theIndex = index_new();
+  
   char* arg;
   while((arg = file_readLine(loadedFile)) != NULL){
     char* word = mem_malloc(sizeof(char)*25);
@@ -116,9 +122,38 @@ indexWrite(void* file, const int docID, const int count){
 
 /**************** indexHelper() ****************/
 static void
-indexHelper(void* counter){
-  counters_delete(counter);
+indexDeleteHelper(void* counter){
+  counters_delete(counter);;
 }
+
+/*************** wordToData() ***************
+char*
+wordToData(index_t* index, char* word){
+  counters_t* dataCounter = hashtable_find(index->hashTable, word);
+  if (dataCounter == NULL){
+    return NULL;    
+  }
+  // dataCounter is loaded up with the docID, count pairs.
+  // Transcript to standard index line format and return
+  char* dataLine = mem_malloc(sizeof(char)*75);
+  dataLine = word;
+  counters_iterate(dataCounter, dataLine, dataHelper);
+  // dataLine should now be full
+  return dataLine;
+}*/
+
+/*************** dataHelper() **************
+static void
+dataHelper(void* dataLine, const int docID, const int count){
+  char docIDn[6];
+  char countn[6];
+  sprintf(docIDn, " %d", docID);
+  sprintf(countn, " %d", count);
+
+  strcat(dataLine, docIDn); // amalgamate docID into dataLine
+  strcat(dataLine, countn); // amalgamate count into dataLine
+}*/
+
 
 #endif // __INDEX_C
 
