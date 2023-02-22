@@ -129,19 +129,18 @@ The server will run as follows:
 > Mention, but do not describe, data structures implemented by other modules (such as the new modules you detail below, or any libcs50 data structures you plan to use).
 
 * Global Structure *Game* - holds variables and information used throughout the entire server 
- - Contains an Int Gold Remaining
-> 
->
+	- Contains an Int Gold Remaining
+
 * Point structure *Point* - holds a coordinate pair (x,y)
-- contains int x to represent x coordinate
-- contains int y to represent y coordinate
+	- contains int x to represent x coordinate
+	- contains int y to represent y coordinate
 
 * Player structure *Player* - holds important variables and information specific to a unique player
-- contains bool *isSpectator*, true if spectator, false if player, all other variables NULL if spectator
-- contains current location as a *Point*
-- contains int for total gold in purse
-- contains int for amount of gold most recently collected
-- contains array of *points* as the set of visible points to the player
+	- contains bool *isSpectator*, true if spectator, false if player, all other variables NULL if spectator
+	- contains current location as a *Point*
+	- contains int for total gold in purse
+	- contains int for amount of gold most recently collected
+	- contains array of *points* as the set of visible points to the player
 ---
 
 ## XYZ module
