@@ -1,6 +1,6 @@
 # CS50 Nuggets
 ## Design Spec
-### Team name, term, year
+### Charles Angles, Winter, 2023
 
 > This **template** includes some gray text meant to explain how to use the template; delete all of them in your document!
 
@@ -9,6 +9,7 @@ Our design also includes x, y, z modules.
 We describe each program and module separately.
 We do not describe the `support` library nor the modules that enable features that go beyond the spec.
 We avoid repeating information that is provided in the requirements spec.
+
 
 ## Player
 
@@ -31,9 +32,42 @@ See the requirements spec for both the command-line and interactive UI.
 > If you write to log files, or log to stderr, describe that here.
 > Command-line arguments are not 'input'.
 
+#### Inputs
+
+If the player or spectator enters 'Q', they will quit the game, this is the only valid keystroke for the spectator
+
+the following are only valid keystrokes for the player:
+The client can input the following keys: 'y', 'k', 'u', 'h', 'l', 'b', 'j', 'n' to move their player.
+The eight movement keys are shown relative to the player (@) below.
+
+|     |     |     |
+|:---:|:---:|:---:|
+|  y  |  k  |  u  |
+|  h  |  @  |  l  |
+|  b  |  j  |  n  |
+
+#### Outputs
+
+If the client joins as a spectator  they will see a fully visible map of the game along with the locations of all the players and remaining gold
+
+If the client joins as a player, they will see the parts of the map that are visible to them.
+
+If any memory allocation errors or invalid keystrokes, the error messages will be logged with the `log` module with a description of what went wrong
+
+
 ### Functional decomposition into modules
 
 > List and briefly describe any modules that comprise your client, other than the main module.
+We anticipate the following modules or functions:
+
+1. *main*, which parses arguments and initializes other modules
+2. *handleInput*, which verifies stdin inputs by the user and sends it to the server
+3. *handleMessage*, verifies and interprets messages sent from the server 
+
+We anticipate the use of these helper modules:
+
+1. *message* , sends messages between internet hosts via udp
+2. *log*, logs messages to a file.
  
 ### Pseudo code for logic/algorithmic flow
 
@@ -94,6 +128,20 @@ The server will run as follows:
 > This description should be independent of the programming language.
 > Mention, but do not describe, data structures implemented by other modules (such as the new modules you detail below, or any libcs50 data structures you plan to use).
 
+* Global Structure *Game* - holds variables and information used throughout the entire server 
+> Contains an Int Gold Remaining
+> 
+>
+* Point structure *Point* - holds a coordinate pair (x,y)
+> contains int x to represent x coordinate
+> contains int y to represent y coordinate
+
+* Player structure *Player* - holds important variables and information specific to a unique player
+> contains bool *isSpectator*, true if spectator, false if player, all other variables NULL if spectator
+> contains current location as a *Point*
+> contains int for total gold in purse
+> contains int for amount of gold most recently collected
+> contains array of *points* as the set of visible points to the player
 ---
 
 ## XYZ module
