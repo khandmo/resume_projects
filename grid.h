@@ -43,13 +43,13 @@ int calculateColumns(char* map_string);
  * @param point 
  * @return int 
  */
-int pointToLocation(point_t* point);
+int pointToLocation(point_t* point, int ncols);
 /**
  * @brief Given a set of points, prints out the points in the format (x,y);(x,y); in no particular order. 
  *        For testing purposes.
  * 
  * @param set 
  */
-void printPoints(set_t set);
+void printPoints(set_t* set);
 
 #endif // _GRID_H_
