@@ -102,10 +102,6 @@ There is no interaction with the user.
 
 ### Inputs and outputs
 
-> Briefly describe the inputs (map file) and outputs (to terminal).
-> If you write to log files, or log to stderr, describe that here.
-> Command-line arguments are not 'input'.
-
 #### Inputs
 
 Map, .txt file whose pathname is inputted in the command line, is assumed to be valid for our purposes
@@ -115,9 +111,6 @@ Map, .txt file whose pathname is inputted in the command line, is assumed to be 
 If any memory allocation errors or invalid keystrokes, the error messages will be logged with the `log` module with a description of what went wrong
 
 ### Functional decomposition into modules
-
-> List and briefly describe any modules that comprise your server, other than the main module.
-
 
 *Random*, creates random behaviour
 *HandleClientMessages*, constantly runs and accepts and interprets messages from client
@@ -151,10 +144,6 @@ If any memory allocation errors or invalid keystrokes, the error messages will b
 
 
 ### Major data structures
-
-> Describe each major data structure in this program: what information does it represent, how does it represent the data, and what are its members.
-> This description should be independent of the programming language.
-> Mention, but do not describe, data structures implemented by other modules (such as the new modules you detail below, or any libcs50 data structures you plan to use).
 
 * Global Structure *Game* - holds variables and information used throughout the entire server 
 	- goldRemaining, amount of gold left to be collected
@@ -190,12 +179,10 @@ If any memory allocation errors or invalid keystrokes, the error messages will b
 
 ## Grid 
 
-> Repeat this section for each module that is included in either the client or server.
 Exports functions useful for the server program
 
 ### Functional decomposition
 
-> List each of the main functions implemented by this module, with a phrase or sentence description of each.
 *calculateRows*, calculates the amount of rows in the map file
 *calculateColumns*, calculate the aomunt of columns in the map file
 *pointToLocation*, converts point object to a string index
@@ -203,9 +190,6 @@ Exports functions useful for the server program
 *setPoint*, sets the point in the grid as the character passed 
 
 ### Pseudo code for logic/algorithmic flow
-
-> For any non-trivial function, add a level-4 #### header and provide tab-indented pseudocode.
-> This pseudocode should be independent of the programming language.
 
 #### calculateRows
 
