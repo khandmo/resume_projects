@@ -27,9 +27,9 @@ See the requirements spec for both the command-line and interactive UI.
 
 #### Inputs
 
-If the player or spectator enters 'Q', they will quit the game, this is the only valid keystroke for the spectator
+If the player or spectator enters 'Q', they will quit the game. This is the only valid keystroke for the spectator
 
-the following are only valid keystrokes for the player:
+The following are only valid keystrokes for the player:
 The client can input the following keys: 'y', 'k', 'u', 'h', 'l', 'b', 'j', 'n' to move their player.
 The eight movement keys are shown relative to the player (@) below.
 
@@ -41,11 +41,11 @@ The eight movement keys are shown relative to the player (@) below.
 
 #### Outputs
 
-If the client joins as a spectator they will see a fully visible map of the game along with the locations of all the players and remaining gold
+If the client joins as a spectator, they will see a fully visible map of the game along with the locations of all the players and remaining gold.
 
 If the client joins as a player, they will see the parts of the map that are visible to them.
 
-If any memory allocation errors or invalid keystrokes, the error messages will be logged with the `log` module with a description of what went wrong
+If any memory allocation errors or invalid keystrokes, the error messages will be logged with the `log` module with a description of what went wrong.
 
 
 ### Functional decomposition into modules
@@ -78,19 +78,19 @@ We anticipate the use of these helper modules:
 
 #### main
 
-Parses and verifies command line arguments and then calls message_loop() which takes the functions that handle inputs and outputs
+Parses and verifies command line arguments and then calls message_loop() which takes the functions that handle inputs and outputs.
 
 #### handle_input
 
-Reads from stdin and sends Messages to the server if they are valid messages
+Reads from stdin and sends Messages to the server if they are valid messages.
 
 #### handle_message
 
-Reads and parses messages from the server and updates display and game info
+Reads and parses messages from the server and updates display and game info.
 
 ### Major data structures
 
-We do not anticipate the use of any major data structures in our design for the client
+We do not anticipate the use of any major data structures in our design for the client.
 
 ---
 
@@ -104,11 +104,11 @@ There is no interaction with the user.
 
 #### Inputs
 
-Map, .txt file whose pathname is inputted in the command line, is assumed to be valid for our purposes
+Map, a .txt file whose pathname is inputted in the command line, is assumed to be valid for our purposes.
 
 #### Outputs
 
-If any memory allocation errors or invalid keystrokes, the error messages will be logged with the `log` module with a description of what went wrong
+If any memory allocation errors or invalid keystrokes, the error messages will be logged with the `log` module with a description of what went wrong.
 
 ### Functional decomposition into modules
 
@@ -179,7 +179,7 @@ If any memory allocation errors or invalid keystrokes, the error messages will b
 
 ## Grid 
 
-Exports functions useful for the server program
+Exports functions useful for the server program.
 
 ### Functional decomposition
 
