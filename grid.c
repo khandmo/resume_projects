@@ -139,6 +139,7 @@ point_t* locationToPoint(int location, char* map_string){
     p->x = x;
     p->y = y;
     return p;
+    
 }
 
 

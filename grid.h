@@ -75,4 +75,5 @@ char getCharAtLocation(int location, char* map_string);
  * @return point_t 
  */
 point_t* locationToPoint(int location, char* map_string);
+
 #endif // _GRID_H_
