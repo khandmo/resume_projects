@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "grid.h"
-#include "/thayerfs/home/f0055kr/cs50-dev/nuggets-charles-angles/libcs50/set.h"
+#include "libcs50/set.h"
 
 /**************** global types ****************/
 typedef struct point point_t;  // opaque to users of the module

@@ -9,11 +9,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "/thayerfs/home/f0055kr/cs50-dev/nuggets-charles-angles/libcs50/file.h"
-#include "/thayerfs/home/f0055kr/cs50-dev/nuggets-charles-angles/libcs50/file.c"
-#include "/thayerfs/home/f0055kr/cs50-dev/nuggets-charles-angles/grid.h"
-#include "/thayerfs/home/f0055kr/cs50-dev/nuggets-charles-angles/grid.c"
-#include "/thayerfs/home/f0055kr/cs50-dev/nuggets-charles-angles/libcs50/set.h"
+#include "libcs50/file.h"
+#include "libcs50/file.c"
+#include "grid.h"
+#include "grid.c"
+#include "libcs50/set.h"
 
 
 
