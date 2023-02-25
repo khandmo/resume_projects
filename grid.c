@@ -115,14 +115,22 @@ char getCharAtPoint(point_t* point, char* map_string){
     char c = map_string[location - 1];
     return c;
 }
-
+/**
+ * 
+ * See grid.h for implementation details
+ * 
+ */
 char getCharAtLocation(int location, char* map_string){
     // assign the character at the location of the string and return it
     // the subtraction of 1 accounts for the fact strings start at index 0
     char c = map_string[location - 1];
     return c;
 }
-
+/**
+ * 
+ * See grid.h for implementation details
+ * 
+ */
 point_t* locationToPoint(int location, char* map_string){
     int ncols = calculateColumns(map_string);
     // to get the y coordinate we need to find how many rows worth of points fit into
@@ -139,6 +147,26 @@ point_t* locationToPoint(int location, char* map_string){
     p->x = x;
     p->y = y;
     return p;
+}
+/**
+ * 
+ * See grid.h for implementation details
+ * 
+ */
+char getCharFromPair(int x, int y, char* map_string)
+{
+    // calculate columns
+    int cols = calculateColumns(map_string);
+    point_t* p = malloc(sizeof(point_t));
+    p->x = x;
+    p->y = y;
+    // calculate the location in the string for the created point
+    int location = pointToLocation(p, cols);
+    // assign the character at the location of the string and return it
+    // the subtraction of 1 accounts for the fact strings start at index 0
+    char c = map_string[location - 1];
+    free(p);
+    return c;
 }
 
 
