@@ -75,4 +75,13 @@ char getCharAtLocation(int location, char* map_string);
  * @return point_t 
  */
 point_t* locationToPoint(int location, char* map_string);
+/**
+ * @brief Get the Char From Pair of coordinates
+ * 
+ * @param x 
+ * @param y 
+ * @param map_string 
+ * @return char 
+ */
+char getCharFromPair(int x, int y, char* map_string);
 #endif // _GRID_H_
