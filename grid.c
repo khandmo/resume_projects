@@ -1,19 +1,17 @@
 /**
+ * @file grid.c
+ * @authors Matthew Givens; Nuggets; Charles Angles
+ * @brief useful functions for working with the grid/map
  * 
- * CS50 Nuggets
- * Design Spec
- * Charles Angles, Winter, 2023
- * Matthew Givens
- * 
- * 
- * Grid module - useful functions for working with the grid/map
-*/
+ * @date 2023-02-24
+ * CS 50, Winter 2023
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <grid.h>
-#include <set.h>
+#include "grid.h"
+#include "/thayerfs/home/f0055kr/cs50-dev/nuggets-charles-angles/libcs50/set.h"
 
 
 /**************** global types ****************/
@@ -21,6 +19,10 @@ typedef struct point {
   int x;
   int y;
 } point_t;
+
+/**************** local functions ****************/
+/* not visible outside this file */
+void pointPrinterHelper(void *arg, const char *key, void *item);
 
 /**
  * 
@@ -51,8 +53,8 @@ int calculateColumns(char* map_string)
     while (map_string[cols] != '\n'){
         cols++;
     }
-    // return amount of columns
-    return cols;
+    // return amount of columns plus the newline column
+    return cols + 1;
 
 }
 /**
@@ -62,16 +64,14 @@ int calculateColumns(char* map_string)
  */
 int pointToLocation(point_t* point, int ncols)
 {
-    // check if there is an x and y value in the points
-    if (point->x != NULL && point->y != NULL){
-        // multiplying y times the number of columns plus two gets us to the correct row
-        // adding 2 accounts for the "/n"
-        int location = point->y * (2 + ncols);
-        // then adding the x value gets us to the correct point in that row
-        location = location + point->x;
-        // return final index
-        return location;
-    }
+    // multiplying y times the number of columns gets us to the correct row
+    // subtracting 1 from y accounts for the fact the first coordinate pair is (1,1)
+    int location = (point->y - 1) * (ncols);
+    // then adding the x value gets us to the correct point in that row
+    location = location + point->x;
+    // return final index
+    return location;
+
 
 }
 /**
@@ -100,7 +100,46 @@ void pointPrinterHelper(void *arg, const char *key, void *item){
     printf(";");
 
 }
+/**
+ * 
+ * See grid.h for implementation details
+ * 
+ */
+char getCharAtPoint(point_t* point, char* map_string){
+    // calculate columns
+    int cols = calculateColumns(map_string);
+    // calculate the location in the string for the given point
+    int location = pointToLocation(point, cols);
+    // assign the character at the location of the string and return it
+    // the subtraction of 1 accounts for the fact strings start at index 0
+    char c = map_string[location - 1];
+    return c;
+}
 
+char getCharAtLocation(int location, char* map_string){
+    // assign the character at the location of the string and return it
+    // the subtraction of 1 accounts for the fact strings start at index 0
+    char c = map_string[location - 1];
+    return c;
+}
+
+point_t* locationToPoint(int location, char* map_string){
+    int ncols = calculateColumns(map_string);
+    // to get the y coordinate we need to find how many rows worth of points fit into
+    // the location, so we divide it by the amount of columns
+    int y = location/ncols;
+    // because y starts at line 1, we add 1
+    y = y + 1;
+
+    // to get x, we find the remainder , meaning how many points past the last row
+    // is the point
+    int x = location%ncols;
+
+    point_t* p = malloc(sizeof(point_t));
+    p->x = x;
+    p->y = y;
+    return p;
+}
 
 
 
