@@ -50,29 +50,31 @@ main(const int argc, char* argv[]){
     fprintf(stderr, "can't form address from %s %s\n", serverHost, serverPort);
     return 4; // bad hostname/port
   }
+
+  bool ok;
   
   // implement spectator mode (argc == 3)
-  // send SPECTATE message to server
-  // start message loop with handleSpectatorInput()
-
   if (argc == 3){
     message_send(server, "SPECTATE"); // send SPECTATE message
 
-    // message_loop here
+    // message loop for spectator type
+    ok = message_loop(&server, 0, NULL, handleSpectatorInput, handleMessage);
   }
   
   // implement player mode (argc == 4)
-  // send PLAY message to server
-  // start message loop with handlePlayerInput()
-
   if (argc == 4){
     char* first_message = "PLAY ";
     char* player_name = argv[3];
     strcat(first_message, player_name); // add real name to string
     message_send(server, first_message); // send PLAY message
-    
-    // message_loop here
+
+    // message loop for player type
+    ok = message_loop(&server, 0, NULL, handlePlayerInput, handleMessage);
   }
+
+  // finish up
+  message_done(); // shut down message module
+  return ok? 0 : 1; // status code depends on result of message_loop
 }
 
 /************** validPlayerInput() **************/
@@ -99,12 +101,34 @@ validPlayerInput(char keyStroke){
 // which checks if the input if one of the possible valid keystrokes in the game
 // sends true with strcmp == 0 for one of them, false if not.
 // if true, configure message (KEY ...) and send
-
-// return false to continue loop in good cases
-// return true to stop loop in bad cases
 static bool
 handlePlayerInput(void* arg){
+  // defense checks for input arg
+  addr_t* serverp = arg;
+  if (serverp == NULL){
+    fprintf(stderr, "handlePlayerInput called with arg == NULL");
+    return true;
+  }
+  if (!message_isAddr(*serverp)){
+    fprintf(stderr, "handleInput called without a correspondent.");
+    return true;
+  }
+  
+  // prep and read from stdin
+  char line[1]; // should only be one char
 
+  if (fgets(line, 1, stdin) == NULL){
+    // EOF
+    return true;
+  } else if (validPlayerInput(line) != NULL){ // if char is verified
+    // send message to server and keep looping
+    char* full_message = "KEY ";
+    strcat(full_message, line); // not checking for case of keyStoke
+    message_send(*serverp, full_message); // send full message (key convention)
+    return false;
+  }
+  // if input invalid, keep looping and toss the input
+  return false;
 }
 
 /************** handleSpectatorInput() **************/
@@ -112,16 +136,46 @@ handlePlayerInput(void* arg){
 // check if input q. if not, do not send to server
 // if true, configure message (KEY ...) and send
 
-// return false to continue loop in good cases
-// return true to stop loop in bad cases
+// im not a fan of having two functions that do almost
+// identical things, but I can't think of another good way
+// to differentiate between player and spectator inputs
+// without a global variable
 static bool
 handleSpectatorInput(void* arg){
+  // defense checks for input arg
+  addr_t* serverp = arg;
+  if (serverp == NULL){
+    fprintf(stderr, "handlePlayerInput called with arg == NULL");
+    return true;
+  }
+  if (!message_isAddr(*serverp)){
+    fprintf(stderr, "handleInput called without a correspondent.");
+    return true;
+  }
 
+  // prep and read from stdin
+  char line[1]; // should only be one char
+
+  if (fgets(line, 1, stdin) == NULL){
+    // EOF
+    return true;
+    // ************** BELOW LINE IS ONLY DIFFERENCE BETWEEN PLAYER/SPECTATOR ***************
+  } else if (line == 'q'){ // if char is verified 
+    // send message to server and keep looping
+    char* full_message = "KEY ";
+    strcat(full_message, line); // not checking for case of keyStoke
+    message_send(*serverp, full_message); // send full message (key convention)
+    return false;
+  }
+  // if input invalid, keep looping and toss the input
+  return false;
 }
 
 /************** handleMessage() **************/
 // print incoming messages to stdout, return false
 static bool
 handleMessage(void* arg, const addr_t from, const char* message){
-
+  printf("'%s'\n", message);
+  fflush(stdout);
+  return false;
 }
