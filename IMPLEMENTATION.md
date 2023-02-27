@@ -176,25 +176,25 @@ map_string
 * Global Structure *Game* - holds information regarding the state of the game throughout the entire server.
 ```c
 typedef struct game{
- int goldRemaining;
+  int goldRemaining;
   int maxNameLength;
-   int maxPlayers;
-    int goldTotal;
-     int minPiles;
-      int maxPiles;
-       set_t* goldMap;
-        bool spectator;
-         player_t** playerArray;
-         } game_t*
-         ```
+  int maxPlayers;
+  int goldTotal;
+  int minPiles;
+  int maxPiles;
+  set_t* goldMap;
+  bool spectator;
+  player_t** playerArray;
+} game_t*
+```
 
 
 * Point structure *Point* - holds a coordinate pair (x,y)
 ```c
 typedef struct point{
-   int x;
-      int y;
-      } point_t*
+  int x;
+  int y;
+  } point_t*
       ```
 
 
@@ -203,22 +203,23 @@ typedef struct point{
 
 ```c
 typedef struct player{
-   char* name;
-      char character;
-         point_t* currLocation;
-            int playerGold;
-               int recentGold;
-                  point_t** visiblePoints;
-                  }
-                  ```
+  char* name;
+  char character;
+  point_t* currLocation;
+  int playerGold;
+  int recentGold;
+  point_t** visiblePoints;
+}
+
+```
 
 
 * Spectator structure *Spectator* - holds information for the spectator
 ```c
 typedef struct spectator{
-   char id;
-   }
-   ```
+  char id;
+}
+```
 
 
 * Set structure *set* - as used prior in CS 50
