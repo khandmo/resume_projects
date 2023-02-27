@@ -13,20 +13,22 @@
 #include "./visibility.h"
 #include "../libcs50/file.h"
 
-
-// NEED MAKEFILE!!
-// Make new directory??
 int
 main(void)
 {
-  FILE* fp = fopen("./narrow.txt", "r");
+  FILE* fp = fopen("../maps/narrow.txt", "r");
+  if (fp == NULL) {
+    printf("Null\n");
+    exit(1);
+  }
   char* map = file_readFile(fp);
-  point_t* start = new_point(2, 6);
-  point_t* end = new_point(3, 1);
-  bool yes = isVisible1(start, end, map);
+  point_t* start = point_new(2, 6);
+  point_t* end = point_new(11, 9);
+  printf("\n %c \n", getCharAtPoint(start, map));
+  printf("\n %c \n", getCharAtPoint(end, map));
+  bool yes = isVisible2(start, end, map);
 
   printf("Yes is %d\n", yes);
 
   return 0;
 }
-

@@ -11,24 +11,12 @@ CC = gcc
 MAKE = make
 
 
-#gridtesting: gridtesting.o #../libcs50/file.o 
-#	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
-#
-#gridtesting.o: grid.o  $(LIBS) #../libcs50/file.h
-#grid.o: grid.h grid.c $(LIBS)
-
-testvisibility: testvisibility.o
+testvisibility: testvisibility.o visibility.o ../grid.o
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
 testvisibility.o: visibility.o $(LIBS)
 visibility.o: visibility.h ../grid.h $(LIBS)
 
-
-#visibility.o: visibility.h  ../grid.h
-#testvisibility.o: visibility.o ../libcs50/file.h
-#	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
-#
-#grid.o: grid.h grid.c $(LIBS)
 
 .PHONY: test valgrind clean
 
