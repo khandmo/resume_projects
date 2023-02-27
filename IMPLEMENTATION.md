@@ -8,7 +8,9 @@ We describe each program and module separately.
 We do not describe the `support` library nor the modules that enable features that go beyond the spec.
 We avoid repeating information that is provided in the requirements spec.
 
+
 ## Plan for division of labor
+
 
 > Update your plan for distributing the project work among your 3(4) team members.
 > Who writes the client program, the server program, each module?
@@ -23,7 +25,9 @@ Josh is working on unit testing and helping each of us with our respective tasks
 
 ## Player
 
+
 > Teams of 3 students should delete this section.
+
 
 ### Data structures
 
@@ -31,10 +35,13 @@ We do not anticipate the use of any data structures in our design of the player.
 
 ### Definition of function prototypes
 
+
 > For function, provide a brief description and then a code block with its function prototype.
 > For example:
 
+
 A function to parse the command-line arguments, initialize the game struct, initialize the message module, and (BEYOND SPEC) initialize analytics module.
+
 
 ```c
 static int parseArgs(const int argc, char* argv[]);
@@ -46,16 +53,105 @@ static bool handle_Message(void* arg, const addr_t from, const char* message);
 ```
 ### Detailed pseudo code
 
+
 > For each function write pseudocode indented by a tab, which in Markdown will cause it to be rendered in literal form (like a code block).
 > Much easier than writing as a bulleted list!
 > For example:
 
+
 #### `parseArgs`:
 
-	validate commandline
-	initialize message module
-	print assigned port number
-	decide whether spectator or player
+
+   validate commandline
+      initialize message module
+         print assigned port number
+            decide whether spectator or player
+
+
+### `handle_Input`:
+Defensively check if the input arg is NULL and that it is a valid address
+Prepare a char to hold the keyStroke from stdin
+If a char from stdin is NULL (EOF)
+   Return true (takes out of message loop)
+   Else
+   Prepare a
+      Concatenate keystroke with above string
+         Send Message
+            Return false (keep message loop going)
+
+
+### `handle_Message`:
+Switch gate for the following message If message begins with OK
+   Assign following letter as player name to be displayed with ncurses
+   If message begins with GRID
+      Check that terminal is large enough to handle the map size in the message
+      If message begins with GOLD
+         Update the ncurses static output line with gold amount
+         If message begins with DISPLAY
+            Update display by morphing from the current display screen to the received one
+            If message begins with QUIT
+               Print quit message to static output line in ncurses and tell player to CTRL+C
+               out
+               Print quit message to stderr with current gold counts of current players
+               If message begins with ERROR
+                  Print error message to static output line in ncurses
+
+
+### Display.c
+
+
+### Data structures:  char** to interpret game state from given map char* string
+
+
+### Definition of function prototypes:
+
+
+```c
+void update_info_line(char* message);
+> replaces current info line at top of display screen with input message
+void update_display(char* map_string);
+> replace current display screen with input map_string
+void screen_size_check(int NROWS, int NCOLS);
+> if current screen size is not large enough for grid, changes terminal or advises client to change the terminal size
+static char** string_to_array(char* map_string);
+> returns array type of map_string to be used by ncurses
+```
+
+
+### Detailed pseudo code:
+### Update_info_line:
+Use ncurses mvaddnstr to add fixed length str (with dummy spaces to completely overwrite current static output line (y=0)
+Refresh display
+
+
+### Update_display:
+Keep current static output line
+For chars in map_string that are not letters (part of map),
+change each char that is different from the first string (still held by
+client)
+For chars in map+string that are letters
+   If they are in the previous string
+   move the letter to the appropriate place
+      If they are newly sighted player
+             Add character where it should be
+             Refresh
+
+
+### Screen_size_check:
+Use ncurses getmaxyx to check current terminal size
+If current terminal size not big enough for map
+   Use resizeterm from curses.h to resize the terminal to correct size
+
+
+### String_to_array:
+For each row
+For each char (index less than total columns - 2 (for new line chars)) in
+map_string
+       Input to correct spot in address
+       Return char** built array
+
+
+
 
 ### `handle_Input`:
 Defensively check if the input arg is NULL and that it is a valid address
@@ -134,13 +230,20 @@ Return char** built array
 
 ---
 
+
 ## Server
 
+
 ### Data structures
+
 
 > For each new data structure, describe it briefly and provide a code block listing the `struct` definition(s).
 > No need to provide `struct` for existing CS50 data structures like `hashtable`.
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5f7deca283eacc3f61f6081c35686c27d63ba2bb
 * Global Structure *Game* - holds information regarding the state of the game throughout the entire server.
 ```c
 typedef struct game{
@@ -189,29 +292,96 @@ typedef struct spectator{
 
 ### Definition of function prototypes
 
+
 > For function, provide a brief description and then a code block with its function prototype.
 > For example:
 
+
 A function to parse the command-line arguments, initialize the game struct, initialize the message module, and (BEYOND SPEC) initialize analytics module.
+
 
 ```c
 static int parseArgs(const int argc, char* argv[]);
 ```
 ### Detailed pseudo code
 
+
 > For each function write pseudocode indented by a tab, which in Markdown will cause it to be rendered in literal form (like a code block).
 > Much easier than writing as a bulleted list!
 > For example:
 
+
 #### `parseArgs`:
 
-	validate commandline
-	verify map file can be opened for reading
-	if seed provided
-		verify it is a valid seed number
-		seed the random-number generator with that seed
-	else
-		seed the random-number generator with getpid()
+
+   validate commandline
+      verify map file can be opened for reading
+         if seed provided
+                verify it is a valid seed number
+                       seed the random-number generator with that seed
+                          else
+                                 seed the random-number generator with getpid()
+
+
+#### `isVisible1`:
+
+
+   get starting x and y coordinates
+      if end point directly above start point
+             loop through vertical points between them
+                if end point directly to the side of start point
+                       loop through horizontal points between them
+                          calculate slope
+                             loop through points in rows and columns between start and end
+                                    calculate y-value of line between points at current x value
+                                           if y-value and current y are equal
+                                                      check if point is a wall
+                                                                     return false
+                                                                            if y-value is greater than current line
+                                                                                       check if line intersects current point and point above
+                                                                                                      check if current point and point above are walls
+                                                                                                                         return false
+                                                                                                                                    check if line intersects current point and point to left
+                                                                                                                                                   check if current point and point to left are walls
+                                                                                                                                                                      return false
+                                                                                                                                                                             else
+                                                                                                                                                                                        check if line intersects current point and point left
+                                                                                                                                                                                                       check if current point and point left are walls
+                                                                                                                                                                                                                          return false
+                                                                                                                                                                                                                                     check if line intersects current point and point below
+                                                                                                                                                                                                                                                    check if current point and point below
+                                                                                                                                                                                                                                                                       return false
+
+
+#### `isVisible2`:
+
+
+   get starting x and y coordinates
+      if end point directly above start point
+             loop through vertical points between them
+                if end point directly to the side of start point
+                       loop through horizontal points between them
+                          calculate slope
+                             loop through points in rows and columns between start and end
+                                    calculate y-value of line between points at current x value
+                                           if y-value and current y are equal
+                                                      check if point is a wall
+                                                                     return false
+                                                                            if y-value is greater than current line
+                                                                                       check if line intersects current point and point below
+                                                                                                      check if current point and point below are walls
+                                                                                                                         return false
+                                                                                                                                    check if line intersects current point and point to left
+                                                                                                                                                   check if current point and point to left are walls
+                                                                                                                                                                      return false
+                                                                                                                                                                             else
+                                                                                                                                                                                        check if line intersects current point and point left
+                                                                                                                                                                                                       check if current point and point left are walls
+                                                                                                                                                                                                                          return false
+                                                                                                                                                                                                                                     check if line intersects current point and point above
+                                                                                                                                                                                                                                                    check if current point and point above
+                                                                                                                                                                                                                                                                       return false
+
 
 #### `isVisible1`:
 
@@ -307,7 +477,9 @@ point_t* locationToPoint(int location, char* map_string);
 
 ---
 
+
 ## Testing plan
+
 
 ### unit testing
 
