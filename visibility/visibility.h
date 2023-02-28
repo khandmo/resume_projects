@@ -18,6 +18,14 @@ typedef struct point{
 } point_t;
 
 
+/****** findVisibility ********/
+/*
+ * findVisibility takes a point and map as input and
+ * returns a new map printing only what is visible from
+ * the passed in point in the old map
+ */
+char* findVisibility(point_t* start, char* map);
+
 /****** isVisible1 ********/
 /*
  * isVisible1 takes in two points as entry and returns a boolean
