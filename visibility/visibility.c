@@ -17,14 +17,57 @@ typedef struct point{
   int y;
 } point_t;
 
+char* findVisibility(point_t* start, char* map);
 bool isVisible1(point_t* start, point_t* end, char* map);
 bool isVisible2(point_t* start, point_t* end, char* map);
 float line_func(float slope, int x, int y);
 point_t* point_new(int x, int y);
 
+
+/*
+ *
+ *
+ * 
+ */
+char*
+findVisibility(point_t* start, char* map)
+{
+  char* new_map = malloc(strlen(map) + 1);
+  strcpy(new_map, map);
+  for (int i = 1; i < calculateColumns(map); i++) {
+    for (int j =1; j < calculateRows(map); j++) {
+      // Separate into quadrants based on i,j vs x,y
+      point_t* end = point_new(i, j);
+      int x = start->x;
+      int y = start->y;
+      if (x <= i && y <= j) {
+        if (!isVisible2(start, end, map)) {
+          // Set character space
+        }
+      } else if (x <= i && y >= j) {
+        if (!isVisible1(start, end, map)) {
+          // Set character space
+        }
+      } else if (x >= i && y <= j) {
+        if (!isVisible2(end, start, map)) {
+          // Set character space
+        }
+      } else if (x >= i && y >= j) {
+        if (!isVisible1(end, start, map)) {
+          // Set character space
+        }
+      }
+      free(end);
+    }
+  }
+}
+
+
 /*
  * Function only for quadrants 1 and 3
  * For quadrant 3, swap start and end point
+ * Quadrant here is visibility based (looking at map)
+ * Kind of ignores principle that origin is top left
 */
 bool
 isVisible1(point_t* start, point_t* end, char* map)
@@ -34,10 +77,25 @@ isVisible1(point_t* start, point_t* end, char* map)
   // If one point is directly above the other:
   if (start->x - end->x == 0) {
     // Just check the vertical points
-    return false;
+    for (int i = i; i < y - end->y; i++) {
+      char wall = getCharFromPair(x, y-i, map);
+      if (wall == '-' || wall == '+' || wall == '|') {
+        return false;
+      }
+    }
   }
-  // May have to check if points are horizontal from each other; for loop may not start below
+  // Calculate slope
   double slope = (double) (end->y - y)/(end->x - x);
+  // If points are horizontal from each other
+  if (slope == 0) {
+    for (int j = 1; j < end->x - x; j++) {
+      char wall = getCharFromPair(x+j, y, map);
+      if (wall == '-' || wall == '+' || wall == '|') {
+        return false;
+      }
+    }
+  }
+
   float y_val = 0; // variable for storing y-value of line between start and end
 
   // We are assuming (0,0) is top left corner. This is a little messy, and may change the code below
@@ -47,7 +105,7 @@ isVisible1(point_t* start, point_t* end, char* map)
   for (int i = 1; i <= y - end->y; i++) { // SHould it be < or <=?
     printf("i is %d\n", i);
     // Loop through between start column and end column
-    for(int j = 1; j <= end->x - x; j++) {
+    for(int j = 1; j < end->x - x; j++) {
       printf("(%d, %d)\n", x+j, y-i);
       y_val = line_func(slope, j, y);
       if (y_val == y-i) {
@@ -126,11 +184,25 @@ isVisible2(point_t* start, point_t* end, char* map)
   int y = start->y;
   // If one point is directly above the other:
   if (start->x - end->x == 0) {
-    // Just check the vertical points
-    return false;
+    // Just check vertical points
+    for (int i = i; i < y - end->y; i++) {
+      char wall = getCharFromPair(x, y+i, map);
+      if (wall == '-' || wall == '+' || wall == '|') {
+        return false;
+      }
+    }
   }
   // May have to check if points are horizontal from each other; for loop may not start below
   float slope = (float) (end->y - y)/(end->x - x);
+  // Check if points are horizontal from each other
+  if (slope == 0) {
+    for (int j = 1; j < end->x - x; j++) {
+      char wall = getCharFromPair(x+j, y, map);
+      if (wall == '-' || wall == '+' || wall == '|') {
+        return false;
+      }
+    }
+  }
   float y_val = 0; // variable for storing y-value of line between start and end
 
   // We are assuming (0,0) is top left corner. This is a little messy, and may change the code below
