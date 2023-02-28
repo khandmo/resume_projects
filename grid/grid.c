@@ -97,9 +97,7 @@ void printPoints(set_t* set){
 void pointPrinterHelper(void *arg, const char *key, void *item){
     // assign item to type point
     point_t* point = item;
-    printf("(%d,%d)", point->x, point->y);
-    printf(";");
-
+    printf("key: %s: (%d,%d)\n", key, point->x, point->y);
 }
 /**
  * 
@@ -181,38 +179,47 @@ int validPointsNoPaths(char* mapstring, set_t* res){
     int nrows = calculateRows(mapstring);
     int ncols = calculateColumns(mapstring);
 
-    int j; // incrementing y location
-    int i ; // incrementing x location
+    int j; // incrementing x location
+    int i ; // incrementing y location
     int key = 1; // incrementing key integer starting at 1 and incrementing each time a point is added
    
-    for (j = 1; j <= ncols; j++)
+    for (j = 1; j < ncols; j++)
     {
-        for (i = 1; i <= nrows; i++)
+        for (i = 1; i < nrows; i++)
         {
             // get character at that point
-            char c = getCharFromPair(i, j, mapstring);
+            char c = getCharFromPair(j, i, mapstring);
             // if the point is '.' or '*' or 'A'
-            //if ((strcmp(c, ".") == 0)|| (strcmp(c, "*") == 0) || (strcmp(c, "#") == 0) || isalpha(c)){
-            if(c == '.' || c == '*' || isalpha(c)){
+            if(c == '.' || c =='*' || isalpha(c)){
                 // create point object and assign x and y, then add it to the set
                 point_t* point = malloc(sizeof(point_t*));
-                point->x = i;
-                point->y = j;
+                point->x = j;
+                point->y = i;
                 // converting the key into a char to be able to pass it as a key
-                char* c;
-                
-                sprintf(c, "%c", key);
+                char c[100];
+                sprintf(c, "%d", key);
                 set_insert(res, c, point);
                 key++;
             }
         }
     }
-    return key;
+    // returning count of keys minus 1 because we start at 1
+    return key - 1;
 }
-
+/**
+ * 
+ * See grid.h for implementation details
+ * 
+ */
 void setCharAtPoint(char* mapstring, char new, point_t* point){
+
     int columns = calculateColumns(mapstring);
-    int location = pointToLocation(point, columns);
-    mapstring[location - 1] = new;
+   int location = pointToLocation(point, columns);
+   printf("Location is %d\n", location);
+   char* copy = mapstring;
+   for (int i = 0; i < location-1; i++) {
+       copy++;
+   }
+   *copy = new;
 }
 
