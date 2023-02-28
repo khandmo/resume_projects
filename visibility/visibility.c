@@ -9,8 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include "../grid.h"
-
+#include "../grid/grid.h"
 
 typedef struct point{
   int x;
@@ -34,32 +33,42 @@ findVisibility(point_t* start, char* map)
 {
   char* new_map = malloc(strlen(map) + 1);
   strcpy(new_map, map);
-  for (int i = 1; i < calculateColumns(map); i++) {
-    for (int j =1; j < calculateRows(map); j++) {
+  for (int i = 1; i <= calculateColumns(map); i++) {
+    for (int j =1; j <= calculateRows(map); j++) {
       // Separate into quadrants based on i,j vs x,y
       point_t* end = point_new(i, j);
+      printf("char is %c\n", getCharAtPoint(end, map));
       int x = start->x;
       int y = start->y;
-      if (x <= i && y <= j) {
-        if (!isVisible2(start, end, map)) {
-          // Set character space
-        }
-      } else if (x <= i && y >= j) {
+      if (x <= i && y >= j) {
         if (!isVisible1(start, end, map)) {
           // Set character space
+          printf("True\n");
+          setCharAtPoint(new_map, ' ', end);
         }
-      } else if (x >= i && y <= j) {
-        if (!isVisible2(end, start, map)) {
+      } if (x <= i && y <= j) {
+        if (!isVisible2(start, end, map)) {
           // Set character space
+          printf("True2\n");
+          setCharAtPoint(new_map, ' ', end);
         }
-      } else if (x >= i && y >= j) {
+      } if (x >= i && y <= j) {
         if (!isVisible1(end, start, map)) {
           // Set character space
+          printf("True3\n");
+          setCharAtPoint(new_map, ' ', end);
+        }
+      } if (x >= i && y >= j) {
+        if (!isVisible2(end, start, map)) {
+          // Set character space
+          printf("True4\n");
+          setCharAtPoint(new_map, ' ', end);
         }
       }
       free(end);
     }
   }
+  return new_map;
 }
 
 
@@ -77,7 +86,7 @@ isVisible1(point_t* start, point_t* end, char* map)
   // If one point is directly above the other:
   if (start->x - end->x == 0) {
     // Just check the vertical points
-    for (int i = i; i < y - end->y; i++) {
+    for (int i = 1; i < y - end->y; i++) {
       char wall = getCharFromPair(x, y-i, map);
       if (wall == '-' || wall == '+' || wall == '|') {
         return false;
@@ -103,50 +112,44 @@ isVisible1(point_t* start, point_t* end, char* map)
   // Loop through coordinates in between start row and end row
   // Recall that lower row is higher
   for (int i = 1; i <= y - end->y; i++) { // SHould it be < or <=?
-    printf("i is %d\n", i);
     // Loop through between start column and end column
     for(int j = 1; j < end->x - x; j++) {
-      printf("(%d, %d)\n", x+j, y-i);
       y_val = line_func(slope, j, y);
       if (y_val == y-i) {
         // Check if wall at (x+j, y-i)
         char wall1 = getCharFromPair(x+j, y-i, map);
         if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
-          return 0;
+          return false;
         }
         // If so, return 0
       } else if(y_val < y-i) {
-        printf("y_val %f at x value %d less than y, %d \n", y_val, x+j, y-i);
         // Logic here is that if line from start to end point travels above the testing point
         // then you only need to check if the line passes between the points above and to the left of it
 
         // Check if line travels between point and point to the left
         if (line_func(slope, j-1, y) < y-i && line_func(slope, j, y) > y-i) {
             // Check if wall at point and point to left
-          printf("Wall check1\n");
           // Need to add map string
           char wall1 = getCharFromPair(x+j-1, y-i, map);
           if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
             char wall2 = getCharFromPair(x+j, y-i, map);
             if (wall2 == '-' || wall2 == '+' || wall2 == '|') {
-              return 0;
+              return false;
             }
           }
         }
         // Check if line travels between point and point above
         if (line_func(slope, j, y) < y-i && line_func(slope, j, y) > y-i-1) {
           // Check if wall at point and point above
-          printf("Wall check1\n");
           char wall1 = getCharFromPair(x+j, y-i-1, map);
           if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
             char wall2 = getCharFromPair(x+j, y-i, map);
             if (wall2 == '-' || wall2 == '+' || wall2 == '|') {
-              return 0;
+              return false;
             }
           }
         }
       } else {
-        printf("y_val %f at x value %d greater than y, %d \n", y_val, x+j, y-i);
         // Check points below and to the right of testing point
         if (line_func(slope, j+1, y) < y-i && line_func(slope, j, y) > y-i) {
             // Check if wall at point and point to left
@@ -154,7 +157,7 @@ isVisible1(point_t* start, point_t* end, char* map)
           if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
             char wall2 = getCharFromPair(x+j, y-i, map);
             if (wall2 == '-' || wall2 == '+' || wall2 == '|') {
-              return 0;
+              return false;
             }
           }
         }
@@ -165,7 +168,7 @@ isVisible1(point_t* start, point_t* end, char* map)
           if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
             char wall2 = getCharFromPair(x+j, y-i, map);
             if (wall2 == '-' || wall2 == '+' || wall2 == '|') {
-              return 0;
+              return false;
             }
           }
         }
@@ -173,7 +176,7 @@ isVisible1(point_t* start, point_t* end, char* map)
       }
     }
   }
-  return 1;
+  return true;
 }
 
 
@@ -185,7 +188,7 @@ isVisible2(point_t* start, point_t* end, char* map)
   // If one point is directly above the other:
   if (start->x - end->x == 0) {
     // Just check vertical points
-    for (int i = i; i < y - end->y; i++) {
+    for (int i = 1; i < y - end->y; i++) {
       char wall = getCharFromPair(x, y+i, map);
       if (wall == '-' || wall == '+' || wall == '|') {
         return false;
@@ -211,63 +214,58 @@ isVisible2(point_t* start, point_t* end, char* map)
   // Recall that lower row is higher
   for (int i = 1; i <= end->y - y; i++) { // SHould it be < or <=?
     // Loop through between start column and end column
-    for(int j = 1; j <= end->x - x; j++) {
-
+    for(int j = 1; j < end->x - x; j++) {
       y_val = line_func(slope, j, y);
       if (y_val == y+i) {
         // Check if wall at (x+j, y-i)
         char wall1 = getCharFromPair(x+j, y+i, map);
         if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
-          return 0;
+          return false;
         }
         // If so, return 0
       } else if(y_val > y+i) {
         // Logic here is that if line from start to end point travels below the testing point
         // then you only need to check if the line passes between the points below and to the left of it
-        printf("y_val %f at x value %d greater than y, %d \n", y_val, x+j, y-i);
 
         // Check if line travels between point and point to the left
-        if (line_func(slope, j-1, y) < y-i && line_func(slope, j, y) > y-i) {
+        if (line_func(slope, j-1, y) < y+i && line_func(slope, j, y) > y+i) {
             // Check if wall at point and point to left
-          printf("Wall check1\n");
           char wall1 = getCharFromPair(x+j-1, y+i, map);
           // Need to add map string
           if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
             char wall2 = getCharFromPair(x+j, y+i, map);
             if (wall2 == '-' || wall2 == '+' || wall2 == '|') {
-              return 0;
+              return false;
             }
           }
         }
         // Check if line travels between point and point below
         if (line_func(slope, j, y) > y+i && line_func(slope, j, y) < y+i+1) {
-          printf("Wall check2\n");
           // Check if wall at point and point above
           char wall1 = getCharFromPair(x+j, y+i+1, map);
           if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
             char wall2 = getCharFromPair(x+j, y+i, map);
             if (wall2 == '-' || wall2 == '+' || wall2 == '|') {
-              return 0;
+              return false;
             }
           }
         }
       } else {
-        printf("y_val %f at x value %d greater than y, %d \n", y_val, x+j, y-i);
         // Check points above and to the right of testing point
         if (line_func(slope, j+1, y) < y+i && line_func(slope, j, y) > y+i) {
             // Check if wall at point and point to left
-          if (getCharFromPair(x+j+1, y+i, map) == '-' || getCharFromPair(x+j+1, y+i, map) == '+' || getCharFromPair(x+j+1, y+i, map) == '|') {
+          if (getCharFromPair(x+j-1, y+i, map) == '-' || getCharFromPair(x+j-1, y+i, map) == '+' || getCharFromPair(x+j+1, y+i, map) == '|') {
             if (getCharFromPair(x+j, y+i, map) == '-' || getCharFromPair(x+j, y+i, map) == '+' || getCharFromPair(x+j, y+i, map) == '|') {
-              return 0;
+              return false;
             }
           }
         }
         // Check if line travels between point and point above
         if (line_func(slope, j, y) < y+i && line_func(slope, j, y) > y+i-1) {
           // Check if wall at point and point above
-          if (getCharFromPair(x+j, y+i+1, map) == '-' || getCharFromPair(x+j, y+i+1, map) == '+' || getCharFromPair(x+j, y+i+1, map) == '|') {
-            if (getCharFromPair(x+j, y+i, map) == '-' || getCharFromPair(x+j, y+i, map) == '+' || getCharFromPair(x+j, y+1, map) == '|') {
-              return 0;
+          if (getCharFromPair(x+j, y+i-1, map) == '-' || getCharFromPair(x+j, y+i-1, map) == '+' || getCharFromPair(x+j, y+i-1, map) == '|') {
+            if (getCharFromPair(x+j, y+i, map) == '-' || getCharFromPair(x+j, y+i, map) == '+' || getCharFromPair(x+j, y+i, map) == '|') {
+              return false;
             }
           }
         }
@@ -275,7 +273,7 @@ isVisible2(point_t* start, point_t* end, char* map)
       }
     }
   }
-  return 1;
+  return true;
 }
 
 /*

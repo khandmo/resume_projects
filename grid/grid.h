@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "grid.h"
-#include "libcs50/set.h"
+#include "../libcs50/set.h"
 
 /**************** global types ****************/
 typedef struct point point_t;  // opaque to users of the module
@@ -84,4 +84,30 @@ point_t* locationToPoint(int location, char* map_string);
  * @return char 
  */
 char getCharFromPair(int x, int y, char* map_string);
+/**
+ * @brief returns an int containing the amount of all valid coordinate points in a map 
+ *       as Point objects as well as takes a pointer to a set and and adds the points to it.
+ *       a valid point is defined as a point containing an 
+ *       empty room space; a gold pile; or a player Letter, shown respectively as 
+ *       '.'; '*'; 'A'.
+ *          
+ *       **The keys in the set are integers incremented by 1 starting at 1, the keys can 
+ *         be looped through starting at 1 to the integer returned 
+ *       **ignores path blocks defined as '#'
+ * 
+ * @param mapstring 
+ * @return set_t* 
+ */
+int validPointsNoPaths(char* mapstring, set_t* res);
+/**
+ * @brief Set the Char At a Point 
+ * 
+ * @param mapstring 
+ * @param new 
+ * @param point 
+ * @return true 
+ * @return false 
+ */
+void setCharAtPoint(char* mapstring, char new, point_t* point);
+
 #endif // _GRID_H_

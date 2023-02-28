@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include "../grid.h"
+#include "../grid/grid.h"
 
 
 /****** Point Structure ******/
