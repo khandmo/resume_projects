@@ -26,6 +26,7 @@ typedef struct point{
  */
 char* findVisibility(point_t* start, char* map);
 
+
 /****** isVisible1 ********/
 /*
  * isVisible1 takes in two points as entry and returns a boolean
@@ -36,7 +37,6 @@ char* findVisibility(point_t* start, char* map);
  * 
  */
 bool isVisible1(point_t* start, point_t* end, char* map);
-
 
 
 /****** isVisible2 ********/
