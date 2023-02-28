@@ -10,8 +10,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "grid.h"
-#include "libcs50/set.h"
+#include "../libcs50/set.h"
 
 
 /**************** global types ****************/
@@ -143,10 +144,10 @@ point_t* locationToPoint(int location, char* map_string){
     // is the point
     int x = location%ncols;
 
-    point_t* p = malloc(sizeof(point_t));
-    p->x = x;
-    p->y = y;
-    return p;
+    point_t* point = malloc(sizeof(point_t));
+    point->x = x;
+    point->y = y;
+    return point;
 
 }
 /**
@@ -158,15 +159,15 @@ char getCharFromPair(int x, int y, char* map_string)
 {
     // calculate columns
     int cols = calculateColumns(map_string);
-    point_t* p = malloc(sizeof(point_t));
-    p->x = x;
-    p->y = y;
+    point_t* point = malloc(sizeof(point_t));
+    point->x = x;
+    point->y = y;
     // calculate the location in the string for the created point
-    int location = pointToLocation(p, cols);
+    int location = pointToLocation(point, cols);
     // assign the character at the location of the string and return it
     // the subtraction of 1 accounts for the fact strings start at index 0
     char c = map_string[location - 1];
-    free(p);
+    free(point);
     return c;
 }
 /**
@@ -174,21 +175,44 @@ char getCharFromPair(int x, int y, char* map_string)
  * See grid.h for implementation details
  * 
  */
-char getCharFromPair(int x, int y, char* map_string)
-{
-    // calculate columns
-    int cols = calculateColumns(map_string);
-    point_t* p = malloc(sizeof(point_t));
-    p->x = x;
-    p->y = y;
-    // calculate the location in the string for the created point
-    int location = pointToLocation(p, cols);
-    // assign the character at the location of the string and return it
-    // the subtraction of 1 accounts for the fact strings start at index 0
-    char c = map_string[location - 1];
-    free(p);
-    return c;
+int validPointsNoPaths(char* mapstring, set_t* res){
+
+    // calculate rows and columns and store as ints to be able to loop through
+    int nrows = calculateRows(mapstring);
+    int ncols = calculateColumns(mapstring);
+
+    int j; // incrementing y location
+    int i ; // incrementing x location
+    int key = 1; // incrementing key integer starting at 1 and incrementing each time a point is added
+   
+    for (j = 1; j <= ncols; j++)
+    {
+        for (i = 1; i <= nrows; i++)
+        {
+            // get character at that point
+            char c = getCharFromPair(i, j, mapstring);
+            // if the point is '.' or '*' or 'A'
+            //if ((strcmp(c, ".") == 0)|| (strcmp(c, "*") == 0) || (strcmp(c, "#") == 0) || isalpha(c)){
+            if(c == '.' || c == '*' || isalpha(c)){
+                // create point object and assign x and y, then add it to the set
+                point_t* point = malloc(sizeof(point_t*));
+                point->x = i;
+                point->y = j;
+                // converting the key into a char to be able to pass it as a key
+                char* c;
+                
+                sprintf(c, "%c", key);
+                set_insert(res, c, point);
+                key++;
+            }
+        }
+    }
+    return key;
 }
 
-
+void setCharAtPoint(char* mapstring, char new, point_t* point){
+    int columns = calculateColumns(mapstring);
+    int location = pointToLocation(point, columns);
+    mapstring[location - 1] = new;
+}
 
