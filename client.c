@@ -55,7 +55,7 @@ main(const int argc, char* argv[]){
     message_send(server, "SPECTATE"); // send SPECTATE message
 
     // message loop for spectator type
-    ok = message_loop(&server, 0, NULL, handleSpectatorInput, handleMessage);
+    ok = message_loop(&server, 0, NULL, handleInput, handleMessage);
   }
   
   // implement player mode (argc == 4)
@@ -66,20 +66,17 @@ main(const int argc, char* argv[]){
     message_send(server, first_message); // send PLAY message
 
     // message loop for player type
-    ok = message_loop(&server, 0, NULL, handlePlayerInput, handleMessage);
+    ok = message_loop(&server, 0, NULL, handleInput, handleMessage);
   }
 
   // finish up
   message_done(); // shut down message module
   return ok? 0 : 1; // status code depends on result of message_loop
 }
-
-
-
+ 
 /************** handleInput() **************/
-// if true, configure message (KEY ...) and send
 static bool
-handlePlayerInput(void* arg){
+handleInput(void* arg){
   // defense checks for input arg
   addr_t* serverp = arg;
   if (serverp == NULL){
@@ -97,7 +94,7 @@ handlePlayerInput(void* arg){
   if (fgets(line, 1, stdin) == NULL){
     // EOF
     return true;
-  } else { // do not parse client input
+  } else { // no erroneous character checks in client.c
     // send message to server and keep looping
     char* full_message = "KEY ";
     strcat(full_message, line); // not checking for case of keyStoke
