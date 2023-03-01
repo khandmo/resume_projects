@@ -192,7 +192,7 @@ int validPointsNoPaths(char* mapstring, set_t* res){
             // if the point is '.' or '*' or 'A'
             if(c == '.' || c =='*' || isalpha(c)){
                 // create point object and assign x and y, then add it to the set
-                point_t* point = malloc(sizeof(point_t*));
+                point_t* point = malloc(sizeof(point_t));
                 point->x = j;
                 point->y = i;
                 // converting the key into a char to be able to pass it as a key
@@ -212,14 +212,13 @@ int validPointsNoPaths(char* mapstring, set_t* res){
  * 
  */
 void setCharAtPoint(char* mapstring, char new, point_t* point){
-
     int columns = calculateColumns(mapstring);
-   int location = pointToLocation(point, columns);
-   printf("Location is %d\n", location);
-   char* copy = mapstring;
-   for (int i = 0; i < location-1; i++) {
-       copy++;
+    int location = pointToLocation(point, columns);
+    printf("Location is %d\n", location);
+    char* copy = mapstring;
+    for (int i = 0; i < location-1; i++) {
+        copy++;
    }
-   *copy = new;
+    *copy = new;
 }
 
