@@ -23,6 +23,14 @@ float line_func(float slope, int x, int y);
 point_t* point_new(int x, int y);
 
 
+
+// Have to add functionality for tunnel vision
+// If current spot is #, loop in square around current spot
+// If # is next to point, full visibility of room where point is
+
+// Wait, actually do I only need to add # to the if statements?
+// I think so...
+
 /*
  *
  *
@@ -37,31 +45,26 @@ findVisibility(point_t* start, char* map)
     for (int j =1; j <= calculateRows(map); j++) {
       // Separate into quadrants based on i,j vs x,y
       point_t* end = point_new(i, j);
-      printf("char is %c\n", getCharAtPoint(end, map));
       int x = start->x;
       int y = start->y;
       if (x <= i && y >= j) {
         if (!isVisible1(start, end, map)) {
           // Set character space
-          printf("True\n");
           setCharAtPoint(new_map, ' ', end);
         }
       } if (x <= i && y <= j) {
         if (!isVisible2(start, end, map)) {
           // Set character space
-          printf("True2\n");
           setCharAtPoint(new_map, ' ', end);
         }
       } if (x >= i && y <= j) {
         if (!isVisible1(end, start, map)) {
           // Set character space
-          printf("True3\n");
           setCharAtPoint(new_map, ' ', end);
         }
       } if (x >= i && y >= j) {
         if (!isVisible2(end, start, map)) {
           // Set character space
-          printf("True4\n");
           setCharAtPoint(new_map, ' ', end);
         }
       }
@@ -88,7 +91,7 @@ isVisible1(point_t* start, point_t* end, char* map)
     // Just check the vertical points
     for (int i = 1; i < y - end->y; i++) {
       char wall = getCharFromPair(x, y-i, map);
-      if (wall == '-' || wall == '+' || wall == '|') {
+      if (wall == '-' || wall == '+' || wall == '|' || wall == '#' || wall == ' ') {
         return false;
       }
     }
@@ -99,7 +102,7 @@ isVisible1(point_t* start, point_t* end, char* map)
   if (slope == 0) {
     for (int j = 1; j < end->x - x; j++) {
       char wall = getCharFromPair(x+j, y, map);
-      if (wall == '-' || wall == '+' || wall == '|') {
+      if (wall == '-' || wall == '+' || wall == '|' || wall == '#' || wall == ' ') {
         return false;
       }
     }
@@ -118,7 +121,7 @@ isVisible1(point_t* start, point_t* end, char* map)
       if (y_val == y-i) {
         // Check if wall at (x+j, y-i)
         char wall1 = getCharFromPair(x+j, y-i, map);
-        if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
+        if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
           return false;
         }
         // If so, return 0
@@ -131,9 +134,9 @@ isVisible1(point_t* start, point_t* end, char* map)
             // Check if wall at point and point to left
           // Need to add map string
           char wall1 = getCharFromPair(x+j-1, y-i, map);
-          if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
+          if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
             char wall2 = getCharFromPair(x+j, y-i, map);
-            if (wall2 == '-' || wall2 == '+' || wall2 == '|') {
+            if (wall2 == '-' || wall2 == '+' || wall2 == '|' || wall2 == '#' || wall2 == ' ') {
               return false;
             }
           }
@@ -142,9 +145,9 @@ isVisible1(point_t* start, point_t* end, char* map)
         if (line_func(slope, j, y) < y-i && line_func(slope, j, y) > y-i-1) {
           // Check if wall at point and point above
           char wall1 = getCharFromPair(x+j, y-i-1, map);
-          if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
+          if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
             char wall2 = getCharFromPair(x+j, y-i, map);
-            if (wall2 == '-' || wall2 == '+' || wall2 == '|') {
+            if (wall2 == '-' || wall2 == '+' || wall2 == '|' || wall2 == '#' || wall2 == ' ') {
               return false;
             }
           }
@@ -154,9 +157,9 @@ isVisible1(point_t* start, point_t* end, char* map)
         if (line_func(slope, j+1, y) < y-i && line_func(slope, j, y) > y-i) {
             // Check if wall at point and point to left
           char wall1 = getCharFromPair(x+j+1, y-i, map);
-          if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
+          if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
             char wall2 = getCharFromPair(x+j, y-i, map);
-            if (wall2 == '-' || wall2 == '+' || wall2 == '|') {
+            if (wall2 == '-' || wall2 == '+' || wall2 == '|' || wall2 == '#' || wall2 == ' ') {
               return false;
             }
           }
@@ -165,9 +168,9 @@ isVisible1(point_t* start, point_t* end, char* map)
         if (line_func(slope, j, y) > y-i && line_func(slope, j, y) < y-i+1) {
           // Check if wall at point and point above
           char wall1 = getCharFromPair(x+j, y-i+1, map);
-          if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
+          if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
             char wall2 = getCharFromPair(x+j, y-i, map);
-            if (wall2 == '-' || wall2 == '+' || wall2 == '|') {
+            if (wall2 == '-' || wall2 == '+' || wall2 == '|' || wall2 == '#' || wall2 == ' ') {
               return false;
             }
           }
@@ -190,7 +193,7 @@ isVisible2(point_t* start, point_t* end, char* map)
     // Just check vertical points
     for (int i = 1; i < y - end->y; i++) {
       char wall = getCharFromPair(x, y+i, map);
-      if (wall == '-' || wall == '+' || wall == '|') {
+      if (wall == '-' || wall == '+' || wall == '|' || wall == '#' || wall == ' ') {
         return false;
       }
     }
@@ -201,7 +204,7 @@ isVisible2(point_t* start, point_t* end, char* map)
   if (slope == 0) {
     for (int j = 1; j < end->x - x; j++) {
       char wall = getCharFromPair(x+j, y, map);
-      if (wall == '-' || wall == '+' || wall == '|') {
+      if (wall == '-' || wall == '+' || wall == '|' || wall == '#' || wall == ' ') {
         return false;
       }
     }
@@ -219,7 +222,7 @@ isVisible2(point_t* start, point_t* end, char* map)
       if (y_val == y+i) {
         // Check if wall at (x+j, y-i)
         char wall1 = getCharFromPair(x+j, y+i, map);
-        if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
+        if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
           return false;
         }
         // If so, return 0
@@ -232,9 +235,9 @@ isVisible2(point_t* start, point_t* end, char* map)
             // Check if wall at point and point to left
           char wall1 = getCharFromPair(x+j-1, y+i, map);
           // Need to add map string
-          if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
+          if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
             char wall2 = getCharFromPair(x+j, y+i, map);
-            if (wall2 == '-' || wall2 == '+' || wall2 == '|') {
+            if (wall2 == '-' || wall2 == '+' || wall2 == '|' || wall2 == '#' || wall2 == ' ') {
               return false;
             }
           }
@@ -243,9 +246,9 @@ isVisible2(point_t* start, point_t* end, char* map)
         if (line_func(slope, j, y) > y+i && line_func(slope, j, y) < y+i+1) {
           // Check if wall at point and point above
           char wall1 = getCharFromPair(x+j, y+i+1, map);
-          if (wall1 == '-' || wall1 == '+' || wall1 == '|') {
+          if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
             char wall2 = getCharFromPair(x+j, y+i, map);
-            if (wall2 == '-' || wall2 == '+' || wall2 == '|') {
+            if (wall2 == '-' || wall2 == '+' || wall2 == '|' || wall2 == '#' || wall2 == ' ') {
               return false;
             }
           }
@@ -254,8 +257,10 @@ isVisible2(point_t* start, point_t* end, char* map)
         // Check points above and to the right of testing point
         if (line_func(slope, j+1, y) < y+i && line_func(slope, j, y) > y+i) {
             // Check if wall at point and point to left
-          if (getCharFromPair(x+j-1, y+i, map) == '-' || getCharFromPair(x+j-1, y+i, map) == '+' || getCharFromPair(x+j+1, y+i, map) == '|') {
-            if (getCharFromPair(x+j, y+i, map) == '-' || getCharFromPair(x+j, y+i, map) == '+' || getCharFromPair(x+j, y+i, map) == '|') {
+          char wall1 = getCharFromPair(x+j-1, y+i, map);
+          if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
+            char wall2 = getCharFromPair(x+j, y+i, map);
+            if (wall2 == '-' || wall2 == '+' || wall2 == '|' || wall2 == '#' || wall2 == ' ') {
               return false;
             }
           }
@@ -263,8 +268,10 @@ isVisible2(point_t* start, point_t* end, char* map)
         // Check if line travels between point and point above
         if (line_func(slope, j, y) < y+i && line_func(slope, j, y) > y+i-1) {
           // Check if wall at point and point above
-          if (getCharFromPair(x+j, y+i-1, map) == '-' || getCharFromPair(x+j, y+i-1, map) == '+' || getCharFromPair(x+j, y+i-1, map) == '|') {
-            if (getCharFromPair(x+j, y+i, map) == '-' || getCharFromPair(x+j, y+i, map) == '+' || getCharFromPair(x+j, y+i, map) == '|') {
+          char wall1 = getCharFromPair(x+j, y+i-1, map);
+          if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
+            char wall2 = getCharFromPair(x+j, y+i, map);
+            if (wall2 == '-' || wall2 == '+' || wall2 == '|' || wall2 == '#' || wall2 == ' ') {
               return false;
             }
           }
