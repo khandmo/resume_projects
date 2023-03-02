@@ -16,6 +16,7 @@
 #include "../libcs50/counters.h"
 
 
+
 /**************** global types ****************/
 // Global Constants
 static const int MaxNameLength = 50;   // max number of chars in playerName
