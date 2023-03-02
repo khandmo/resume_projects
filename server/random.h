@@ -30,7 +30,7 @@
  * @return set_t* 
  */
 void random(game_t* game, counters_t* goldMap, int seed);
-void spawnLocation(game_t* game);
+int spawnLocation(game_t* game);
 
 
 #endif _RANDOM_H

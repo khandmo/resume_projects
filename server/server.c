@@ -39,6 +39,8 @@ typedef struct game {
 // game_t* game = {50, 26, 250, 10, 30};
 
 int main(const int argc, char *argv[]){
+
+    
     return 0;
 }
 

@@ -13,7 +13,11 @@
 #include "../grid/grid.h"
 #include "../grid/grid.c"
 
-
+/**
+ * 
+ * See random.h for implementation details
+ * 
+ */
 void random(game_t* game, counters_t* goldMap, int seed){
     // seed the random number generator
     srand(seed);
@@ -85,11 +89,43 @@ static void updateMap(void *arg, const int key, const int count){
     setCharAtPoint(game->map, goldChar, temp);
     free(temp);
 }
-
-void spawnLocation(game_t* game){
+/**
+ * 
+ * See random.h for implementation details
+ * 
+ */
+int spawnLocation(game_t* game){
 
     set_t* possiblePoints = set_new();
     int num = validPointsNoPaths(game->map, possiblePoints);
+
+    // pick a random key in the set 
+    int randPoint = (rand() % (num - 1 + 1)) + 1;
+
+    // get the point at that key
+    char c[100];
+    sprintf(c, "%d", randPoint);
+    point_t* point = set_find(possiblePoints, c);
+
+    // get the character at that point
+    char c = getCharAtPoint(point, game->map);
+    if (c != '.'){
+        while(c != '.'){
+            // get new point
+            int randPoint = (rand() % (num - 1 + 1)) + 1;
+            char c[100];
+            sprintf(c, "%d", randPoint);
+            point = set_find(possiblePoints, c);
+            char c = getCharAtPoint(point, game->map);
+        }
+    }
+    int ncols = calculateColumns(game->map);
+    int location = pointToLocation(point, ncols);
+    return location;
+
+
+
+
 
 
 }
