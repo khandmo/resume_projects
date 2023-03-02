@@ -15,22 +15,22 @@
 #include "../grid/grid.h"
 #include "../grid/grid.c"
 #include "../libcs50/set.h"
+#include "../libcs50/counters.h"
 #include "server.c"
 
 #ifndef _RANDOM_H
 #define _RANDOM_H
 
 /**
- * @brief Takes an empty set to modify and will return nothing 
+ * @brief Takes an empty counters to modify and will return nothing 
  * 
  * @param game 
- * @param set 
+ * @param counters 
+ * @param seed, pass seed if one is passed, otherwise pass 1
  * @return set_t* 
  */
-void randomPiles(game_t* game, set_t* set);
-
-
-char* random(char* map, game_t* game);
+void random(game_t* game, counters_t* goldMap, int seed);
+void spawnLocation(game_t* game);
 
 
 #endif _RANDOM_H

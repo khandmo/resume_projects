@@ -206,11 +206,7 @@ int validPointsNoPaths(char* mapstring, set_t* res){
     // returning count of keys minus 1 because we start at 1
     return key - 1;
 }
-/**
- * 
- * See grid.h for implementation details
- * 
- */
+
 void setCharAtPoint(char* mapstring, char new, point_t* point){
     int columns = calculateColumns(mapstring);
     int location = pointToLocation(point, columns);
@@ -221,4 +217,20 @@ void setCharAtPoint(char* mapstring, char new, point_t* point){
    }
     *copy = new;
 }
-
+/**
+ * @brief 
+ * 
+ * @param item 
+ */
+static void pointDelete(void* item){
+    point_t* p = item;
+    free(p);
+}
+/**
+ * 
+ * See grid.h for implementation details
+ * 
+ */
+void pointSetDeleter(set_t* set){
+    set_delete(set, pointDelete);
+}

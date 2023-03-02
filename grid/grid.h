@@ -109,6 +109,11 @@ int validPointsNoPaths(char* mapstring, set_t* res);
  * @return false 
  */
 void setCharAtPoint(char* mapstring, char new, point_t* point);
-// point_t* findPointInSet(set_t* set, );
+/**
+ * @brief deletes set and the points inside of it
+ * 
+ * @param set 
+ */
+void pointSetDeleter(set_t* set);
 
 #endif // _GRID_H_
