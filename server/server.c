@@ -82,7 +82,13 @@ bool initializeSpectator(player_t* player);
 void quit();
 
 
-
+/**
+ * @brief 
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(const int argc, char *argv[]){
     int parseArgsValue;
     parseArgsValue = parseArgs(argc, argv);
@@ -212,7 +218,13 @@ handleMessage(void* arg, addr_t from, const char* message)
     return false;
     }
 
-
+/**
+ * @brief 
+ * 
+ * @param player 
+ * @return true 
+ * @return false 
+ */
 bool initializeSpectator(player_t* player) {
     // ***the messages need concatenation in the strings before being sent, only one char* can be sent***
     message_send((*game->spectatorAddress), "GRID %d %d", calculateRows(game->map), calculateColumns(game->map));
@@ -273,25 +285,42 @@ static void initializeGameData(char* filename, int seed){
     // assign it to the gamestruct
     game->goldMap = goldmap;
 }
-
+/**
+ * @brief initializes set of player objects
+ * 
+ * @param maxPlayers 
+ * @return set_t* 
+ */
 set_t* initializePlayerSet(int maxPlayers){
+    // create set
     set_t* playerSet = set_new();
     char key[3];
+    // loop through and make the key a value 1-26
     for(int i = 1; i <= maxPlayers; i++) {
         sprintf(key, "%d", i);
+        // create a player object and insert it at that key
         player_t* player = malloc(sizeof(player_t));
         player = NULL;
         set_insert(playerSet, key, player);
     }
     return playerSet;
 }
-
+/**
+ * @brief deletes malloc'd object in the game struct
+ * 
+ */
 static void deletegameStruct(){
     counters_delete(game->goldMap);
     return;
 }
 
-
+/**
+ * @brief adds a player to the game, such that it can be used by the client
+ * 
+ * @param name 
+ * @param address 
+ * @param playerSet 
+ */
 static void addPlayer(char* name, addr_t* address, void* playerSet){
     // get the empty player object at the empty point at the set
     int i = game->currPlayers + 1;
@@ -333,7 +362,13 @@ static void addPlayer(char* name, addr_t* address, void* playerSet){
     // increment game's current players by one
     game->currPlayers += 1;    
 }
-
+/**
+ * @brief Get the Player object based on the address
+ * 
+ * @param address 
+ * @param playerSet 
+ * @return player_t* 
+ */
 static player_t* getPlayer(addr_t* address, void* playerSet)
 {
     playerSet = (set_t*)playerSet;
@@ -373,6 +408,7 @@ processMove(player_t* player, int x, int y) {
     else if(getCharFromPair(x, y, game->map) == '*') {
         setY(y, player->currentLocation);
         setX(x, player->currentLocation);
+        setCharAtPoint(game->map, player->letter, player->currentLocation);
         return 2;
     }
     else if(isalpha(getCharFromPair(x, y, game->map))) {
@@ -401,6 +437,13 @@ u move diagonally up and right, if possible
 b move diagonally down and left, if possible
 
 n move diagonally down and right, if possible*/
+/**
+ * @brief handles the individual keystrokes for movement and quitting
+ * 
+ * @param key 
+ * @param playerSet 
+ * @param address 
+ */
 static void handleKey(char* key, void* playerSet, addr_t* address) {
     // get the player at the address
     player_t* player = getPlayer(address, playerSet);
@@ -498,7 +541,7 @@ static void handleKey(char* key, void* playerSet, addr_t* address) {
     }
 }
 /**
- * @brief 
+ * @brief handles game process if a player collects gold
  * 
  * @param player 
  */
@@ -516,7 +559,7 @@ void gold(player_t* player) {
     }
 }
 /**
- * @brief 
+ * @brief handles process if a player walks into a space where another player is
  * 
  * @param oldX 
  * @param oldY 
@@ -539,14 +582,14 @@ void playerSwap(int oldX, int oldY, player_t* player, void* playerSet) {
 }
 
 /**
- * @brief 
+ * @brief quits game
  * 
  */
 void quit(){
     return;
 }
 /**
- * @brief 
+ * @brief deletes the playerSet containing player structs
  * 
  * @param playerSet 
  */
