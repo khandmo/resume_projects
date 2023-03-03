@@ -25,6 +25,7 @@
 
 
 
+
 /**************** global types ****************/
 // Global Constants
 static const int MaxNameLength = 50;   // max number of chars in playerName
@@ -38,6 +39,8 @@ typedef struct game {
     int GoldMinNumPiles; // minimum number of gold piles
     int GoldMaxNumPiles; // maximum number of gold piles
     char* map; // current complete map
+    int currPlayers; // amount of current players in the game
+    addr_t* spectatorAddress;
     counters_t* goldMap; // a counters with gold locations and their gold
 
 } game_t;
@@ -69,10 +72,11 @@ static void deletegameStruct();
 static void addPlayer(char* name, addr_t* address, void* playerSet);
 static player_t* getPlayer(addr_t* address, void* playerSet);
 static int processMove(player_t* player, int x, int y);
-static void handleKey(char* key, void* playerSet, addr_t* address);
 void gold(player_t* player);
+static void handleKey(char* key, void* playerSet, addr_t* address);
+set_t* initializePlayerSet(int maxPlayers);
 void playerSwap(int oldX, int oldY, player_t* player, void* playerSet);
-static void quit();
+void quit();
 
 
 
@@ -100,14 +104,7 @@ int main(const int argc, char *argv[]){
 
     int port = message_init(NULL);
     printf("message_init: ready at port %d", port);
-    set_t* playerSet = set_new();
-    char key[3];
-    for(int i = 1; i <= 26; i++) {
-        sprintf(key, "%d", i);
-        player_t* player = malloc(sizeof(player_t));
-        player = NULL;
-        set_insert(playerSet, key, player);
-    }
+    set_t* playerSet = initializePlayerSet(MaxPlayers);
 
     message_loop(playerSet, 0, NULL, handleInput, handleMessage);
     message_done();
@@ -159,6 +156,7 @@ handleInput(void* arg)
 }
 
 
+
 /**************** handleMessage ****************/
 /* Datagram received; print it.
  * We ignore 'arg' here.
@@ -190,7 +188,14 @@ handleMessage(void* arg, addr_t from, const char* message)
         addPlayer();
     }
     else if(message[0] == 'S') {
-        //how are we storing spectator so we can have aceess - globally?
+        if(game->spectatorAddress == NULL) {
+            game->spectatorAddress = &from;
+        }
+        else{
+            message_send(*(game->spectatorAddress), "QUIT New spectator has joined please quit");
+            game->spectatorAddress = &from;
+            initializeSpectatr();
+        }
     }
     else if(message[0] == 'K') {
         handleKey(wordArray[1], arg, &from); 
@@ -202,6 +207,15 @@ handleMessage(void* arg, addr_t from, const char* message)
     fflush(stdout);
     return false;
     }
+
+
+bool initializeSpectator(player_t* player) {
+    message_send((*game->spectatorAddress), "GRID %d %d", calculateRows(game->map), calculateColumns(game->map));
+    message_send((*game->spectatorAddress), "GOLD ", player->recent)
+    message_send((*game->spectatorAddress), "DISPLAY ")
+    
+    
+}
 
 
 /**************** deleteWordArray ****************/
@@ -232,12 +246,14 @@ deleteWordArray(char** array, int wordCount)
  * 
  * @return game_t* 
  */
-static void initializeGameData(char* filename, int seed ){
+static void initializeGameData(char* filename, int seed){
     // initialize neccessary constants
     game = malloc(sizeof(game_t));
     game->GoldTotal = 250;
     game->GoldMinNumPiles = 10;
     game->GoldMaxNumPiles = 30;
+    game->spectatorAddress = NULL;
+    game->currPlayers = 0;
 
     // open and read the map and assign it in the game struct
     FILE* fp;
@@ -253,6 +269,18 @@ static void initializeGameData(char* filename, int seed ){
     game->goldMap = goldmap;
 }
 
+set_t* initializePlayerSet(int maxPlayers){
+    set_t* playerSet = set_new();
+    char key[3];
+    for(int i = 1; i <= maxPlayers; i++) {
+        sprintf(key, "%d", i);
+        player_t* player = malloc(sizeof(player_t));
+        player = NULL;
+        set_insert(playerSet, key, player);
+    }
+    return playerSet;
+}
+
 static void deletegameStruct(){
     counters_delete(game->goldMap);
     return;
@@ -260,7 +288,31 @@ static void deletegameStruct(){
 
 
 static void addPlayer(char* name, addr_t* address, void* playerSet){
+    // dynamically create the player object
     player_t* player = malloc(sizeof(player_t));
+    // assign address
+    player->address = address;
+    // check string length and truncate if neccessary
+    if (strlen(name) > MaxNameLength){
+        name[MaxNameLength] = '\0';        
+    }
+    // replace character with an underscore if isgraph and isspace are false
+    for (int i = 0; i <= MaxNameLength; i++)
+    {
+        if (!isgraph(name[i]) && !isspace(name[i])){
+            name[i] = '_';
+        }
+    }
+    // assign name
+    player->name = name;
+    // create an empty counter for points seen
+    player->pointsSeen = counters_new();
+    // picking a random spawn location for the player
+    int spawn = spawnLocation(game);
+    point_t* point = locationToPoint(spawn, game->map);
+    
+    
+    
     
 }
 
@@ -289,31 +341,29 @@ static player_t* getPlayer(addr_t* address, void* playerSet)
 */
 static int
 processMove(player_t* player, int x, int y) {
-    x += get_x(player->currentLocation);
-    y += get_y(player->currentLocation);
+    x += getX(player->currentLocation);
+    y += getY(player->currentLocation);
     if(getCharFromPair(x, y, game->map) == '-' || getCharFromPair(x, y, game->map) == '+' || getCharFromPair(x, y, game->map) == '|' || isspace(getCharFromPair(x, y, game->map))) {
         return 0;
     }
     else if(getCharFromPair(x, y, game->map) == '.' || getCharFromPair(x, y, game->map) == '#') {
-        set_y(y, player->currentLocation);
-        set_x(x, player->currentLocation);
+        setY(y, player->currentLocation);
+        setX(x, player->currentLocation);
         setCharAtPoint(game->map, player->letter, player->currentLocation);
         return 1;
     }
     else if(getCharFromPair(x, y, game->map) == '*') {
-        set_y(y, player->currentLocation);
-        set_x(x, player->currentLocation);
+        setY(y, player->currentLocation);
+        setX(x, player->currentLocation);
         return 2;
     }
     else if(isalpha(getCharFromPair(x, y, game->map))) {
-        set_y(y, player->currentLocation);
-        set_x(x, player->currentLocation);
+        setY(y, player->currentLocation);
+        setX(x, player->currentLocation);
         return 3;
     }
     
     return 0;  //if some sort of error to prevent nothing from being returned
-
-    
 }
 
 
@@ -336,8 +386,8 @@ n move diagonally down and right, if possible*/
 static void handleKey(char* key, void* playerSet, addr_t* address) {
     // get the player at the address
     player_t* player = getPlayer(address, playerSet);
-    int oldX = get_x(player->currentLocation);
-    int oldY = get_y(player->currentLocation);
+    int oldX = getX(player->currentLocation);
+    int oldY = getY(player->currentLocation);
     int moveResult = 0;
     // quit
     if(strcmp(key, "Q") == 0) {
@@ -418,10 +468,14 @@ static void handleKey(char* key, void* playerSet, addr_t* address) {
             moveResult = processMove(player, 1, 1);
         }
     }
+    else {
+        message_send(*address, "ERROR Invalid Keystroke");
+    }
+    
     if(moveResult == 2) { //picks up gold
         gold(player);
     }
-    else(moveResult == 3){//runs into other player
+    else if(moveResult == 3){  //runs into other player
         playerSwap(oldX, oldY, player, playerSet);
     }
 }
@@ -449,13 +503,12 @@ void playerSwap(int oldX, int oldY, player_t* player, void* playerSet) {
     {
         sprintf(c, "%d", keyCount);
         player_t* otherPlayer = set_find(playerSet, c);
-        if(get_x(player->currentLocation) == get_x(otherPlayer->currentLocation) && get_y(player->currentLocation) == get_y(otherPlayer->currentLocation)) {
-            set_x(oldX, otherPlayer->currentLocation); //swaps other players X and y to the old location of the other player that moved into them
-            set_y(oldY, otherPlayer->currentLocation); 
+        if(getX(player->currentLocation) == getX(otherPlayer->currentLocation) && getY(player->currentLocation) == getY(otherPlayer->currentLocation)) {
+            setX(oldX, otherPlayer->currentLocation); //swaps other players X and y to the old location of the other player that moved into them
+            setY(oldY, otherPlayer->currentLocation); 
         }
     }
 
 
-static void quit(){
-    return;
+void quit(){
 }
