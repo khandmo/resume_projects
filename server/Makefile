@@ -3,8 +3,8 @@
 # server.c makefile
 
 PROG = server
-LIB = ../libcs50/libcs50-given.a ../grid/grid.h
-OBJS = ../grid/grid.o
+LIB = ../libcs50/libcs50-given.a ../grid/grid.h ../visibility/visibility.h
+OBJS = ../grid/grid.o ../visibility/visibility.o
 
 CFLAGS = -Wall -pedantic -std=c11 -ggdb -I../libcs50 -I../common
 CC = gcc
