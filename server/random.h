@@ -17,8 +17,8 @@
 #include "../libcs50/set.h"
 #include "../libcs50/counters.h"
 
-#ifndef _RANDOM_H
-#define _RANDOM_H
+#ifndef _RANDOM_H_
+#define _RANDOM_H_
 
 /**
  * @brief Takes an empty counters to modify and will return nothing 
@@ -32,4 +32,4 @@ void random(game_t* game, counters_t* goldMap, int seed);
 int spawnLocation(game_t* game);
 
 
-#endif _RANDOM_H
+#endif // _RANDOM_H_

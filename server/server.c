@@ -216,7 +216,7 @@ handleMessage(void* arg, addr_t from, const char* message)
 bool initializeSpectator(player_t* player) {
     // ***the messages need concatenation in the strings before being sent, only one char* can be sent***
     message_send((*game->spectatorAddress), "GRID %d %d", calculateRows(game->map), calculateColumns(game->map));
-    message_send((*game->spectatorAddress), "GOLD ", player.recentGold);
+    message_send((*game->spectatorAddress), "GOLD ", player->recentGold);
     message_send((*game->spectatorAddress), "DISPLAY ");
     
     
