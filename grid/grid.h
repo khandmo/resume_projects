@@ -115,7 +115,7 @@ void setCharAtPoint(char* mapstring, char new, point_t* point);
  * @param set 
  */
 void pointSetDeleter(set_t* set);
- * @brief get y value
+ /* @brief get y value
  * 
  * @param point 
  * @return int 
