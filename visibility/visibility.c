@@ -92,10 +92,7 @@ findVisibility(player_t* player, char* map)
       } if (getCharAtPoint(end, new_map) != ' ') {
         counters_add(points_seen, location);
       }
-      // printf("(%d, %d)\n", end->x, end->y);
       free(end);
-      // printf("%s", new_map);
-      // printf("\n");
     }
   }
   return new_map;
