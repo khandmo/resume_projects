@@ -76,6 +76,8 @@ void gold(player_t* player);
 static void handleKey(char* key, void* playerSet, addr_t* address);
 set_t* initializePlayerSet(int maxPlayers);
 void playerSwap(int oldX, int oldY, player_t* player, void* playerSet);
+static void deletePlayerSet(set_t* playerSet);
+static void playerDelete(void* item);
 void quit();
 
 
@@ -210,9 +212,10 @@ handleMessage(void* arg, addr_t from, const char* message)
 
 
 bool initializeSpectator(player_t* player) {
+    // ***the messages need concatenation in the strings before being sent, only one char* can be sent***
     message_send((*game->spectatorAddress), "GRID %d %d", calculateRows(game->map), calculateColumns(game->map));
-    message_send((*game->spectatorAddress), "GOLD ", player->recent)
-    message_send((*game->spectatorAddress), "DISPLAY ")
+    message_send((*game->spectatorAddress), "GOLD ", player.recentGold);
+    message_send((*game->spectatorAddress), "DISPLAY ");
     
     
 }
@@ -479,7 +482,11 @@ static void handleKey(char* key, void* playerSet, addr_t* address) {
         playerSwap(oldX, oldY, player, playerSet);
     }
 }
-
+/**
+ * @brief 
+ * 
+ * @param player 
+ */
 void gold(player_t* player) {
     // get the amount of gold in the pile that was hit
     int ncols = calculateColumns(game->map);
@@ -495,7 +502,14 @@ void gold(player_t* player) {
         quit();        
     }
 }
-
+/**
+ * @brief 
+ * 
+ * @param oldX 
+ * @param oldY 
+ * @param player 
+ * @param playerSet 
+ */
 void playerSwap(int oldX, int oldY, player_t* player, void* playerSet) {
     set_t* set = (set_t*)playerSet;
     char c[10];
@@ -503,12 +517,40 @@ void playerSwap(int oldX, int oldY, player_t* player, void* playerSet) {
     {
         sprintf(c, "%d", keyCount);
         player_t* otherPlayer = set_find(playerSet, c);
-        if(getX(player->currentLocation) == getX(otherPlayer->currentLocation) && getY(player->currentLocation) == getY(otherPlayer->currentLocation)) {
+        if(getX(player->currentLocation) == getX(otherPlayer->currentLocation) 
+                                && getY(player->currentLocation) == getY(otherPlayer->currentLocation)) {
             setX(oldX, otherPlayer->currentLocation); //swaps other players X and y to the old location of the other player that moved into them
             setY(oldY, otherPlayer->currentLocation); 
         }
     }
-
-
-void quit(){
 }
+
+/**
+ * @brief 
+ * 
+ */
+void quit(){
+    return;
+}
+/**
+ * @brief 
+ * 
+ * @param playerSet 
+ */
+static void deletePlayerSet(set_t* playerSet){
+    set_delete(playerSet, playerDelete);
+
+}
+/**
+ * @brief 
+ * 
+ * @param item 
+ */
+static void playerDelete(void* item){
+    player_t* player = item;
+    counters_delete(player->pointsSeen);
+    free(player->currentLocation);
+    free(player);
+}
+
+
