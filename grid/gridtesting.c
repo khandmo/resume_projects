@@ -15,10 +15,6 @@
 #include "grid.c"
 #include "../libcs50/set.h"
 
-void pointDelete(void* item){
-    point_t* p = item;
-    free(p);
-}
 int main()
 {
     FILE *fp;

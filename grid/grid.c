@@ -25,6 +25,34 @@ typedef struct point {
 /* not visible outside this file */
 void pointPrinterHelper(void *arg, const char *key, void *item);
 
+
+// function declarations
+int calculateRows(char* map_string);
+int calculateColumns(char* map_string);
+int pointToLocation(point_t* point, int ncols);
+void printPoints(set_t* set);
+void pointPrinterHelper(void *arg, const char *key, void *item);
+char getCharAtPoint(point_t* point, char* map_string);
+char getCharAtLocation(int location, char* map_string);
+point_t* locationToPoint(int location, char* map_string);
+char getCharFromPair(int x, int y, char* map_string);
+int validPointsNoPaths(char* mapstring, set_t* res);
+void setCharAtPoint(char* mapstring, char new, point_t* point);
+void setX(int x, point_t* point);
+void setY(int y, point_t* point);
+int getX(point_t* point);
+int getY(point_t* point);
+void pointSetDeleter(set_t* set);
+static void pointDelete(void* item);
+
+
+
+
+
+
+
+
+
 /**
  * 
  * See grid.h for implementation details

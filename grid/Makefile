@@ -13,9 +13,9 @@ MAKE = make
 gridtesting: gridtesting.o #../libcs50/file.o 
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
-gridtesting.o: grid.o  $(LIBS) #../libcs50/file.h
+gridtesting.o: grid.o 
 
-grid.o: grid.h grid.c $(LIBS)
+grid.o: grid.h grid.c
 
 
 .PHONY: test valgrind clean
