@@ -109,5 +109,20 @@ int validPointsNoPaths(char* mapstring, set_t* res);
  * @return false 
  */
 void setCharAtPoint(char* mapstring, char new, point_t* point);
+/**
+ * @brief get y value
+ * 
+ * @param point 
+ * @return int 
+ */
+int getY(point_t* point);
+/**
+ * @brief get x value
+ * 
+ * @param point 
+ * @return int 
+ */
+int getX(point_t* point);
+
 
 #endif // _GRID_H_
