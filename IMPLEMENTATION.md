@@ -70,9 +70,9 @@ static bool handle_Message(void* arg, const addr_t from, const char* message);
 
 
    validate commandline
-      initialize message module
-         print assigned port number
-            decide whether spectator or player
+   initialize message module
+   print assigned port number
+   decide whether spectator or player
 
 
 ### `handle_Input`:
@@ -80,28 +80,29 @@ Defensively check if the input arg is NULL and that it is a valid address
 Prepare a char to hold the keyStroke from stdin
 If a char from stdin is NULL (EOF)
    Return true (takes out of message loop)
-   Else
-   Prepare a
-      Concatenate keystroke with above string
-         Send Message
-            Return false (keep message loop going)
+Else
+   Prepare a char* “KEY “
+   Concatenate keystroke with above string
+   Send Message
+   Return false (keep message loop going)
 
 
 ### `handle_Message`:
-Switch gate for the following message If message begins with OK
+Switch gate for the following message types…
+If message begins with OK
    Assign following letter as player name to be displayed with ncurses
-   If message begins with GRID
-      Check that terminal is large enough to handle the map size in the message
-      If message begins with GOLD
-         Update the ncurses static output line with gold amount
-         If message begins with DISPLAY
-            Update display by morphing from the current display screen to the received one
-            If message begins with QUIT
-               Print quit message to static output line in ncurses and tell player to CTRL+C
-               out
-               Print quit message to stderr with current gold counts of current players
-               If message begins with ERROR
-                  Print error message to static output line in ncurses
+If message begins with GRID
+   Check that terminal is large enough to handle the map size in the message
+If message begins with GOLD
+   Update the ncurses static output line with gold amount
+If message begins with DISPLAY
+   Update display by morphing from the current display screen to the received one
+If message begins with QUIT
+   Print quit message to static output line in ncurses and tell player to CTRL+C
+out
+Print quit message to stderr with current gold counts of current players
+If message begins with ERROR
+   Print error message to static output line in ncurses
 
 
 ### Display.c
@@ -138,10 +139,10 @@ change each char that is different from the first string (still held by
 client)
 For chars in map+string that are letters
    If they are in the previous string
-   move the letter to the appropriate place
-      If they are newly sighted player
-             Add character where it should be
-             Refresh
+move the letter to the appropriate place
+   If they are newly sighted player
+       Add character where it should be
+Refresh
 
 
 ### Screen_size_check:
@@ -155,7 +156,7 @@ For each row
 For each char (index less than total columns - 2 (for new line chars)) in
 map_string
        Input to correct spot in address
-       Return char** built array
+Return char** built array
 
 
 
@@ -176,15 +177,15 @@ map_string
 * Global Structure *Game* - holds information regarding the state of the game throughout the entire server.
 ```c
 typedef struct game{
-  int goldRemaining;
-  int maxNameLength;
-  int maxPlayers;
-  int goldTotal;
-  int minPiles;
-  int maxPiles;
-  set_t* goldMap;
-  bool spectator;
-  player_t** playerArray;
+ int goldRemaining;
+ int maxNameLength;
+ int maxPlayers;
+ int goldTotal;
+ int minPiles;
+ int maxPiles;
+ set_t* goldMap;
+ bool spectator;
+ player_t** playerArray;
 } game_t*
 ```
 
@@ -192,10 +193,10 @@ typedef struct game{
 * Point structure *Point* - holds a coordinate pair (x,y)
 ```c
 typedef struct point{
-  int x;
-  int y;
-  } point_t*
-      ```
+   int x;
+   int y;
+} point_t*
+```
 
 
 * Player structure *Player* - represents a player client, holds information specific to that player
@@ -203,21 +204,20 @@ typedef struct point{
 
 ```c
 typedef struct player{
-  char* name;
-  char character;
-  point_t* currLocation;
-  int playerGold;
-  int recentGold;
-  point_t** visiblePoints;
+   char* name;
+   char character;
+   point_t* currLocation;
+   int playerGold;
+   int recentGold;
+   point_t** visiblePoints;
 }
-
 ```
 
 
 * Spectator structure *Spectator* - holds information for the spectator
 ```c
 typedef struct spectator{
-  char id;
+   char id;
 }
 ```
 
@@ -252,72 +252,72 @@ static int parseArgs(const int argc, char* argv[]);
 
 
    validate commandline
-      verify map file can be opened for reading
-         if seed provided
-                verify it is a valid seed number
-                       seed the random-number generator with that seed
-                          else
-                                 seed the random-number generator with getpid()
+   verify map file can be opened for reading
+   if seed provided
+       verify it is a valid seed number
+       seed the random-number generator with that seed
+   else
+       seed the random-number generator with getpid()
 
 
 #### `isVisible1`:
 
 
    get starting x and y coordinates
-      if end point directly above start point
-             loop through vertical points between them
-                if end point directly to the side of start point
-                       loop through horizontal points between them
-                          calculate slope
-                             loop through points in rows and columns between start and end
-                                    calculate y-value of line between points at current x value
-                                           if y-value and current y are equal
-                                                      check if point is a wall
-                                                                     return false
-                                                                            if y-value is greater than current line
-                                                                                       check if line intersects current point and point above
-                                                                                                      check if current point and point above are walls
-                                                                                                                         return false
-                                                                                                                                    check if line intersects current point and point to left
-                                                                                                                                                   check if current point and point to left are walls
-                                                                                                                                                                      return false
-                                                                                                                                                                             else
-                                                                                                                                                                                        check if line intersects current point and point left
-                                                                                                                                                                                                       check if current point and point left are walls
-                                                                                                                                                                                                                          return false
-                                                                                                                                                                                                                                     check if line intersects current point and point below
-                                                                                                                                                                                                                                                    check if current point and point below
-                                                                                                                                                                                                                                                                       return false
+   if end point directly above start point
+       loop through vertical points between them
+   if end point directly to the side of start point
+       loop through horizontal points between them
+   calculate slope
+   loop through points in rows and columns between start and end
+       calculate y-value of line between points at current x value
+       if y-value and current y are equal
+           check if point is a wall
+               return false
+       if y-value is greater than current line
+           check if line intersects current point and point above
+               check if current point and point above are walls
+                   return false
+           check if line intersects current point and point to left
+               check if current point and point to left are walls
+                   return false
+       else
+           check if line intersects current point and point left
+               check if current point and point left are walls
+                   return false
+           check if line intersects current point and point below
+               check if current point and point below
+                   return false
 
 
 #### `isVisible2`:
 
 
    get starting x and y coordinates
-      if end point directly above start point
-             loop through vertical points between them
-                if end point directly to the side of start point
-                       loop through horizontal points between them
-                          calculate slope
-                             loop through points in rows and columns between start and end
-                                    calculate y-value of line between points at current x value
-                                           if y-value and current y are equal
-                                                      check if point is a wall
-                                                                     return false
-                                                                            if y-value is greater than current line
-                                                                                       check if line intersects current point and point below
-                                                                                                      check if current point and point below are walls
-                                                                                                                         return false
-                                                                                                                                    check if line intersects current point and point to left
-                                                                                                                                                   check if current point and point to left are walls
-                                                                                                                                                                      return false
-                                                                                                                                                                             else
-                                                                                                                                                                                        check if line intersects current point and point left
-                                                                                                                                                                                                       check if current point and point left are walls
-                                                                                                                                                                                                                          return false
-                                                                                                                                                                                                                                     check if line intersects current point and point above
-                                                                                                                                                                                                                                                    check if current point and point above
-                                                                                                                                                                                                                                                                       return false
+   if end point directly above start point
+       loop through vertical points between them
+   if end point directly to the side of start point
+       loop through horizontal points between them
+   calculate slope
+   loop through points in rows and columns between start and end
+       calculate y-value of line between points at current x value
+       if y-value and current y are equal
+           check if point is a wall
+               return false
+       if y-value is greater than current line
+           check if line intersects current point and point below
+               check if current point and point below are walls
+                   return false
+           check if line intersects current point and point to left
+               check if current point and point to left are walls
+                   return false
+       else
+           check if line intersects current point and point left
+               check if current point and point left are walls
+                   return false
+           check if line intersects current point and point above
+               check if current point and point above
+                   return false
 
 
 ---
@@ -349,18 +349,18 @@ point_t* locationToPoint(int location, char* map_string);
 
 ### Detailed pseudo code
  #### getCharAtPoint
-  calculate number of columns
-   calculate location from point and number of cols
-    get char at index in string
-     return char
+ calculate number of columns
+ calculate location from point and number of cols
+ get char at index in string
+ return char
 
 
 #### getCharFromPair
  calculate num columns
-  create point
-   get location from point
-    get char from location
-     return char
+ create point
+ get location from point
+ get char from location
+ return char
 
 
 ---
@@ -390,4 +390,6 @@ The system can be tested by running the game and attempting to break the game wi
 ---
 
 
-typesKEY char* 
+
+
+
