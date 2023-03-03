@@ -20,6 +20,9 @@
 #ifndef _RANDOM_H_
 #define _RANDOM_H_
 
+/**************** global types ****************/
+typedef struct game game_t;  // opaque to users of the module
+
 /**
  * @brief Takes an empty counters to modify and will return nothing 
  * 

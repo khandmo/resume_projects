@@ -8,10 +8,28 @@
  * CS 50, Winter 2023
  */
 
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+#include <ctype.h>
 #include "random.h"
+#include "../support/message.h"
 #include "../grid/grid.h"
 #include "../grid/grid.c"
+
+
+typedef struct game {
+    int GoldTotal;      // amount of gold in the game
+    int GoldMinNumPiles; // minimum number of gold piles
+    int GoldMaxNumPiles; // maximum number of gold piles
+    char* map; // current complete map
+    int currPlayers; // amount of current players in the game
+    addr_t* spectatorAddress;
+    counters_t* goldMap; // a counters with gold locations and their gold
+
+} game_t;
+
 
 // function declarations
 void random(game_t* game, counters_t* goldMap, int seed);

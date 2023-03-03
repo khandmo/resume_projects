@@ -23,7 +23,15 @@
 #include "random.h"
 #include "../grid/grid.h"
 
-
+/**
+ * Things still Needed
+ *      - 
+ *      -
+ *      -
+ *      -
+ *      -
+ * 
+ */
 
 
 /**************** global types ****************/
@@ -49,6 +57,7 @@ typedef struct game {
 game_t* game;
 
 typedef struct player {
+    bool inGame; // if true, the player is in the game, once they quit this becomes false
     char* name; // name of player
     char letter; // the letter representation on the map
     addr_t* address; // address specific to the client
@@ -64,7 +73,6 @@ typedef struct spectator {
 }spectator_t;
 
 // Function decclarations
-static bool handleInput(void* arg);
 static bool handleMessage(void* arg, const addr_t from, const char* message);
 static void deleteWordArray(char** array, int wordCount);
 static void initializeGameData(char* filename, int seed);
@@ -78,8 +86,10 @@ set_t* initializePlayerSet(int maxPlayers);
 void playerSwap(int oldX, int oldY, player_t* player, void* playerSet);
 static void deletePlayerSet(set_t* playerSet);
 static void playerDelete(void* item);
-bool initializeSpectator(player_t* player);
-void quit();
+void initializeSpectator();
+static void Table(void* playerSet);
+static void playerQuit(player_t* player);
+void endGame(void* playerSet);
 
 
 /**
@@ -115,55 +125,10 @@ int main(const int argc, char *argv[]){
     printf("message_init: ready at port %d", port);
     set_t* playerSet = initializePlayerSet(MaxPlayers);
 
-    message_loop(playerSet, 0, NULL, handleInput, handleMessage);
+    message_loop(playerSet, 0, NULL, NULL, handleMessage);
     message_done();
     return 0;
     }
-
-
-/**************** handleInput ****************/
-/* stdin has input ready; read a line and send it to the client.
- * Return true if the message loop should exit, otherwise false.
- * i.e., return true if EOF was encountered on stdin, or fatal error.
- */
-static bool
-handleInput(void* arg)
-{
-  // We use 'arg' to receive an addr_t referring to the 'server' correspondent.
-  // Defensive checks ensure it is not NULL pointer or non-address value.
-  addr_t* serverp = arg;
-  if (serverp == NULL) {
-    fprintf(stderr, "handleInput called with arg=NULL");
-    return true;
-  }
-  if (!message_isAddr(*serverp)) {
-    fprintf(stderr, "handleInput called without a correspondent.");
-    return true;
-  }
-  
-  // allocate a buffer into which we can read a line of input
-  // (it can't be any longer than a message)!
-  char line[message_MaxBytes];
-
-  // read a line from stdin
-  if (fgets(line, message_MaxBytes, stdin) == NULL) {
-    // EOF case: stop looping
-    return true;
-  } else {
-    // strip trailing newline
-    const int len = strlen(line);
-    if (len > 0 && line[len-1] == '\n') {
-      line[len-1] = '\0';
-    }
-
-    // send as message to server
-    message_send(*serverp, line);
-
-    // normal case: keep looping
-    return false;
-  }
-}
-
 
 
 /**************** handleMessage ****************/
@@ -195,14 +160,24 @@ handleMessage(void* arg, addr_t from, const char* message)
 
     if(message[0] == 'P') {
         //*** if the message is PLAY then we 
-        addPlayer();
+        char name[100];
+        for(int i = 1; i <= slot; i++) {
+            strcat(name, wordArray[i]);
+        }
+        if (strlen(name) < 1){
+            message_send(from, "QUIT Sorry - you must provide players name");
+        }
+        else{
+            addPlayer(name, &from, arg);
+        }
     }
     else if(message[0] == 'S') {
         if(game->spectatorAddress == NULL) {
             game->spectatorAddress = &from;
+            initializeSpectator();
         }
         else{
-            message_send(*(game->spectatorAddress), "QUIT New spectator has joined please quit");
+            message_send(*(game->spectatorAddress), "QUIT You have been replaced by a new spectator.");
             game->spectatorAddress = &from;
             initializeSpectator();
         }
@@ -213,6 +188,7 @@ handleMessage(void* arg, addr_t from, const char* message)
     else {
 
     }
+    free(tempWord);
     deleteWordArray(wordArray, slot+1); //slot+1 is the length of the wordArray
     fflush(stdout);
     return false;
@@ -221,17 +197,27 @@ handleMessage(void* arg, addr_t from, const char* message)
 /**
  * @brief 
  * 
- * @param player 
  * @return true 
  * @return false 
  */
-bool initializeSpectator(player_t* player) {
+void initializeSpectator() {
     // ***the messages need concatenation in the strings before being sent, only one char* can be sent***
-    message_send((*game->spectatorAddress), "GRID %d %d", calculateRows(game->map), calculateColumns(game->map));
-    message_send((*game->spectatorAddress), "GOLD ", player->recentGold);
-    message_send((*game->spectatorAddress), "DISPLAY ");
-    
-    
+    char gridMessage[100] = "";
+    strcat(gridMessage, "GRID ");  //add GRID to message
+    char rowsNCols[10];
+    sprintf(rowsNCols, "%d %d", calculateRows(game->map), calculateColumns(game->map));  //add rows and columns
+    strcat(gridMessage, rowsNCols);  //concatenate with GRID message
+    char goldMessage[100] = "";
+    strcat(goldMessage, "GOLD ");
+    char gold[20];
+    sprintf(gold, "0 0 %d", game->GoldTotal);  //concatenate and add the most recent gold pickup with GOLD message
+    strcat(goldMessage, gold);
+    char displayMessage[100] = "";
+    strcat(displayMessage, "DISPLAY ");
+    strcat(displayMessage, game->map);  //concatenate map text with DISPLAY message
+    message_send((*game->spectatorAddress), gridMessage);
+    message_send((*game->spectatorAddress), goldMessage);
+    message_send((*game->spectatorAddress), displayMessage);
 }
 
 
@@ -256,8 +242,6 @@ deleteWordArray(char** array, int wordCount)
     }
   }
 }
-
-
 /**
  * @brief initializes game structs values
  * 
@@ -311,7 +295,7 @@ set_t* initializePlayerSet(int maxPlayers){
  */
 static void deletegameStruct(){
     counters_delete(game->goldMap);
-    return;
+    free(game);
 }
 
 /**
@@ -322,11 +306,16 @@ static void deletegameStruct(){
  * @param playerSet 
  */
 static void addPlayer(char* name, addr_t* address, void* playerSet){
+    if ((game->currPlayers+ 1 )>= MaxPlayers){
+        message_send(*address, "QUIT Sorry - you must provide player's name.");
+        return;
+    }
+    set_t* pSet = playerSet;
     // get the empty player object at the empty point at the set
     int i = game->currPlayers + 1;
     char key[3];
     sprintf(key, "%d", i);
-    player_t* player = set_find(playerSet, key);
+    player_t* player = set_find(pSet, key);
 
     // assign address
     player->address = address;
@@ -351,13 +340,15 @@ static void addPlayer(char* name, addr_t* address, void* playerSet){
     // picking a random spawn location for the player
     int spawn = spawnLocation(game);
     point_t* point = locationToPoint(spawn, game->map);
-
+    player->currentLocation = point;
     // add one to account for the fact current players starts at 0
-    int playerNumber = game->currPlayers + 1; 
+    int playerNumber = game->currPlayers; 
     // increment the letter's ascii by the player number 
     char letter = 'A' + playerNumber; 
     // assign it to player
     player->letter = letter;
+    // set inGame to true to signl they are in the game
+    player->inGame = true;
 
     // increment game's current players by one
     game->currPlayers += 1;    
@@ -392,6 +383,7 @@ static player_t* getPlayer(addr_t* address, void* playerSet)
 * int x is -1,0,1 -1 left, 0 no move, 1 right
 *  int y is -1,o,1 -1 up, 0 no move, 1 down NOTE THIS IS REVERSED BECAUSE OF HOW THE MAP IS PRINTED
 */
+
 static int
 processMove(player_t* player, int x, int y) {
     x += getX(player->currentLocation);
@@ -452,7 +444,14 @@ static void handleKey(char* key, void* playerSet, addr_t* address) {
     int moveResult = 0;
     // quit
     if(strcmp(key, "Q") == 0) {
-            quit();
+            if(address == game->spectatorAddress) {
+                message_send(*(game->spectatorAddress), "QUIT Thanks for watching!");
+                game->spectatorAddress = NULL;
+            }
+            else {
+                playerQuit(player);
+                message_send(*address, "QUIT Thanks for playing!");
+            }
         }
     // for capital letters call the 
     else if(strcmp(key, "H") == 0) {
@@ -535,10 +534,14 @@ static void handleKey(char* key, void* playerSet, addr_t* address) {
     
     if(moveResult == 2) { //picks up gold
         gold(player);
+        if (game->GoldTotal <= 0){
+            endGame(playerSet);
+        }
     }
     else if(moveResult == 3){  //runs into other player
         playerSwap(oldX, oldY, player, playerSet);
     }
+    updateDisplay(playerSet);
 }
 /**
  * @brief handles game process if a player collects gold
@@ -553,10 +556,6 @@ void gold(player_t* player) {
     player->playerGold += g;
     player->recentGold = g;
     game->GoldTotal -= g;
-
-    if (game->GoldTotal == 0){
-        quit();        
-    }
 }
 /**
  * @brief handles process if a player walks into a space where another player is
@@ -567,9 +566,8 @@ void gold(player_t* player) {
  * @param playerSet 
  */
 void playerSwap(int oldX, int oldY, player_t* player, void* playerSet) {
-    set_t* set = (set_t*)playerSet;
     char c[10];
-    for(int keyCount = 1; keyCount <= 26; keyCount++)
+    for(int keyCount = 1; keyCount <= MaxPlayers; keyCount++)
     {
         sprintf(c, "%d", keyCount);
         player_t* otherPlayer = set_find(playerSet, c);
@@ -581,13 +579,18 @@ void playerSwap(int oldX, int oldY, player_t* player, void* playerSet) {
     }
 }
 
-/**
- * @brief quits game
- * 
- */
-void quit(){
-    return;
+void updateDisplay(void* playerSet) {
+    char c[10] = "";
+    for(int keyCount = 1; keyCount <= MaxPlayers; keyCount++)
+        sprintf(c, "%d", keyCount);
+        player_t* player = set_find(playerSet, c);
+        if (player != NULL) {
+            
+        }
+    
 }
+
+
 /**
  * @brief deletes the playerSet containing player structs
  * 
@@ -597,8 +600,9 @@ static void deletePlayerSet(set_t* playerSet){
     set_delete(playerSet, playerDelete);
 
 }
+
 /**
- * @brief 
+ * @brief helper function to delete players 
  * 
  * @param item 
  */
@@ -608,5 +612,66 @@ static void playerDelete(void* item){
     free(player->currentLocation);
     free(player);
 }
+/**
+ * @brief Carrys out processes needed when a player quits
+ * 
+ * @param player 
+ */
+static void playerQuit(player_t* player){
+    player->inGame = false;
+}
 
+void endGame(void* playerSet) {
+    Table(playerSet);
+    deletegameStruct();
+    deletePlayerSet(playerSet);
+}
+
+/**
+ * @brief 
+ * 
+ * @param playerSet 
+ * 
+ * QUIT GAME OVER:
+A          4 Alice
+B         16 Bob
+C        230 Carol
+ */
+static void Table(void* playerSet){
+    // size of the table based on the amount of characters in the rows
+    // maximum 1 for the letter, 1 for a tab, 3 digits in the purse, 50 chars max in name
+    // and a newline character, 26 max characetrs and one extra because of the first line
+    int maxTotalSize = 57 * 27;
+    
+    
+    char* table = mem_assert(malloc(maxTotalSize * sizeof(char)), "Creating Table");
+    strcpy(table, "QUIT GAME OVER\n");
+    char c[10];
+    for(int keyCount = 1; keyCount <= MaxPlayers; keyCount++)
+    {
+        sprintf(c, "%d", keyCount);
+        player_t* player = set_find(playerSet, c);
+        if(player != NULL){
+            // get neccessary values to put in table
+            char letter = player->letter;
+            int purse = player->playerGold;
+            char* name = player->name;
+
+            // allocate a buffer to hold the formatted string
+            char buffer[100]; 
+            // format the string and store it in the buffer
+            sprintf(buffer, "%c\t%d %s\n", letter, purse, name); 
+            // add it to table
+            strcat(table, buffer);
+        }
+    }
+    
+    for(int keyCount = 1; keyCount <= MaxPlayers; keyCount++)
+    {
+        sprintf(c, "%d", keyCount);
+        player_t* player = set_find(playerSet, c);
+        if (player->address != NULL){
+            message_send(*player->address, table);
+        }    
+}
 
