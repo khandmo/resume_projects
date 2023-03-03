@@ -12,6 +12,8 @@
 #include "../grid/grid.h"
 #include "./visibility.h"
 #include "../libcs50/file.h"
+#include "../libcs50/counters.h"
+
 
 int
 main(void)
@@ -24,18 +26,48 @@ main(void)
 
   char* map = file_readFile(fp);
 
-  point_t* start = point_new(9, 2);
-  point_t* end = point_new(7, 4);
 
-
+  point_t* start = point_new(2, 2);
+  point_t* end = point_new(2, 2);
+  
+  player_t* player = player_new("Peter", 'A', start);
 
   printf("Start is %c \n", getCharAtPoint(start, map));
   printf("End is %c \n", getCharAtPoint(end, map));
-  bool yes = isVisible1(start, end, map);
-  // setCharAtPoint(map, 'X', start);
+  bool yes = isVisible2(end, start, map);
   printf("%s\n", map);
   printf("Yes is %d\n", yes);
-  printf("%s\n", findVisibility(start, map));
+  printf("%s\n", findVisibility(player, map));
+
+  point_t* new_location = point_new(3,2);
+  player->location = new_location;
+  printf("Location is %c \n", getCharAtPoint(new_location, map));
+  printf("%s\n", findVisibility(player, map));
+
+  new_location = point_new(3,3);
+  player->location = new_location;
+  printf("Location is %c \n", getCharAtPoint(new_location, map));
+  printf("%s\n", findVisibility(player, map));
+
+  new_location = point_new(3,4);
+  player->location = new_location;
+  printf("Location is %c \n", getCharAtPoint(new_location, map));
+  printf("%s\n", findVisibility(player, map));
+
+  new_location = point_new(8, 4);
+  player->location = new_location;
+  printf("Location is %c \n", getCharAtPoint(new_location, map));
+  printf("%s\n", findVisibility(player, map));
+
+  new_location = point_new(9, 5);
+  player->location = new_location;
+  printf("Location is %c \n", getCharAtPoint(new_location, map));
+  printf("%s\n", findVisibility(player, map));
+
+  new_location = point_new(9, 6);
+  player->location = new_location;
+  printf("Location is %c \n", getCharAtPoint(new_location, map));
+  printf("%s\n", findVisibility(player, map));
 
   return 0;
 }
