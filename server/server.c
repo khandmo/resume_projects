@@ -19,6 +19,7 @@
 #include "../support/log.h"
 #include "../support/message.h"
 #include "../libcs50/mem.h"
+#include "../grid/grid.h"
 
 
 
@@ -26,18 +27,16 @@
 // Global Constants
 static const int MaxNameLength = 50;   // max number of chars in playerName
 static const int MaxPlayers = 26;      // maximum number of players
-//static const int GoldTotal = 250;      // amount of gold in the game
-static const int GoldMinNumPiles= 10; // minimum number of gold piles
-static const int GoldMaxNumPiles = 30; // maximum number of gold piles
+// //static const int GoldTotal = 250;      // amount of gold in the game
+// static const int GoldMinNumPiles= 10; // minimum number of gold piles
+// static const int GoldMaxNumPiles = 30; // maximum number of gold piles
 
 typedef struct game {
-    int MaxNameLength;   // max number of chars in playerName
-    int MaxPlayers;      // maximum number of players
     int GoldTotal;      // amount of gold in the game
     int GoldMinNumPiles; // minimum number of gold piles
     int GoldMaxNumPiles; // maximum number of gold piles
-    char* map;
-    counters_t* goldMap;
+    char* map; // current complete map
+    counters_t* goldMap; // a counters with gold locations and their gold
 
 } game_t;
 
@@ -47,7 +46,7 @@ game_t* game;
 typedef struct player {
     char* name;
     char letter;
-    char* address;
+    addr_t* address;
     point_t* currentLocation;
     int playerGold;
     int recentGold;
@@ -83,10 +82,16 @@ int main(const int argc, char *argv[]){
 
     int port = message_init(NULL);
     printf("message_init: ready at port %d", port);
-
     set_t* playerSet = set_new();
-    message_loop(playerSet, 0, NULL, handleInput, handleMessage);
+    char key[3];
+    for(int i = 1; i <= 26; i++) {
+        sprintf(key, "%d", i);
+        player_t* player = malloc(sizeof(player_t));
+        player = NULL;
+        set_insert(playerSet, key, player);
+    }
 
+    message_loop(playerSet, 0, NULL, handleInput, handleMessage);
     message_done();
     return 0;
     }
@@ -164,18 +169,13 @@ handleMessage(void* arg, const addr_t from, const char* message)
     }
 
     if(message[0] == 'P') {
-        //playerStruct name = message[1]'
+        addPlay()
     }
     else if(message[0] == 'S') {
         //how are we storing spectator so we can have aceess - globally?
     }
     else if(message[0] == 'K') {
-        if(strcmp(wordArray[1], "Q") == 0) {
-            quit();
-        }
-        else {
-            handleKey();
-        }
+        handleKey(arg); 
     }
     else {
 
@@ -243,15 +243,96 @@ static void deletegameStruct(){
 }
 
 
-static void addPlayer(char* name, int playerNumber, ){
+static void addPlayer(char* name, addr_t* address, void* playerSet){
     player_t* player = malloc(sizeof(player_t));
     
-
-
-
 }
 
-static void handleKey() {
+static player_t* getPlayer(addr_t* address, void* playerSet)
+{
+    set_t* set = (set_t*)playerSet;
+    int keyCount = 1;
+    int totalPlayers = 26;
+    char c[10];
+    for(keyCount = 1; keyCount <= totalPlayers; keyCount++)
+    {
+        sprintf(c, "%d", keyCount);
+        player_t* player = set_find(playerSet, c);
+        if(message_eqAddr(*(player->address), *address)) {
+            return player;
+        }
+    }
+    return NULL; //if for some reason we have not found the address  
+}
+
+/* int x is -1,0,1 -1 left, 0 no move, 1 right
+*  int y is -1,o,1 -1 up, 0 no move, 1 down NOTE THIS IS REVERSED BECAUSE OF HOW THE MAP IS PRINTED
+*/
+static bool
+isValidMove(player_t* player, int x, int y) {
+    point_t* p = player->currentLocation;
+}
+
+
+
+static void handleKey(char* key, void* playerSet, addr_t* address) {
+    player_t* player = getPlayer(address, playerSet);
+    
+    if(strcmp(key, "Q") == 0) {
+            quit();
+        }
+    else if(strcmp(key, "H") == 0) {
+        
+    }
+    else if(strcmp(key, "h") == 0) {
+        player_t* player 
+        
+    }
+    else if(strcmp(key, "L") == 0) {
+
+    }
+    else if(strcmp(key, "l") == 0) {
+
+    }
+    else if(strcmp(key, "J") == 0) {
+
+    }
+    else if(strcmp(key, "j") == 0) {
+
+    }
+    else if(strcmp(key, "K") == 0) {
+
+    }
+    else if(strcmp(key, "k") == 0) {
+
+    }
+    else if(strcmp(key, "Y") == 0) {
+
+    }
+    else if(strcmp(key, "y") == 0) {
+
+    }
+    else if(strcmp(key, "U") == 0) {
+
+    }
+    else if(strcmp(key, "u") == 0) {
+
+    }
+    else if(strcmp(key, "b") == 0) {
+
+    }
+    else if(strcmp(key, "B") == 0) {
+
+    }
+    else if(strcmp(key, "n") == 0) {
+
+    }
+    else if(strcmp(key, "N") == 0) {
+
+    }
+    else{  //invalid key input
+
+    }
 
 }
 
