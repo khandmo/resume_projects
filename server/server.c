@@ -15,10 +15,12 @@
 #include <ctype.h>
 #include "../libcs50/set.h"
 #include "../libcs50/counters.h"
-#include "../server/parseArgs.h"
 #include "../support/log.h"
+#include "parseArgs.h"
 #include "../support/message.h"
 #include "../libcs50/mem.h"
+#include "../libcs50/file.h"
+#include "random.h"
 #include "../grid/grid.h"
 
 
@@ -44,19 +46,35 @@ typedef struct game {
 game_t* game;
 
 typedef struct player {
-    char* name;
-    char letter;
-    addr_t* address;
-    point_t* currentLocation;
-    int playerGold;
-    int recentGold;
-    counters_t* pointsSeen;
+    char* name; // name of player
+    char letter; // the letter representation on the map
+    addr_t* address; // address specific to the client
+    point_t* currentLocation; // point representing the current x and y location of the player
+    int playerGold; // total gold in the players purse
+    int recentGold; // most recent gold pickup
+    counters_t* pointsSeen; // 
 }player_t;
 
 typedef struct spectator {
     bool isSpectator;
     char* id;
 }spectator_t;
+
+// Function decclarations
+static bool handleInput(void* arg);
+static bool handleMessage(void* arg, const addr_t from, const char* message);
+static void deleteWordArray(char** array, int wordCount);
+static void initializeGameData(char* filename, int seed);
+static void deletegameStruct();
+static void addPlayer(char* name, addr_t* address, void* playerSet);
+static player_t* getPlayer(addr_t* address, void* playerSet);
+static int processMove(player_t* player, int x, int y);
+static void handleKey(char* key, void* playerSet, addr_t* address);
+void gold(player_t* player);
+void playerSwap(int oldX, int oldY, player_t* player, void* playerSet);
+static void quit();
+
+
 
 int main(const int argc, char *argv[]){
     int parseArgsValue;
@@ -67,8 +85,8 @@ int main(const int argc, char *argv[]){
         initializeGameData(filename, -1);
     }
     else if(parseArgsValue == 1) {  //valid map path and seed provided
-        int seed = argv[2];
-        initializeGameData(filename, seed)
+        int seed = atoi(argv[2]);
+        initializeGameData(filename, seed);
     }
     else if(parseArgsValue == 2) {  //invalid inputs
         exit(2);
@@ -147,7 +165,7 @@ handleInput(void* arg)
  * Return true if any fatal error.
  */
 static bool
-handleMessage(void* arg, const addr_t from, const char* message)
+handleMessage(void* arg, addr_t from, const char* message)
 {   
     char* wordArray[800] = {""};
     char* tempWord = NULL;
@@ -169,13 +187,13 @@ handleMessage(void* arg, const addr_t from, const char* message)
     }
 
     if(message[0] == 'P') {
-        addPlay()
+        addPlayer();
     }
     else if(message[0] == 'S') {
         //how are we storing spectator so we can have aceess - globally?
     }
     else if(message[0] == 'K') {
-        handleKey(arg); 
+        handleKey(wordArray[1], arg, &from); 
     }
     else {
 
@@ -217,8 +235,6 @@ deleteWordArray(char** array, int wordCount)
 static void initializeGameData(char* filename, int seed ){
     // initialize neccessary constants
     game = malloc(sizeof(game_t));
-    game->MaxNameLength = 50;
-    game->MaxPlayers = 26;
     game->GoldTotal = 250;
     game->GoldMinNumPiles = 10;
     game->GoldMaxNumPiles = 30;
@@ -250,11 +266,10 @@ static void addPlayer(char* name, addr_t* address, void* playerSet){
 
 static player_t* getPlayer(addr_t* address, void* playerSet)
 {
-    set_t* set = (set_t*)playerSet;
-    int keyCount = 1;
+    playerSet = (set_t*)playerSet;
     int totalPlayers = 26;
     char c[10];
-    for(keyCount = 1; keyCount <= totalPlayers; keyCount++)
+    for(int keyCount = 1; keyCount <= totalPlayers; keyCount++)
     {
         sprintf(c, "%d", keyCount);
         player_t* player = set_find(playerSet, c);
@@ -265,81 +280,182 @@ static player_t* getPlayer(addr_t* address, void* playerSet)
     return NULL; //if for some reason we have not found the address  
 }
 
-/* int x is -1,0,1 -1 left, 0 no move, 1 right
+/* 0 - invalid move
+* 1 - valid open square
+* 2 - gold
+* 3 - hits a player
+* int x is -1,0,1 -1 left, 0 no move, 1 right
 *  int y is -1,o,1 -1 up, 0 no move, 1 down NOTE THIS IS REVERSED BECAUSE OF HOW THE MAP IS PRINTED
 */
-static bool
-isValidMove(player_t* player, int x, int y) {
-    point_t* p = player->currentLocation;
+static int
+processMove(player_t* player, int x, int y) {
+    x += get_x(player->currentLocation);
+    y += get_y(player->currentLocation);
+    if(getCharFromPair(x, y, game->map) == '-' || getCharFromPair(x, y, game->map) == '+' || getCharFromPair(x, y, game->map) == '|' || isspace(getCharFromPair(x, y, game->map))) {
+        return 0;
+    }
+    else if(getCharFromPair(x, y, game->map) == '.' || getCharFromPair(x, y, game->map) == '#') {
+        set_y(y, player->currentLocation);
+        set_x(x, player->currentLocation);
+        setCharAtPoint(game->map, player->letter, player->currentLocation);
+        return 1;
+    }
+    else if(getCharFromPair(x, y, game->map) == '*') {
+        set_y(y, player->currentLocation);
+        set_x(x, player->currentLocation);
+        return 2;
+    }
+    else if(isalpha(getCharFromPair(x, y, game->map))) {
+        set_y(y, player->currentLocation);
+        set_x(x, player->currentLocation);
+        return 3;
+    }
+    
+    return 0;  //if some sort of error to prevent nothing from being returned
+
+    
 }
 
 
+/*
+h move left, if possible
 
+l move right, if possible
+
+j move down, if possible
+
+k move up , if possible
+
+y move diagonally up and left, if possible
+
+u move diagonally up and right, if possible
+
+b move diagonally down and left, if possible
+
+n move diagonally down and right, if possible*/
 static void handleKey(char* key, void* playerSet, addr_t* address) {
+    // get the player at the address
     player_t* player = getPlayer(address, playerSet);
-    
+    int oldX = get_x(player->currentLocation);
+    int oldY = get_y(player->currentLocation);
+    int moveResult = 0;
+    // quit
     if(strcmp(key, "Q") == 0) {
             quit();
         }
+    // for capital letters call the 
     else if(strcmp(key, "H") == 0) {
-        
+        moveResult = processMove(player, -1, 0);
+        while(moveResult != 0){
+            moveResult = processMove(player, -1, 0);
+        }
     }
-    else if(strcmp(key, "h") == 0) {
-        player_t* player 
-        
+    else if(strcmp(key, "h") == 0) { 
+        processMove(player, -1, 0);
     }
     else if(strcmp(key, "L") == 0) {
-
+        moveResult = processMove(player, 1, 0);
+        while(moveResult != 0){
+            moveResult = processMove(player, 1, 0);
+        } 
     }
     else if(strcmp(key, "l") == 0) {
-
+        processMove(player, 1, 0);
     }
     else if(strcmp(key, "J") == 0) {
-
+        moveResult = processMove(player, 0, 1);
+        while(moveResult != 0){
+            moveResult = processMove(player, 0, 1);
+        } 
     }
     else if(strcmp(key, "j") == 0) {
+        processMove(player, 0, 1);
 
     }
     else if(strcmp(key, "K") == 0) {
-
+        moveResult = processMove(player, 0, -1);
+        while(moveResult != 0){
+            moveResult = processMove(player, 0, -1);
+        } 
     }
     else if(strcmp(key, "k") == 0) {
-
+        processMove(player, 0, -1);
     }
     else if(strcmp(key, "Y") == 0) {
+        moveResult = processMove(player, -1, -1);
+        while(moveResult != 0){
+            moveResult = processMove(player, -1, -1);
+        } 
 
     }
     else if(strcmp(key, "y") == 0) {
-
+        processMove(player, -1, -1);
     }
     else if(strcmp(key, "U") == 0) {
-
+        moveResult = processMove(player, 1, -1);
+        while(moveResult != 0){
+            moveResult = processMove(player, 1, -1);
+        } 
     }
     else if(strcmp(key, "u") == 0) {
-
+        processMove(player, 1, -1);
     }
     else if(strcmp(key, "b") == 0) {
-
+        processMove(player, -1, 1);
     }
     else if(strcmp(key, "B") == 0) {
-
+        moveResult = processMove(player, -1, 1);
+        while(moveResult != 0){
+            moveResult = processMove(player, -1, 1);
+        }
     }
     else if(strcmp(key, "n") == 0) {
-
+        processMove(player, 1, 1);
     }
     else if(strcmp(key, "N") == 0) {
-
+        moveResult = processMove(player, 1, 1);
+        while(moveResult != 0){
+            moveResult = processMove(player, 1, 1);
+        }
     }
-    else{  //invalid key input
-
+    if(moveResult == 2) { //picks up gold
+        gold(player);
     }
-
+    else(moveResult == 3){//runs into other player
+        playerSwap(oldX, oldY, player, playerSet);
+    }
 }
 
-static void quit() {
+void gold(player_t* player) {
+    // get the amount of gold in the pile that was hit
+    int ncols = calculateColumns(game->map);
+    int location = pointToLocation(player->currentLocation, ncols);
+    char c[100];
+    sprintf(c, "%d", location);
+    int g = counters_get(game->goldMap, c);
+    player->playerGold += g;
+    player->recentGold = g;
+    game->GoldTotal -= g;
 
+    if (game->GoldTotal == 0){
+        quit();        
+    }
 }
 
+void playerSwap(int oldX, int oldY, player_t* player, void* playerSet) {
+    set_t* set = (set_t*)playerSet;
+    char c[10];
+    for(int keyCount = 1; keyCount <= 26; keyCount++)
+    {
+        sprintf(c, "%d", keyCount);
+        player_t* otherPlayer = set_find(playerSet, c);
+        if(get_x(player->currentLocation) == get_x(otherPlayer->currentLocation) && get_y(player->currentLocation) == get_y(otherPlayer->currentLocation)) {
+            set_x(oldX, otherPlayer->currentLocation); //swaps other players X and y to the old location of the other player that moved into them
+            set_y(oldY, otherPlayer->currentLocation); 
+        }
+    }
 
 
-
+static void quit(){
+    return;
+}
