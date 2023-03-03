@@ -78,6 +78,7 @@ set_t* initializePlayerSet(int maxPlayers);
 void playerSwap(int oldX, int oldY, player_t* player, void* playerSet);
 static void deletePlayerSet(set_t* playerSet);
 static void playerDelete(void* item);
+bool initializeSpectator(player_t* player);
 void quit();
 
 
@@ -187,6 +188,7 @@ handleMessage(void* arg, addr_t from, const char* message)
     }
 
     if(message[0] == 'P') {
+        //*** if the message is PLAY then we 
         addPlayer();
     }
     else if(message[0] == 'S') {
@@ -196,7 +198,7 @@ handleMessage(void* arg, addr_t from, const char* message)
         else{
             message_send(*(game->spectatorAddress), "QUIT New spectator has joined please quit");
             game->spectatorAddress = &from;
-            initializeSpectatr();
+            initializeSpectator();
         }
     }
     else if(message[0] == 'K') {
@@ -291,8 +293,12 @@ static void deletegameStruct(){
 
 
 static void addPlayer(char* name, addr_t* address, void* playerSet){
-    // dynamically create the player object
-    player_t* player = malloc(sizeof(player_t));
+    // get the empty player object at the empty point at the set
+    int i = game->currPlayers + 1;
+    char key[3];
+    sprintf(key, "%d", i);
+    player_t* player = set_find(playerSet, key);
+
     // assign address
     player->address = address;
     // check string length and truncate if neccessary
@@ -310,13 +316,22 @@ static void addPlayer(char* name, addr_t* address, void* playerSet){
     player->name = name;
     // create an empty counter for points seen
     player->pointsSeen = counters_new();
+    // intitialize gold values to 0
+    player->playerGold = 0;
+    player->recentGold = 0;
     // picking a random spawn location for the player
     int spawn = spawnLocation(game);
     point_t* point = locationToPoint(spawn, game->map);
-    
-    
-    
-    
+
+    // add one to account for the fact current players starts at 0
+    int playerNumber = game->currPlayers + 1; 
+    // increment the letter's ascii by the player number 
+    char letter = 'A' + playerNumber; 
+    // assign it to player
+    player->letter = letter;
+
+    // increment game's current players by one
+    game->currPlayers += 1;    
 }
 
 static player_t* getPlayer(addr_t* address, void* playerSet)
@@ -491,9 +506,7 @@ void gold(player_t* player) {
     // get the amount of gold in the pile that was hit
     int ncols = calculateColumns(game->map);
     int location = pointToLocation(player->currentLocation, ncols);
-    char c[100];
-    sprintf(c, "%d", location);
-    int g = counters_get(game->goldMap, c);
+    int g = counters_get(game->goldMap, location);
     player->playerGold += g;
     player->recentGold = g;
     game->GoldTotal -= g;
