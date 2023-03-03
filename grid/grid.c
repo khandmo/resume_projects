@@ -234,3 +234,11 @@ static void pointDelete(void* item){
 void pointSetDeleter(set_t* set){
     set_delete(set, pointDelete);
 }
+
+int getY(point_t* point){
+    return point->x;
+}
+int getX(point_t* point){
+    return point->y;
+}
+
