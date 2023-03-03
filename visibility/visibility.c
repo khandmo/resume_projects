@@ -10,26 +10,28 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include "../grid/grid.h"
+#include "../libcs50/counters.h"
 
 typedef struct point{
   int x;
   int y;
 } point_t;
 
-char* findVisibility(point_t* start, char* map);
+typedef struct player{
+  char* name;
+  char letter;
+  point_t* location;
+  int player_gold;
+  int recent_gold;
+  counters_t* points_seen;
+} player_t;
+
+char* findVisibility(player_t* player, char* map);
 bool isVisible1(point_t* start, point_t* end, char* map);
 bool isVisible2(point_t* start, point_t* end, char* map);
 float line_func(float slope, int x, int y);
 point_t* point_new(int x, int y);
-
-
-
-// Have to add functionality for tunnel vision
-// If current spot is #, loop in square around current spot
-// If # is next to point, full visibility of room where point is
-
-// Wait, actually do I only need to add # to the if statements?
-// I think so...
+player_t* player_new(char* name, char letter, point_t* location);
 
 /*
  *
@@ -37,36 +39,58 @@ point_t* point_new(int x, int y);
  * 
  */
 char*
-findVisibility(point_t* start, char* map)
+findVisibility(player_t* player, char* map)
 {
+  point_t* start = player->location;
+  counters_t* points_seen = player->points_seen;
   char* new_map = malloc(strlen(map) + 1);
   strcpy(new_map, map);
-  for (int i = 1; i <= calculateColumns(map); i++) {
+  for (int i = 1; i < calculateColumns(map); i++) {
     for (int j =1; j <= calculateRows(map); j++) {
       // Separate into quadrants based on i,j vs x,y
       point_t* end = point_new(i, j);
       int x = start->x;
       int y = start->y;
+      int location = pointToLocation(end, calculateColumns(map));
+      // printf("Location is %d\n", location);
       if (x <= i && y >= j) {
         if (!isVisible1(start, end, map)) {
           // Set character space
-          setCharAtPoint(new_map, ' ', end);
+          if (counters_get(points_seen, location) == 0) {
+            setCharAtPoint(new_map, ' ', end);
+          } else if (getCharAtPoint(end, map) == '*') {
+            setCharAtPoint(new_map, '.', end);
+          }
         }
       } if (x <= i && y <= j) {
         if (!isVisible2(start, end, map)) {
           // Set character space
-          setCharAtPoint(new_map, ' ', end);
+          if (counters_get(points_seen, location) == 0) {
+            setCharAtPoint(new_map, ' ', end);
+          } else if (getCharAtPoint(end, map) == '*') {
+            setCharAtPoint(new_map, '*', end);
+          }
         }
       } if (x >= i && y <= j) {
         if (!isVisible1(end, start, map)) {
           // Set character space
-          setCharAtPoint(new_map, ' ', end);
+          if (counters_get(points_seen, location) == 0) {
+            setCharAtPoint(new_map, ' ', end);
+          } else if (getCharAtPoint(end, map) == '*') {
+            setCharAtPoint(new_map, '*', end);
+          }
         }
       } if (x >= i && y >= j) {
         if (!isVisible2(end, start, map)) {
           // Set character space
-          setCharAtPoint(new_map, ' ', end);
+          if (counters_get(points_seen, location) == 0) {
+            setCharAtPoint(new_map, ' ', end);
+          } else if (getCharAtPoint(end, map) == '*') {
+            setCharAtPoint(new_map, '*', end);
+          }
         }
+      } if (getCharAtPoint(end, new_map) != ' ') {
+        counters_add(points_seen, location);
       }
       free(end);
     }
@@ -116,7 +140,14 @@ isVisible1(point_t* start, point_t* end, char* map)
   // Recall that lower row is higher
   for (int i = 1; i <= y - end->y; i++) { // SHould it be < or <=?
     // Loop through between start column and end column
-    for(int j = 1; j < end->x - x; j++) {
+    for(int j = 1; j <= end->x - x; j++) {
+      
+      if (y == i && x == j) {
+        continue;
+      } if (end->y == y-i && end->x == x+j) {
+        continue;
+      }
+      
       y_val = line_func(slope, j, y);
       if (y_val == y-i) {
         // Check if wall at (x+j, y-i)
@@ -130,7 +161,7 @@ isVisible1(point_t* start, point_t* end, char* map)
         // then you only need to check if the line passes between the points above and to the left of it
 
         // Check if line travels between point and point to the left
-        if (line_func(slope, j-1, y) < y-i && line_func(slope, j, y) > y-i) {
+        if (line_func(slope, j-1, y) > y-i && line_func(slope, j, y) < y-i) {
             // Check if wall at point and point to left
           // Need to add map string
           char wall1 = getCharFromPair(x+j-1, y-i, map);
@@ -217,7 +248,12 @@ isVisible2(point_t* start, point_t* end, char* map)
   // Recall that lower row is higher
   for (int i = 1; i <= end->y - y; i++) { // SHould it be < or <=?
     // Loop through between start column and end column
-    for(int j = 1; j < end->x - x; j++) {
+    for(int j = 1; j <= end->x - x; j++) {
+      if (y == i && x == j) {
+        continue;
+      } if (end->y == y+i && end->x == x+j) {
+        continue;
+      }
       y_val = line_func(slope, j, y);
       if (y_val == y+i) {
         // Check if wall at (x+j, y-i)
@@ -290,10 +326,6 @@ isVisible2(point_t* start, point_t* end, char* map)
 float 
 line_func(float slope, int x, int y)
 {
-  // printf("slope is %f\n", slope);
-  // printf("int x is %d\n", x);
-  // printf("int y is %d\n", y);
-
   return y + x*slope;
 }
 
@@ -310,3 +342,16 @@ point_new(int x, int y)
   return point;
 }
 
+player_t*
+player_new(char* name, char letter, point_t* location)
+{
+  player_t* player = malloc(sizeof(player_t));
+  player->name = name;
+  player->letter = letter;
+  player->location = location;
+  player->player_gold = 0;
+  player->recent_gold = 0;
+  player->points_seen = counters_new();
+
+  return player;
+}
