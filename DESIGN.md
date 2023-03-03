@@ -141,8 +141,6 @@ If any memory allocation errors or invalid keystrokes, the error messages will b
 					call removeplayer() to remove player or spectator
 
 
-
-
 ### Major data structures
 
 * Global Structure *Game* - holds variables and information used throughout the entire server 
@@ -162,6 +160,7 @@ If any memory allocation errors or invalid keystrokes, the error messages will b
 
 * Player structure *Player* - holds important variables and information specific to a unique player
 	- name, players name
+	- character, character representation in map
 	- currLocation, contains current location as a *Point*
 	- playerGold, contains int for total gold in purse
 	- recentGold, contains int for amount of gold most recently collected
