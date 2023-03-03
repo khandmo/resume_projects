@@ -22,8 +22,6 @@ parseArgs.o: parseArgs.h
 random.o: random.h
 server.o:  random.h parseArgs.h
 
-
-
 test: 
 #	./server
 
