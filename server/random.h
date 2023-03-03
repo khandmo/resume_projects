@@ -16,7 +16,6 @@
 #include "../grid/grid.c"
 #include "../libcs50/set.h"
 #include "../libcs50/counters.h"
-#include "server.c"
 
 #ifndef _RANDOM_H
 #define _RANDOM_H

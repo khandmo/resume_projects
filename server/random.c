@@ -13,6 +13,11 @@
 #include "../grid/grid.h"
 #include "../grid/grid.c"
 
+// function declarations
+void random(game_t* game, counters_t* goldMap, int seed);
+static void updateMap(void *arg, const int key, const int count);
+int spawnLocation(game_t* game);
+
 /**
  * 
  * See random.h for implementation details
