@@ -128,6 +128,21 @@ int getY(point_t* point);
  * @return int 
  */
 int getX(point_t* point);
-
+/**
+ * @brief set y value
+ * 
+ * @param y
+ * @param point 
+ * 
+ */
+void setY(int y, point_t* point);
+/**
+ * @brief set x value
+ * 
+ * @param x
+ * @param point 
+ * 
+ */
+void setX(int x, point_t* point);
 
 #endif // _GRID_H_

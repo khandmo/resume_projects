@@ -234,11 +234,31 @@ static void pointDelete(void* item){
 void pointSetDeleter(set_t* set){
     set_delete(set, pointDelete);
 }
-
+/*
+See grid.h for implementation details
+*/
 int getY(point_t* point){
     return point->x;
 }
+
+/*
+See grid.h for implementation details
+*/
 int getX(point_t* point){
     return point->y;
+}
+
+/*
+See grid.h for implementation details
+*/
+void setY(int y, point_t* point){
+    point->y = y;
+}
+
+/*
+See grid.h for implementation details
+*/
+void setX(int x, point_t* point){
+    point->x = x;
 }
 
