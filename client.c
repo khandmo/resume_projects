@@ -18,6 +18,8 @@
 #include "message.h"
 #include "display.h"
 
+int NROWS, NCOLS; // global variables set by a GRID message
+
 /************** local functions **************/
 static bool handleInput(void* arg);
 // verifies player stdin inputs and sends to server
@@ -49,7 +51,6 @@ main(const int argc, char* argv[]){
   }
 
   bool ok;
-  
   // implement spectator mode (argc == 3)
   if (argc == 3){
     message_send(server, "SPECTATE"); // send SPECTATE message
@@ -57,6 +58,7 @@ main(const int argc, char* argv[]){
     // message loop for spectator type
     ok = message_loop(&server, 0, NULL, handleInput, handleMessage);
   }
+
   
   // implement player mode (argc == 4)
   if (argc == 4){
@@ -111,9 +113,36 @@ handleInput(void* arg){
 // return false when okay, return true on bad information
 static bool
 handleMessage(void* arg, const addr_t from, const char* message){
-
-
-
   
+  // Get first word from message
+  char *mType; // message type, first word of message
+  char* mBody; // mesage body, actual message
+  mType = strtok(message, " "); // tokenize message
+  mBody = message+(strlen(mType) + 1); // get rest of message
+  
+  switch(mType) {
+  case "OK": // expect player char assignment
+    update_info_line(mBody, NCOLS); // print start up message (not formatted by client)
+    break;
+  case "GRID": // expect two ints for NROWS and NCOLS
+    char *ptr;
+    NROWS = (int) strtol(mBody, &ptr, 10); // grab the numbers
+    NCOLS = (int) strtol(mBody, &ptr, 10);
+    break;
+  case "GOLD": // expect n, p, r amounts
+    update_info_line(mBody, NCOLS); // print gold info line (not formatted by client)
+    break;
+  case "DISPLAY": // expect map string
+    update_display(mBody, NROWS, NCOLS);
+    break;
+  case "QUIT": // expect quit message to be displayed
+    update_info_line(mBody, NCOLS); // print quit message
+    return true; // stop message loop
+    break;
+  case "ERROR": // expect error message to be displayed
+    update_info_line(mBody, NCOLS); // print error message
+    break;
+  default: // don't do anythhing if message doesn't fit above types
+  }  
   return false;
 }

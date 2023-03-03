@@ -19,8 +19,8 @@ main(){
   // maps with other sizes will be displayed incorrectly if the
   // update_display parameters are not changed accordingly
   
-  initialize_curses(80, 80);
-  update_info_line("You're trapped!\n", 40);
+  initialize_curses(22, 80);
+  update_info_line("You're trapped!", 80);
 
   FILE* fp;
   if ((fp = fopen("../maps/hole.txt", "r")) == NULL){

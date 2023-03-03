@@ -52,10 +52,10 @@ update_display(char* map_string, int NROWS, int NCOLS){
   char** map_array = string_to_array(map_string, NROWS, NCOLS); // make map array
   
   for (int y=0; y < NROWS; y++){ // offset y to make room for message 
+    addch('\n'); // adds new line at beginning of new row 
     for (int x=0; x < NCOLS; x++){
       addch(map_array[y][x]); // change it to new character      
     }
-    addch('\n');
     free(map_array[y]);
   }
   refresh(); // update screen
