@@ -44,7 +44,13 @@ int spawnLocation(game_t* game);
  */
 void random(game_t* game, counters_t* goldMap, int seed){
     // seed the random number generator
-    srand(seed);
+    if (seed == -1){
+        srand(getpid());
+    }
+    else{
+        srand(seed);
+    }
+    
     // set up the range for the amount of piles
     int total = game->GoldTotal;
     int maxPiles = game->GoldMaxNumPiles;

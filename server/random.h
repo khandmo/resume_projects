@@ -29,6 +29,14 @@ typedef struct counters counters_t;
  * @return set_t* 
  */
 void random(game_t* game, counters_t* goldMap, int seed);
+
+/**
+ * @brief returns the spawn location in the string
+ * 
+ * @param game 
+
+ * @return int 
+ */
 int spawnLocation(game_t* game);
 
 
