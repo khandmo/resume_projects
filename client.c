@@ -111,7 +111,7 @@ handleInput(void* arg){
 }
 
 /************** handleMessage() **************/
-// utilizes switches to check the type of message received and parses
+// utilizes if/else (switch too hard) to check the type of message received and parses
 // it for the client
 // return false when okay, return true on bad or quit information
 static bool
@@ -125,7 +125,7 @@ handleMessage(void* arg, const addr_t from, const char* message){
   mType = strtok(messageCopy, " "); // tokenize message
   mBody = messageCopy+(strlen(mType) + 1); // get rest of message
 
-  // Switch statement for various possibilities 
+  // if elses for various possibilities 
   if (strcmp(mType, "OK") == 0){
     update_info_line(mBody, NCOLS); // print start up message (not formatted by client)
   } else if (strcmp(mType, "GRID") == 0){ // expect two ints for NROWS and NCOLS
