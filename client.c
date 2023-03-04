@@ -14,7 +14,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <strings.h>
+#include <string.h>
+#include <ncurses.h>
+#include "mem.h"
 #include "message.h"
 #include "display.h"
 
@@ -37,6 +39,7 @@ main(const int argc, char* argv[]){
   }
 
   // check args
+  const char* program = argv[0];
   if (argc < 3 || argc > 4){
     fprintf(stderr, "usage: %s hostname port\n", program);
     return 3; // bad commandline
@@ -110,39 +113,37 @@ handleInput(void* arg){
 /************** handleMessage() **************/
 // utilizes switches to check the type of message received and parses
 // it for the client
-// return false when okay, return true on bad information
+// return false when okay, return true on bad or quit information
 static bool
 handleMessage(void* arg, const addr_t from, const char* message){
   
   // Get first word from message
-  char *mType; // message type, first word of message
+  char* messageCopy = mem_malloc(strlen(message));
+  strcpy(messageCopy, message);
+  char* mType; // message type, first word of message
   char* mBody; // mesage body, actual message
-  mType = strtok(message, " "); // tokenize message
-  mBody = message+(strlen(mType) + 1); // get rest of message
-  
-  switch(mType) {
-  case "OK": // expect player char assignment
+  mType = strtok(messageCopy, " "); // tokenize message
+  mBody = messageCopy+(strlen(mType) + 1); // get rest of message
+
+  // Switch statement for various possibilities 
+  if (strcmp(mType, "OK") == 0){
     update_info_line(mBody, NCOLS); // print start up message (not formatted by client)
-    break;
-  case "GRID": // expect two ints for NROWS and NCOLS
-    char *ptr;
+  } else if (strcmp(mType, "GRID") == 0){ // expect two ints for NROWS and NCOLS
+    char* ptr;
     NROWS = (int) strtol(mBody, &ptr, 10); // grab the numbers
     NCOLS = (int) strtol(mBody, &ptr, 10);
-    break;
-  case "GOLD": // expect n, p, r amounts
+  } else if (strcmp(mType, "GOLD") == 0){ // expect n, p, r amounts
     update_info_line(mBody, NCOLS); // print gold info line (not formatted by client)
-    break;
-  case "DISPLAY": // expect map string
+  } else if (strcmp(mType, "DISPLAY") == 0){ // expect map string
     update_display(mBody, NROWS, NCOLS);
-    break;
-  case "QUIT": // expect quit message to be displayed
+  } else if (strcmp(mType, "QUIT") == 0){ // expect quit message to be displayed
     update_info_line(mBody, NCOLS); // print quit message
+    endwin(); // turn off curses
+    free(messageCopy);
     return true; // stop message loop
-    break;
-  case "ERROR": // expect error message to be displayed
+  } else if (strcmp(mType, "ERROR") == 0){ // expect error message to be displayed
     update_info_line(mBody, NCOLS); // print error message
-    break;
-  default: // don't do anythhing if message doesn't fit above types
-  }  
+  }
+  free(messageCopy);
   return false;
 }
