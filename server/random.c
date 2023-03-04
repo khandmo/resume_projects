@@ -13,10 +13,9 @@
 #include <string.h>
 #include <strings.h>
 #include <ctype.h>
-#include "random.h"
 #include "../support/message.h"
 #include "../grid/grid.h"
-#include "../grid/grid.c"
+#include "../libcs50/counters.h"
 
 
 typedef struct game {
@@ -29,6 +28,8 @@ typedef struct game {
     counters_t* goldMap; // a counters with gold locations and their gold
 
 } game_t;
+
+typedef struct counters counters_t;
 
 
 // function declarations
@@ -126,9 +127,9 @@ int spawnLocation(game_t* game){
     int randPoint = (rand() % (num - 1 + 1)) + 1;
 
     // get the point at that key
-    char c[100];
-    sprintf(c, "%d", randPoint);
-    point_t* point = set_find(possiblePoints, c);
+    char key[100];
+    sprintf(key, "%d", randPoint);
+    point_t* point = set_find(possiblePoints, key);
 
     // get the character at that point
     char c = getCharAtPoint(point, game->map);
@@ -136,10 +137,10 @@ int spawnLocation(game_t* game){
         while(c != '.'){
             // get new point
             int randPoint = (rand() % (num - 1 + 1)) + 1;
-            char c[100];
-            sprintf(c, "%d", randPoint);
-            point = set_find(possiblePoints, c);
-            char c = getCharAtPoint(point, game->map);
+            char key[100];
+            sprintf(key, "%d", randPoint);
+            point = set_find(possiblePoints, key);
+            c = getCharAtPoint(point, game->map);
         }
     }
     int ncols = calculateColumns(game->map);

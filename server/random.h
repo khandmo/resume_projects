@@ -12,16 +12,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "../grid/grid.h"
-#include "../grid/grid.c"
-#include "../libcs50/set.h"
-#include "../libcs50/counters.h"
 
-#ifndef _RANDOM_H_
-#define _RANDOM_H_
+#ifndef RANDOM_H
+#define RANDOM_H
 
 /**************** global types ****************/
 typedef struct game game_t;  // opaque to users of the module
+typedef struct counters counters_t;
 
 /**
  * @brief Takes an empty counters to modify and will return nothing 
@@ -35,4 +32,4 @@ void random(game_t* game, counters_t* goldMap, int seed);
 int spawnLocation(game_t* game);
 
 
-#endif // _RANDOM_H_
+#endif // RANDOM_H
