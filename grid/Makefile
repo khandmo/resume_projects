@@ -1,21 +1,25 @@
+
+
 # Matthew Givens
 # CS 50, Winter 2023
 # grid.c makefile
 
 PROG = grid
-LIBS = ../libcs50/libcs50-given.a
-OBJS = gridtesting.o grid.o 
+LIB = ../libcs50/libcs50-given.a ../libcs50/set.h
 
-CFLAGS = -Wall -pedantic -std=c11 -ggdb $(TESTING) -I../libcs50
+
+CFLAGS = -Wall -pedantic -std=c11 -ggdb -I../libcs50
 CC = gcc
 MAKE = make
 
-gridtesting: gridtesting.o #../libcs50/file.o 
-	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
+grid: $(PROG).o $(OBJS) $(LIB)
+	$(CC) $(CFLAGS) $(PROG).o $(OBJS) $(LIB) -o grid
 
-gridtesting.o: grid.o 
+grid.o: grid.h
 
-grid.o: grid.h grid.c
+#gridtesting: gridtesting.o #../libcs50/file.o 
+#	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
+#gridtesting.o: grid.o 
 
 
 .PHONY: test valgrind clean

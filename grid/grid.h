@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "grid.h"
 #include "../libcs50/set.h"
 
 /**************** global types ****************/
