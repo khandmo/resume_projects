@@ -1,19 +1,20 @@
 # Makefile for display tests
 # Zion Slaughter
+LIB = display.a
 
 CC = gcc
 CFLAGS = -Wall -pedantic -std=c11 -ggdb -I../libcs50
-
-OBJS = displaytest.o display.o
-LIBS = -lm -lcurses
-LLIBS = ../libcs50/libcs50.a
+MAKE = make
 
 .PHONY: all clean test
 
-all: displaytest
+all: $(LIB) displaytest
 
-displaytest: $(OBJS) $(LLIBCS)
-	$(CC) $(CFLAGS) $(OBJS) $(LLIBS) $(LIBS) -o displaytest
+$(LIB): display.o
+	ar cr $(LIB) $^
+
+displaytest: displaytest.o display.o ../libcs50/libcs50.a
+	$(CC) $(CFLAGS) displaytest.o display.o ../libcs50/libcs50.a -lm -lcurses -o displaytest
 
 displaytest.o: display.h ../libcs50/file.h
 
@@ -23,6 +24,8 @@ test: displaytest
 	./displaytest
 
 clean:
+	rm -f display
+	rm -f $(LIB)
 	rm -f displaytest
 	rm -f *~ *.o
 	rm -rf *.dSYM

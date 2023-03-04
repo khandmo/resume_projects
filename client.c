@@ -14,7 +14,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <strings.h>
+#include <string.h>
+#include <ncurses.h>
+#include "mem.h"
 #include "message.h"
 #include "display.h"
 
@@ -37,6 +39,7 @@ main(const int argc, char* argv[]){
   }
 
   // check args
+  const char* program = argv[0];
   if (argc < 3 || argc > 4){
     fprintf(stderr, "usage: %s hostname port\n", program);
     return 3; // bad commandline
@@ -50,30 +53,31 @@ main(const int argc, char* argv[]){
     return 4; // bad hostname/port
   }
 
-  bool ok;
   // implement spectator mode (argc == 3)
   if (argc == 3){
     message_send(server, "SPECTATE"); // send SPECTATE message
-
     // message loop for spectator type
-    ok = message_loop(&server, 0, NULL, handleInput, handleMessage);
+    printf("loop starting\n");
+    bool ok = message_loop(&server, 0, NULL, handleInput, handleMessage);
+    message_done();
+    return ok? 0 : 1;
   }
 
   
   // implement player mode (argc == 4)
   if (argc == 4){
-    char* first_message = "PLAY ";
+    char* first_message = mem_malloc(sizeof(char) * 25);
+    strcpy(first_message, "PLAY ");
     char* player_name = argv[3];
     strcat(first_message, player_name); // add real name to string
     message_send(server, first_message); // send PLAY message
-
+    free(first_message);
+    
     // message loop for player type
-    ok = message_loop(&server, 0, NULL, handleInput, handleMessage);
+    bool ok = message_loop(&server, 0, NULL, handleInput, handleMessage);
+    message_done();
+    return ok? 0 : 1;
   }
-
-  // finish up
-  message_done(); // shut down message module
-  return ok? 0 : 1; // status code depends on result of message_loop
 }
  
 /************** handleInput() **************/
@@ -89,18 +93,19 @@ handleInput(void* arg){
     fprintf(stderr, "handleInput called without a correspondent.");
     return true;
   }
-  
   // prep and read from stdin
-  char line[1]; // should only be one char
+  char line; // should only be one char
 
-  if (fgets(line, 1, stdin) == NULL){
+  if ((line = fgetc(stdin)) == EOF){
     // EOF
     return true;
   } else { // no erroneous character checks in client.c
     // send message to server and keep looping
-    char* full_message = "KEY ";
-    strcat(full_message, line); // not checking for case of keyStoke
+    char* full_message = mem_malloc(sizeof(char) * 10);
+    strcpy(full_message, "KEY ");
+    *(full_message+strlen("KEY ")) = line;
     message_send(*serverp, full_message); // send full message (key convention)
+    free(full_message);
     return false;
   }
   // if input invalid, keep looping and toss the input
@@ -108,41 +113,43 @@ handleInput(void* arg){
 }
 
 /************** handleMessage() **************/
-// utilizes switches to check the type of message received and parses
+// utilizes if/else (switch too hard) to check the type of message received and parses
 // it for the client
-// return false when okay, return true on bad information
+// return false when okay, return true on bad or quit information
 static bool
 handleMessage(void* arg, const addr_t from, const char* message){
-  
   // Get first word from message
-  char *mType; // message type, first word of message
+  char* messageCopy = mem_malloc(sizeof(char)* (strlen(message)+1));
+  strcpy(messageCopy, message);
+  char* mType; // message type, first word of message
   char* mBody; // mesage body, actual message
-  mType = strtok(message, " "); // tokenize message
-  mBody = message+(strlen(mType) + 1); // get rest of message
-  
-  switch(mType) {
-  case "OK": // expect player char assignment
+  char* mDispT;
+  char* mDisp;
+  mType = strtok(messageCopy, " "); // tokenize message
+  mBody = messageCopy+(strlen(mType) + 1); // get rest of message
+  mDispT = strtok(messageCopy, "\n"); // tokenize display message
+  mDisp = messageCopy+(strlen(mDispT)+2); // get rest of display
+  // if elses for various possibilities 
+  if (strcmp(mType, "OK") == 0){
     update_info_line(mBody, NCOLS); // print start up message (not formatted by client)
-    break;
-  case "GRID": // expect two ints for NROWS and NCOLS
-    char *ptr;
+  } else if (strcmp(mType, "GRID") == 0){ // expect two ints for NROWS and NCOLS
+    char* ptr;
     NROWS = (int) strtol(mBody, &ptr, 10); // grab the numbers
+    mBody = ptr;
     NCOLS = (int) strtol(mBody, &ptr, 10);
-    break;
-  case "GOLD": // expect n, p, r amounts
+    initialize_curses(NROWS+1, NCOLS+1);
+  } else if (strcmp(mType, "GOLD") == 0){ // expect n, p, r amounts
     update_info_line(mBody, NCOLS); // print gold info line (not formatted by client)
-    break;
-  case "DISPLAY": // expect map string
-    update_display(mBody, NROWS, NCOLS);
-    break;
-  case "QUIT": // expect quit message to be displayed
-    update_info_line(mBody, NCOLS); // print quit message
+  } else if (strcmp(mDispT, "DISPLAY") == 0){ // expect map string
+    update_display(mDisp, NROWS, NCOLS);
+  } else if (strcmp(mType, "QUIT") == 0){ // expect quit message to be displayed
+    endwin(); // turn off curses
+    printf("%s\n", mBody); // print quit message
     return true; // stop message loop
-    break;
-  case "ERROR": // expect error message to be displayed
+  } else if (strcmp(mType, "ERROR") == 0){ // expect error message to be displayed
     update_info_line(mBody, NCOLS); // print error message
-    break;
-  default: // don't do anythhing if message doesn't fit above types
-  }  
+  }
+  fflush(stdout);
+  //free(messageCopy); // find out where to pu tthis without killing prog
   return false;
 }
