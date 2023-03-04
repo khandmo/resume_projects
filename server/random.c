@@ -74,6 +74,7 @@ void random(game_t* game, counters_t* goldMap, int seed){
         char c[100];
         sprintf(c, "%d", randPoint);
         point_t* point = set_find(possiblePoints, c);
+        printf("%d\n", getX(point));
 
         // get the location of that point in the map string
         int ncols = calculateColumns(game->map);
