@@ -14,8 +14,8 @@
  */
 
 
-#ifndef _PARSEARGS_H_
-#define _PARSEARGS_H_
+#ifndef PARSEARGS_H
+#define PARSEARGS_H
 
 
 #include <stdbool.h>
@@ -39,4 +39,4 @@ int parseArgs(int argc, char* argv[]);
 
 
 
-#endif // _PARSEARGS_H_
+#endif // PARSEARGS_H
