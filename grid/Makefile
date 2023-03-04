@@ -13,13 +13,13 @@ CC = gcc
 MAKE = make
 
 grid: $(PROG).o $(OBJS) $(LIB)
-	$(CC) $(CFLAGS) $(PROG).o $(OBJS) $(LIB) -o grid
+	$(CC) $(CFLAGS) $(PROG).o $(libs) $(LIB) -o grid
 
 grid.o: grid.h
 
-#gridtesting: gridtesting.o #../libcs50/file.o 
-#	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
-#gridtesting.o: grid.o 
+# gridtesting: gridtesting.o #../libcs50/file.o 
+# 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
+# gridtesting.o: grid.o 
 
 
 .PHONY: test valgrind clean

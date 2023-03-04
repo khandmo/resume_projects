@@ -42,7 +42,7 @@ int main()
 
     int p1location = pointToLocation(p1, ncols);
     // int p2location = pointToLocation(p2, ncols);
-    printf("point 1 location: %d\n", p1location);
+    //printf("point 1 location: %d\n", p1location);
     // printf("point 2 location: %d\n", p2location);
 
     char c1 = getCharAtPoint(p1, map);

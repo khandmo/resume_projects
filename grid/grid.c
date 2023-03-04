@@ -237,7 +237,6 @@ int validPointsNoPaths(char* mapstring, set_t* res){
 void setCharAtPoint(char* mapstring, char new, point_t* point){
     int columns = calculateColumns(mapstring);
     int location = pointToLocation(point, columns);
-    printf("Location is %d\n", location);
         char* copy = mapstring;
     for (int i = 0; i < location-1; i++) {
         copy++;
