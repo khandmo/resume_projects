@@ -3,10 +3,10 @@
 # server.c makefile
 
 PROG = server
-LIB = ../libcs50/libcs50-given.a ../grid/grid.h ../visibility/visibility.h
-OBJS = ../grid/grid.o ../visibility/visibility.o
+LIB = ../libcs50/libcs50-given.a ../support/message.h ../support/log.h
+OBJS = ../grid/grid.o parseArgs.o ../support/message.o ../support/log.o visibility.o random.o
 
-CFLAGS = -Wall -pedantic -std=c11 -ggdb -I../libcs50 -I../common
+CFLAGS = -Wall -pedantic -std=c11 -ggdb -I../libcs50
 CC = gcc
 MAKE = make
 
@@ -17,10 +17,10 @@ VALGRIND = valgrind --leak-check=full --show-leak-kinds=all
 server: $(PROG).o $(OBJS) $(LIB)
 	$(CC) $(CFLAGS) $(PROG).o $(OBJS) $(LIB) -o server
 
-
+visibility.o: visibility.h
 parseArgs.o: parseArgs.h
 random.o: random.h
-server.o:  random.h parseArgs.h
+server.o:  random.h parseArgs.h visibility.h
 
 test: 
 #	./server

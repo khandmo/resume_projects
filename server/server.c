@@ -22,7 +22,7 @@
 #include "../libcs50/file.h"
 #include "random.h"
 #include "../grid/grid.h"
-#include "../visibility/visibility.h"
+#include "visibility.h"
 
 
 /**************** global types ****************/
@@ -63,6 +63,11 @@ typedef struct spectator {
     bool isSpectator;
     char* id;
 }spectator_t;
+
+typedef struct point {
+  int x;
+  int y;
+} point_t;
 
 // Function decclarations
 static bool handleMessage(void* arg, const addr_t from, const char* message);
@@ -349,8 +354,10 @@ static void addPlayer(char* name, addr_t* address, void* playerSet){
     // increment game's current players by one
     game->currPlayers += 1; 
     // send OK L, where L is the player letter
-    char c[10] = "OK";
-    strcat(c, player->letter);
+    char c[10] = "OK ";
+    c[3] = player->letter;
+    c[4] = '\0';
+    
     message_send(*player->address, c); 
 
     char gridMessage[100] = "";
@@ -417,8 +424,8 @@ processMove(player_t* player, int x, int y) {
         setY(y, player->currentLocation);
         setX(x, player->currentLocation);
         point_t* oldPoint = malloc(sizeof(point_t));
-        oldPoint->x = oldX;
-        oldPoint->y = oldY;
+        setX(oldX, oldPoint);
+        setY(oldY, oldPoint);
         setCharAtPoint(game->map, player->letter, player->currentLocation);
         setCharAtPoint(game->map, player->previousPoint, oldPoint);
         free(oldPoint);
@@ -675,7 +682,7 @@ static void playerDelete(void* item){
  */
 static void playerQuit(player_t* player){
     player->inGame = false;
-    setCharAtPoint(game->currPlayers, player->previousPoint, player->currentLocation);
+    setCharAtPoint(game->map, player->previousPoint, player->currentLocation);
 }
 
 void endGame(void* playerSet) {
