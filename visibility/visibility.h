@@ -3,7 +3,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include "../grid/grid.h"
 
 
 /****** Point Structure ******/
@@ -12,10 +11,8 @@
  * 
  * 
 */
-typedef struct point{
-  int x;
-  int y;
-} point_t;
+typedef struct point point_t;
+
 
 
 /****** findVisibility ********/
