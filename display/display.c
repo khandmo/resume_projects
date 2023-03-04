@@ -42,7 +42,10 @@ void initialize_curses(int NROWS, int NCOLS){
 /***************** update_info_line() *****************/
 void
 update_info_line(char* message, int NCOLS){
-  mvaddnstr(0, 0, message, NCOLS); // at top of screen, print message
+  move(0, 0);
+  clrtoeol(); // clear to end of line (erase old message)
+  refresh();
+  mvaddnstr(0, 0, message, strlen(message) + 1); // at top of screen, print message
   refresh(); // update screen
 }
 
@@ -50,11 +53,15 @@ update_info_line(char* message, int NCOLS){
 void
 update_display(char* map_string, int NROWS, int NCOLS){
   char** map_array = string_to_array(map_string, NROWS, NCOLS); // make map array
-  
-  for (int y=0; y < NROWS; y++){ // offset y to make room for message 
-    addch('\n'); // adds new line at beginning of new row 
+  // first, clear the lines under the info line
+  for (int z=0; z < NROWS; z++){
+    move(z+1, 0);
+    clrtoeol();
+  }
+  // then write new map
+  for (int y=0; y < NROWS; y++){ // offset y to make room for message  
     for (int x=0; x < NCOLS; x++){
-      addch(map_array[y][x]); // change it to new character      
+      mvaddch(y+1, x, map_array[y][x]); // add new character      
     }
     free(map_array[y]);
   }
