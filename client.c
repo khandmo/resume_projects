@@ -143,9 +143,8 @@ handleMessage(void* arg, const addr_t from, const char* message){
   } else if (strcmp(mDispT, "DISPLAY") == 0){ // expect map string
     update_display(mDisp, NROWS, NCOLS);
   } else if (strcmp(mType, "QUIT") == 0){ // expect quit message to be displayed
-    update_info_line(mBody, NCOLS); // print quit message
     endwin(); // turn off curses
-    // free(messageCopy);
+    printf("%s\n", mBody); // print quit message
     return true; // stop message loop
   } else if (strcmp(mType, "ERROR") == 0){ // expect error message to be displayed
     update_info_line(mBody, NCOLS); // print error message
