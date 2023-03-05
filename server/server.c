@@ -79,7 +79,7 @@ static void initializeGameData(char *filename, int seed);
 static void deletegameStruct();
 static void addPlayer(char *name, addr_t address, void *playerSet);
 static player_t *getPlayer(addr_t address, void *playerSet);
-static int processMove(player_t *player, int x, int y);
+static int processMove(player_t *player, void* playerSet, int x, int y);
 void gold(player_t *player);
 static bool handleKey(char *key, void *playerSet, addr_t address);
 set_t *initializePlayerSet(int maxPlayers);
@@ -468,7 +468,7 @@ static player_t *getPlayer(addr_t address, void *playerSet)
  */
 
 static int
-processMove(player_t *player, int x, int y)
+processMove(player_t *player, void* playerSet, int x, int y)
 {
     int oldX = getX(player->currentLocation);
     int oldY = getY(player->currentLocation);
@@ -590,7 +590,7 @@ static bool handleKey(char *key, void *playerSet, addr_t address)
         // for capital letters call the move until it cannot be called again
         if (strcmp(key, "H") == 0)
         {
-            while ((moveResult = processMove(player, -1, 0)) != 0)
+            while ((moveResult = processMove(player, playerSet, -1, 0)) != 0)
             {
                 if (moveResult == 2)
                 {
@@ -605,11 +605,11 @@ static bool handleKey(char *key, void *playerSet, addr_t address)
         // call the function process move for a lowercase key once
         else if (strcmp(key, "h") == 0)
         {
-            moveResult = processMove(player, -1, 0);
+            moveResult = processMove(player, playerSet, -1, 0);
         }
         else if (strcmp(key, "L") == 0)
         {
-            while ((moveResult = processMove(player, 1, 0)) != 0)
+            while ((moveResult = processMove(player, playerSet, 1, 0)) != 0)
             {
                 if (moveResult == 2)
                 {
@@ -822,7 +822,7 @@ void playerSwap(int oldX, int oldY, player_t *player, void *playerSet)
         sprintf(c, "%d", keyCount);
         player_t *otherPlayer = set_find(playerSet, c);
         // checks only initialized
-        if (player->isInitalized != false && otherPlayer->inGame)
+        if (otherPlayer->isInitalized != false && otherPlayer->inGame && otherPlayer->letter != player->letter)
         {
             if (getX(player->currentLocation) == getX(otherPlayer->currentLocation) && getY(player->currentLocation) == getY(otherPlayer->currentLocation))
             {
