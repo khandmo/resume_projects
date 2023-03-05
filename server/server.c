@@ -579,7 +579,7 @@ static bool handleKey(char *key, void *playerSet, addr_t address)
     }
 
     // check to see if the key came from the spectator
-    if (!message_isAddr(game->spectatorAddress) && !message_eqAddr(address, game->spectatorAddress))
+    if (message_isAddr(game->spectatorAddress) && message_eqAddr(address, game->spectatorAddress))
     {
         updateDisplay(playerSet);
         return false;
