@@ -21,7 +21,7 @@ typedef struct point{
 typedef struct player {
     bool inGame; // if true, the player is in the game, once they quit this becomes false
     bool isInitalized; // has the player been initialized yet
-    char* name; // name of player
+    char name[150]; // name of player
     char letter; // the letter representation on the map
     addr_t address; // address specific to the client
     point_t* currentLocation; // point representing the current x and y location of the player
@@ -36,7 +36,7 @@ bool isVisible1(point_t* start, point_t* end, char* map);
 bool isVisible2(point_t* start, point_t* end, char* map);
 float line_func(float slope, int x, int y);
 point_t* point_new(int x, int y);
-player_t* player_new(char* name, char letter, point_t* location);
+// player_t* player_new(char* name, char letter, point_t* location);
 
 /*
  *
@@ -47,7 +47,6 @@ char*
 findVisibility(player_t* player, char* map)
 {
   point_t* start = player->currentLocation;
-  printf("Point is (%d, %d)\n", start->x, start->y);
   counters_t* pointsSeen = player->pointsSeen;
   char* new_map = malloc(strlen(map) + 1);
   strcpy(new_map, map);
@@ -98,7 +97,7 @@ findVisibility(player_t* player, char* map)
       } if (getCharAtPoint(end, new_map) != ' ') {
         counters_add(pointsSeen, location);
       }
-      // free(end);
+      free(end); // CHECK HERE
     }
   }
   return new_map;
@@ -347,8 +346,6 @@ point_new(int x, int y)
   point->y = y;
   return point;
 }
-
-
 
 
 
