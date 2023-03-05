@@ -242,7 +242,7 @@ void setCharAtPoint(char* mapstring, char new, point_t* point){
     for (int i = 0; i < location-1; i++) {
         copy++;
     }
-    if (*copy != NULL && *copy != '\n') {  //when NULL or newline we make a new copy char
+    if (*copy != '\0' && *copy != '\n') {  //when NULL or newline we make a new copy char
         *copy = new;
     }
 }

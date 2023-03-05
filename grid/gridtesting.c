@@ -11,9 +11,14 @@
 #include <string.h>
 #include "../libcs50/file.h"
 #include "../libcs50/file.c"
-#include "grid.h"
-#include "grid.c"
 #include "../libcs50/set.h"
+#include "grid.h"
+
+/**************** global types ****************/
+typedef struct point {
+  int x;
+  int y;
+} point_t;
 
 int main()
 {
@@ -64,7 +69,7 @@ int main()
     // free(p1);
     // free(p2);
     // free(p3);
-    set_delete(pointSet, pointDelete);
+    pointSetDeleter(pointSet);
 
 
     set_t *res = set_new();
@@ -85,6 +90,6 @@ int main()
     }
     
 
-    set_delete(res, pointDelete);
+    pointSetDeleter(res);
     free(map);
 }
