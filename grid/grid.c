@@ -221,4 +221,3 @@ void setCharAtPoint(char* mapstring, char new, point_t* point){
         *copy = new;
     }
 }
-

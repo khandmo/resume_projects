@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include "../grid/grid.h"
+#include "../libcs50/counters.h"
 
 
 /****** Point Structure ******/
@@ -17,6 +18,20 @@ typedef struct point{
   int y;
 } point_t;
 
+/****** Player Structure ******/
+/* 
+ *
+ * 
+ * 
+*/
+typedef struct player{
+  char* name;
+  char letter;
+  point_t* location;
+  int player_gold;
+  int recent_gold;
+  counters_t* points_seen;
+} player_t;
 
 /****** findVisibility ********/
 /*
@@ -24,7 +39,7 @@ typedef struct point{
  * returns a new map printing only what is visible from
  * the passed in point in the old map
  */
-char* findVisibility(point_t* start, char* map);
+char* findVisibility(player_t* player, char* map);
 
 
 /****** isVisible1 ********/
@@ -66,3 +81,9 @@ float line_func(float slope, int x, int y);
 */
 point_t* point_new(int x, int y);
 
+/**** player_new ******/
+/*
+ *
+ *
+*/
+player_t* player_new(char* name, char letter, point_t* location);
