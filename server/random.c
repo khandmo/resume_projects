@@ -25,7 +25,7 @@ typedef struct game
     int GoldMaxNumPiles; // maximum number of gold piles
     char *map;           // current complete map
     int currPlayers;     // amount of current players in the game
-    addr_t *spectatorAddress;
+    addr_t spectatorAddress;
     counters_t *goldMap; // a counters with gold locations and their gold
 
 } game_t;
