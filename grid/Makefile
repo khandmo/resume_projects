@@ -1,5 +1,3 @@
-
-
 # Matthew Givens
 # CS 50, Winter 2023
 # grid.c makefile
@@ -12,14 +10,14 @@ CFLAGS = -Wall -pedantic -std=c11 -ggdb -I../libcs50
 CC = gcc
 MAKE = make
 
-grid: $(PROG).o $(OBJS) $(LIB)
-	$(CC) $(CFLAGS) $(PROG).o $(libs) $(LIB) -o grid
+grid: $(PROG).o $(LIB)
+	$(CC) $(CFLAGS) $(PROG).o $(LIB) -o grid
 
 grid.o: grid.h
 
-# gridtesting: gridtesting.o #../libcs50/file.o 
-# 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
-# gridtesting.o: grid.o 
+gridtesting: gridtesting.o #../libcs50/file.o 
+	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
+gridtesting.o: grid.o 
 
 
 .PHONY: test valgrind clean
