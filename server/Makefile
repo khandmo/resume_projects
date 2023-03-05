@@ -24,10 +24,10 @@ random.o: random.h
 server.o: random.h parseArgs.h visibility.h
 
 test: 
-	./server ../maps/small.txt 
+	./server ../maps/fewspots.txt 
 
 valgrind: 
-	valgrind --leak-check=full --show-leak-kinds=all ./server ../maps/small.txt
+	valgrind --leak-check=full --show-leak-kinds=all ./server ../maps/fewspots.txt
 
 clean:
 	rm -rf *.dSYM # Mac OS debugging

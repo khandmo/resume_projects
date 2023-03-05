@@ -51,16 +51,13 @@ findVisibility(player_t* player, char* map)
   char* new_map = malloc(strlen(map) + 1);
   strcpy(new_map, map);
   setCharAtPoint(new_map, '@', start);
-  printf("String length is %d\n", strlen(map));
   for (int i = 1; i < calculateColumns(map); i++) {
     for (int j =1; j <= calculateRows(map); j++) {
       // Separate into quadrants based on i,j vs x,y
       point_t* end = point_new(i, j);
       int x = start->x;
       int y = start->y;
-      printf("Point is (%d, %d)\n", i, j);
       int location = pointToLocation(end, calculateColumns(map));
-      printf("Location is %d\n", location);
       if (x <= i && y >= j) {
         if (!isVisible1(start, end, map)) {
           // Set character space
