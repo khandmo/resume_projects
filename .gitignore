@@ -37,4 +37,3 @@ Icon?
 ###########################################################################
 # custom additions below here; see also .gitignore files in subdirectories.
 client
-client.o

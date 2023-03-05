@@ -16,9 +16,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ncurses.h>
-#include "mem.h"
+#include "libcs50/mem.h"
 #include "message.h"
-#include "display.h"
+#include "display/display.h"
 
 int NROWS, NCOLS; // global variables set by a GRID message
 
