@@ -4,15 +4,15 @@
 
 PROG = visibility
 LIBS = ../libcs50/libcs50-given.a
-OBJS = visibility.o testvisibility.o ../grid.o #../libcs50/file.o
+OBJS = visibility.o testvisibility.o ../grid/grid.o #../libcs50/file.o
 
 CFLAGS = -Wall -pedantic -std=c11 -ggdb $(TESTING) -I../libcs50
 CC = gcc
 MAKE = make
 
 
-testvisibility: testvisibility.o visibility.o ../grid/grid.o
-	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
+##testvisibility: testvisibility.o visibility.o ../grid/grid.o
+#	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
 testvisibility.o: visibility.o $(LIBS)
 visibility.o: visibility.h ../grid/grid.h ../libcs50/counters.h $(LIBS)

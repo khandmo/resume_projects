@@ -1,0 +1,9 @@
+START OF LOG
+client on port 47888
+interactive player mode; name 'nas'
+OK message received: OK A
+GRID message received: GRID 22 80
+displayStart
+wRows = 18
+wCols = 74
+GOLD message received: GOLD 0 0 250
