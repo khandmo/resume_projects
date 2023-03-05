@@ -90,9 +90,10 @@ void endGame(void *playerSet);
 bool goldHelper(player_t *player, void *playerSet);
 
 /**
- * @brief The main function initializes the game data based on whether there was a seed passed in or not
+ * @brief The main function initializes the game data based on whether there was a seed passed in or not 
+ * exits different values based on faulty inputs
+ * then calls message loop
  * 
- *
  * @param argc
  * @param argv
  * @return int
@@ -135,10 +136,16 @@ int main(const int argc, char *argv[])
     return 0;
 }
 
-/**************** handleMessage ****************/
-/* Datagram received; print it.
- * We ignore 'arg' here.
- * Return true if any fatal error.
+/**
+ * @brief The message handler that is within message loop interpreting messages coming from client
+ * Arg is the playerSet of all players
+ * from is the address the message was received from
+ *  message is the char* message received
+ * 
+ * @param arg
+ * @param from
+ * @param message
+ * @return bool
  */
 static bool
 handleMessage(void *arg, addr_t from, const char *message)
@@ -231,7 +238,7 @@ handleMessage(void *arg, addr_t from, const char *message)
 }
 
 /**
- * @brief
+ * @brief initializes the spectator client and
  *
  *
  *
