@@ -9,7 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <ncurses.h>
-#include "../libcs50/mem.h"
+#include "mem.h"
 
 /***************** local functions *****************/
 static char** string_to_array(char* map_string, int NROWS, int NCOLS);
@@ -47,10 +47,35 @@ update_info_line(char* message, int NCOLS){
   refresh(); // update screen
 }
 
+/***************** addTo_info_line() ****************/
+void
+addTo_info_line(char* message, int NCOLS){
+  for(int i=0; i< NCOLS;){
+    move(0, i); // move to the next char
+    if(getch() != '.'){ // if not at the end of the sentence
+      i++; // increment
+    } else { // if at the end of the sentence
+      mvaddnstr(0, i+2, message, strlen(message) + 1); // move to spot and add message
+      refresh();
+    }
+  }
+}
+
 /***************** update_display() *****************/
 void
 update_display(char* map_string, int NROWS, int NCOLS){
   char** map_array = string_to_array(map_string, NROWS, NCOLS); // make map array
+  // clear info line  of other messages not gold
+  /*  for(int i=0; i< NCOLS;){
+    move(0, i); // move to the next char
+    if(getch() != '.'){ // if not at the end of the sentence
+      i++; // increment
+    } else { // end of sentence (main gold)
+      move(0, i+3); // increase for the following space
+      clrtoeol(); // clear the line
+    }
+    }*/
+  // now, for the map itself
   // first, clear the lines under the info line
   for (int z=0; z < NROWS; z++){
     move(z+1, 0);

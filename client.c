@@ -16,12 +16,12 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ncurses.h>
-#include "libcs50/mem.h"
+#include "mem.h"
 #include "message.h"
-#include "display/display.h"
+#include "display.h"
 
 int NROWS, NCOLS; // global variables set by a GRID message
-
+char* player;
 /************** local functions **************/
 static bool handleInput(void* arg);
 // verifies player stdin inputs and sends to server
@@ -29,6 +29,8 @@ static bool handleInput(void* arg);
 static bool handleMessage(void* arg, const addr_t from, const char* message);
 // verifies and interprets messages sent from server
 
+static char* parseGoldMessage(char* goldMessage);
+// parses gold messages raw data from server into a more UI friendly message
 /************** main **************/
 int
 main(const int argc, char* argv[]){
@@ -48,7 +50,6 @@ main(const int argc, char* argv[]){
   const char* serverHost = argv[1];
   const char* serverPort = argv[2];
   addr_t server; // address of the server
-  printf("server address is %p\n", (void*)&server);
   if (!message_setAddr(serverHost, serverPort, &server)){
     fprintf(stderr, "can't form address from %s %s\n", serverHost, serverPort);
     return 4; // bad hostname/port
@@ -58,7 +59,6 @@ main(const int argc, char* argv[]){
   if (argc == 3){
     message_send(server, "SPECTATE"); // send SPECTATE message
     // message loop for spectator type
-    printf("loop starting\n");
     bool ok = message_loop(&server, 0, NULL, handleInput, handleMessage);
     message_done();
     return ok? 0 : 1;
@@ -100,11 +100,12 @@ handleInput(void* arg){
   if ((line = fgetc(stdin)) == EOF){
     // EOF
     return true;
-  } else { // no erroneous character checks in client.c
+  } else {
     // send message to server and keep looping
-    char* full_message = mem_malloc(sizeof(char) * 10);
+    char* full_message = mem_malloc(sizeof(char) * 6);
     strcpy(full_message, "KEY ");
     *(full_message+strlen("KEY ")) = line;
+    *(full_message+strlen("KEY x")) = '\0'; // deals with erroneous data
     message_send(*serverp, full_message); // send full message (key convention)
     free(full_message);
     return false;
@@ -132,16 +133,17 @@ handleMessage(void* arg, const addr_t from, const char* message){
   mDisp = messageCopy+(strlen(mDispT)+2); // get rest of display
   // if elses for various possibilities 
   if (strcmp(mType, "OK") == 0){
-    update_info_line(mBody, NCOLS); // print start up message (not formatted by client)
+    player = mBody; // assign global variable, player letter
   } else if (strcmp(mType, "GRID") == 0){ // expect two ints for NROWS and NCOLS
-    char* ptr;
-    NROWS = (int) strtol(mBody, &ptr, 10); // grab the numbers
+    char* ptr; // end point pointer for strtol
+    NROWS = (int) strtol(mBody, &ptr, 10); // grab the rows
     mBody = ptr;
-    NCOLS = (int) strtol(mBody, &ptr, 10) - 1;
-    // printf("NROWS: %d NCOLS: %d\n", NROWS, NCOLS);
-    initialize_curses(NROWS+1, NCOLS+1);
+    NCOLS = (int) strtol(mBody, &ptr, 10) - 1; // grab the cols (server sends with +1)
+    initialize_curses(NROWS+1, NCOLS+1); // initialize curses
   } else if (strcmp(mType, "GOLD") == 0){ // expect n, p, r amounts
-    update_info_line(mBody, NCOLS); // print gold info line (not formatted by client)
+    char* mParsed = parseGoldMessage(mBody); // format message
+    update_info_line(mParsed, NCOLS); // print gold info line 
+    free(mParsed); // free message string
   } else if (strcmp(mDispT, "DISPLAY") == 0){ // expect map string
     update_display(mDisp, NROWS, NCOLS);
   } else if (strcmp(mType, "QUIT") == 0){ // expect quit message to be displayed
@@ -149,9 +151,45 @@ handleMessage(void* arg, const addr_t from, const char* message){
     printf("%s\n", mBody); // print quit message
     return true; // stop message loop
   } else if (strcmp(mType, "ERROR") == 0){ // expect error message to be displayed
-    update_info_line(mBody, NCOLS); // print error message
+    addTo_info_line(mBody, NCOLS); // print error message
   }
   fflush(stdout);
   //free(messageCopy); // find out where to pu tthis without killing prog
   return false;
+}
+
+/************** parseGoldMessage() **************/
+// Creates gold message to be sent to player from raw data received from server
+static char*
+parseGoldMessage(char* rawMessage){
+  const char* goldN = goldN = strtok(rawMessage, " ");
+  const char* goldP = goldP = strtok(NULL, " ");
+  const char* goldR = goldR = strtok(NULL, " ");
+
+  if(player != NULL){ // if we've been initialized as a player
+    // create "Player A" line
+    char* message = mem_malloc(sizeof(char) * 100);
+    strcpy(message, "Player ");
+    strcat(message, player);
+
+    // format the base message 
+    strcat(message, " has ");
+    strcat(message, goldP);
+    strcat(message, " nuggets (");
+    strcat(message, goldR);
+    strcat(message, " nuggets unclaimed). ");
+
+    if (atoi(goldN) != 0){ // if just picked up gold
+      strcat(message, " GOLD received: ");
+      strcat(message, goldN);
+    }
+    
+    return message;
+  } else{ // spectator message
+    char* message = mem_malloc(sizeof(char) * 50);
+    strcpy(message, "Spectator: ");
+    strcat(message, goldR);
+    strcat(message, " nuggets unclaimed.");
+    return message;
+  }
 }

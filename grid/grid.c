@@ -44,6 +44,8 @@ int getY(point_t* point);
 void pointSetDeleter(set_t* set);
 static void pointDelete(void* item);
 
+
+
 /**
  * 
  * See grid.h for implementation details
@@ -58,7 +60,7 @@ int calculateRows(char* map_string)
         rows += *str == '\n';
     }
     // return the amount of rows, plus one to account for the last line which is terminated with '/0'
-    return rows + 1;
+    return rows;
 
 }
 /**
@@ -181,6 +183,9 @@ char getCharFromPair(int x, int y, char* map_string)
     point->y = y;
     // calculate the location in the string for the created point
     int location = pointToLocation(point, cols);
+    if (location >= strlen(map_string)){
+        return '~';
+    }
     // assign the character at the location of the string and return it
     // the subtraction of 1 accounts for the fact strings start at index 0
     char c = map_string[location - 1];
@@ -225,25 +230,29 @@ int validPointsNoPaths(char* mapstring, set_t* res){
     // returning count of keys minus 1 because we start at 1
     return key - 1;
 }
-
+/**
+ * 
+ * See grid.h for implementation details
+ * 
+ */
 void setCharAtPoint(char* mapstring, char new, point_t* point){
     int columns = calculateColumns(mapstring);
     int location = pointToLocation(point, columns);
-        char* copy = mapstring;
+    char* copy = mapstring;  //copies in mapstring
     for (int i = 0; i < location-1; i++) {
         copy++;
     }
-    if (*copy != '\n') {
+    if (*copy != '\0' && *copy != '\n') {  //when NULL or newline we make a new copy char
         *copy = new;
     }
 }
 /**
- * @brief 
  * 
- * @param item 
+ * See grid.h for implementation details
+ * 
  */
 static void pointDelete(void* item){
-    point_t* p = item;
+    point_t* p = item;  //deletes the point memory because it was previously malloced
     free(p);
 }
 /**
