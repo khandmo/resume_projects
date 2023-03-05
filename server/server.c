@@ -238,7 +238,7 @@ handleMessage(void *arg, addr_t from, const char *message)
 }
 
 /**
- * @brief initializes the spectator client and
+ * @brief initializes the spectator client and send messages to the client with grid, gold, display
  *
  *
  *

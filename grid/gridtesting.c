@@ -78,8 +78,6 @@ int main()
     set_t *res = set_new();
     int num = validPointsNoPaths(map, res);
     printf("num: %d\n", num);
-    printPoints(res);
-
 
     int keyCount;
     for(keyCount = 1; keyCount <= num; keyCount++)
@@ -92,5 +90,14 @@ int main()
         printf("key: %s (%d,%d): %c\n", c, point->x, point->y, ch);
     }
     pointSetDeleter(res);
+
+    printf("use various functions to get the point at (11,2)\n");
+    point_t *p5 = malloc(sizeof(point_t));
+    p5->x = 11;
+    p5->y = 2;
+    printf("from pair: %c\n", getCharFromPair(11,2, map));
+    int p5location = pointToLocation(p5, calculateColumns(map));
+    printf("from location: %c\n",getCharAtLocation(p5location, map));
+    printf("from point: %c\n", getCharAtPoint(p5, map));
     free(map);
 }

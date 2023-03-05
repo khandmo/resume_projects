@@ -1,4 +1,5 @@
 Assumes that a name with spaces is surrounded by quotation marks and that the name does not contain quotation marks
+Assume that you do not crtl+c out and instead you must press 'Q' not 'q'
 
 
 # Nuggets
