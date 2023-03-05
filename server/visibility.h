@@ -4,6 +4,9 @@
 #include <ctype.h>
 #include <stdbool.h>
 
+#ifndef  VISIBILITY_H
+#define VISIBILITY_H
+
 
 /****** Point Structure ******/
 /* 
@@ -14,14 +17,16 @@
 typedef struct point point_t;
 
 
+typedef struct player player_t;
+
 
 /****** findVisibility ********/
 /*
- * findVisibility takes a point and map as input and
+ * findVisibility takes a player and map as input and
  * returns a new map printing only what is visible from
  * the passed in point in the old map
  */
-char* findVisibility(point_t* start, char* map);
+char* findVisibility(player_t* player, char* map);
 
 
 /****** isVisible1 ********/
@@ -63,3 +68,4 @@ float line_func(float slope, int x, int y);
 */
 point_t* point_new(int x, int y);
 
+#endif // VISIBILITY_H_
