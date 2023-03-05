@@ -169,7 +169,6 @@ point_t* locationToPoint(int location, char* map_string){
     return point;
 
 }
-
 /**
  * 
  * See grid.h for implementation details
@@ -232,30 +231,28 @@ int validPointsNoPaths(char* mapstring, set_t* res){
     return key - 1;
 }
 /**
- * @brief Set the Char At Point object
  * 
- * @param mapstring 
- * @param new 
- * @param point 
+ * See grid.h for implementation details
+ * 
  */
 void setCharAtPoint(char* mapstring, char new, point_t* point){
     int columns = calculateColumns(mapstring);
     int location = pointToLocation(point, columns);
-    char* copy = mapstring;
+    char* copy = mapstring;  //copies in mapstring
     for (int i = 0; i < location-1; i++) {
         copy++;
     }
-    if (*copy != NULL && *copy != '\n') {
+    if (*copy != NULL && *copy != '\n') {  //when NULL or newline we make a new copy char
         *copy = new;
     }
 }
 /**
- * @brief 
  * 
- * @param item 
+ * See grid.h for implementation details
+ * 
  */
 static void pointDelete(void* item){
-    point_t* p = item;
+    point_t* p = item;  //deletes the point memory because it was previously malloced
     free(p);
 }
 /**

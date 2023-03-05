@@ -9,8 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <ncurses.h>
-#include "mem.h"
-//#include <curses.h>
+#include "../libcs50/mem.h"
 
 /***************** local functions *****************/
 static char** string_to_array(char* map_string, int NROWS, int NCOLS);
@@ -36,7 +35,6 @@ void initialize_curses(int NROWS, int NCOLS){
   start_color();
   init_pair(1, COLOR_GREEN, COLOR_BLACK);
   attron(COLOR_PAIR(1));
-
 }
 
 /***************** update_info_line() *****************/

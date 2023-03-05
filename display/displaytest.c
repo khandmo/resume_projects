@@ -9,7 +9,7 @@
 #include <curses.h>
 #include <string.h>
 #include "display.h"
-#include "file.h"
+#include "../libcs50/file.h"
 
 int
 main(){

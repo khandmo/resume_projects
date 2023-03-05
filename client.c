@@ -16,9 +16,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ncurses.h>
-#include "mem.h"
+#include "libcs50/mem.h"
 #include "message.h"
-#include "display.h"
+#include "display/display.h"
 
 int NROWS, NCOLS; // global variables set by a GRID message
 
@@ -48,6 +48,7 @@ main(const int argc, char* argv[]){
   const char* serverHost = argv[1];
   const char* serverPort = argv[2];
   addr_t server; // address of the server
+  printf("server address is %p\n", (void*)&server);
   if (!message_setAddr(serverHost, serverPort, &server)){
     fprintf(stderr, "can't form address from %s %s\n", serverHost, serverPort);
     return 4; // bad hostname/port

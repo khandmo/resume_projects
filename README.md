@@ -1,3 +1,6 @@
+Assumes that a name with spaces is surrounded by quotation marks and that the name does not contain quotation marks
+
+
 # Nuggets
 
 This repository contains the code for the CS50 "Nuggets" game, in which players explore a set of rooms and passageways in search of gold nuggets.

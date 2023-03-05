@@ -1,2 +1,29 @@
-server
+# CS50 recommended .gitignore file.
+
+# core dumps
+core
+
+# Object files and libraries
 *.o
+*.a
+
+# Emacs backup and scratch files
+*~
+\#*\#
+.\#*
+
+# debugger symbols
+*.dSYM
+
+# MacOS stuff
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V*
+.Trashes
+
+###########################################################################
+# custom additions below here; see also .gitignore files in subdirectories.
+server
