@@ -27,9 +27,6 @@
 // Global Constants
 static const int MaxNameLength = 50; // max number of chars in playerName
 static const int MaxPlayers = 26;    // maximum number of players
-// //static const int GoldTotal = 250;      // amount of gold in the game
-// static const int GoldMinNumPiles= 10; // minimum number of gold piles
-// static const int GoldMaxNumPiles = 30; // maximum number of gold piles
 
 typedef struct game
 {
@@ -50,7 +47,7 @@ typedef struct player
 {
     bool inGame;              // if true, the player is in the game, once they quit this becomes false
     bool isInitalized;        // has the player been initialized yet
-    char name[150];  // name of player
+    char name[150];           // name of player
     char letter;              // the letter representation on the map
     addr_t address;           // address specific to the client
     point_t *currentLocation; // point representing the current x and y location of the player
@@ -78,7 +75,7 @@ static void initializeGameData(char *filename, int seed);
 static void deletegameStruct();
 static void addPlayer(char *name, addr_t address, void *playerSet);
 static player_t *getPlayer(addr_t address, void *playerSet);
-static int processMove(player_t *player, void* playerSet, int x, int y);
+static int processMove(player_t *player, void *playerSet, int x, int y);
 void gold(player_t *player);
 static bool handleKey(char *key, void *playerSet, addr_t address);
 set_t *initializePlayerSet(int maxPlayers);
@@ -93,7 +90,8 @@ void endGame(void *playerSet);
 bool goldHelper(player_t *player, void *playerSet);
 
 /**
- * @brief
+ * @brief The main function initializes the game data based on whether there was a seed passed in or not
+ * 
  *
  * @param argc
  * @param argv
@@ -444,7 +442,7 @@ static player_t *getPlayer(addr_t address, void *playerSet)
  */
 
 static int
-processMove(player_t *player, void* playerSet, int x, int y)
+processMove(player_t *player, void *playerSet, int x, int y)
 {
     int oldX = getX(player->currentLocation);
     int oldY = getY(player->currentLocation);
@@ -484,11 +482,11 @@ processMove(player_t *player, void* playerSet, int x, int y)
         setCharAtPoint(game->map, player->previousPoint, oldPoint);
         free(oldPoint);
         player->previousPoint = '.';
-        if(goldHelper(player, playerSet)) {
+        if (goldHelper(player, playerSet))
+        {
             return 2;
         }
         return 1;
-
     }
     else if (isalpha(getCharFromPair(x, y, game->map)))
     {
@@ -576,7 +574,7 @@ static bool handleKey(char *key, void *playerSet, addr_t address)
         }
         else if (strcmp(key, "L") == 0)
         {
-            while ((moveResult = processMove(player, playerSet, 1, 0)) != 0  && moveResult != 2)
+            while ((moveResult = processMove(player, playerSet, 1, 0)) != 0 && moveResult != 2)
             {
                 updateDisplay(playerSet);
             }
@@ -587,7 +585,7 @@ static bool handleKey(char *key, void *playerSet, addr_t address)
         }
         else if (strcmp(key, "J") == 0)
         {
-            while ((moveResult = processMove(player, playerSet, 0, 1)) != 0  && moveResult != 2)
+            while ((moveResult = processMove(player, playerSet, 0, 1)) != 0 && moveResult != 2)
             {
                 updateDisplay(playerSet);
             }
@@ -598,7 +596,7 @@ static bool handleKey(char *key, void *playerSet, addr_t address)
         }
         else if (strcmp(key, "K") == 0)
         {
-            while ((moveResult = processMove(player, playerSet, 0, -1)) != 0  && moveResult != 2)
+            while ((moveResult = processMove(player, playerSet, 0, -1)) != 0 && moveResult != 2)
             {
                 updateDisplay(playerSet);
             }
@@ -662,7 +660,7 @@ static bool handleKey(char *key, void *playerSet, addr_t address)
             return true;
         }
     }
-    
+
     updateDisplay(playerSet);
     return false;
 }
@@ -704,13 +702,13 @@ void gold(player_t *player)
     player->recentGold = g;
     game->GoldTotal -= g;
 
-    char goldMessage[100] = "";
-    strcat(goldMessage, "GOLD ");
-    char gold[30];
-    sprintf(gold, "%d %d %d", player->recentGold, player->playerGold, game->GoldTotal); // concatenate and add the most recent gold pickup with GOLD message
-    strcat(goldMessage, gold);
-    message_send(player->address, goldMessage);
-    player->recentGold = 0;
+    // char goldMessage[100] = "";
+    // strcat(goldMessage, "GOLD ");
+    // char gold[30];
+    // sprintf(gold, "%d %d %d", player->recentGold, player->playerGold, game->GoldTotal); // concatenate and add the most recent gold pickup with GOLD message
+    // strcat(goldMessage, gold);
+    // message_send(player->address, goldMessage);
+    // player->recentGold = 0;
 }
 /**
  * @brief handles process if a player walks into a space where another player is
@@ -768,9 +766,12 @@ void updateDisplay(void *playerSet)
                 sprintf(gold, "%d %d %d", player->recentGold, player->playerGold, game->GoldTotal); // concatenate and add the most recent gold pickup with GOLD message
                 strcat(goldMessage, gold);
                 message_send(player->address, goldMessage);
+                if (player->recentGold != 0){
+                    player->recentGold = 0;
+                }
                 char displayMessage[10000] = "";
                 strcat(displayMessage, "DISPLAY\n");
-                char* tempMap = findVisibility(player, game->map);
+                char *tempMap = findVisibility(player, game->map);
                 strcat(displayMessage, tempMap); // concatenate map text with the visible map
                 message_send(player->address, displayMessage);
                 free(tempMap);
@@ -811,8 +812,10 @@ static void deletePlayerSet(set_t *playerSet)
 static void playerDelete(void *item)
 {
     player_t *player = item;
-    if (player->isInitalized){
-        if (player->pointsSeen != NULL) {
+    if (player->isInitalized)
+    {
+        if (player->pointsSeen != NULL)
+        {
             counters_delete(player->pointsSeen);
         }
         free(player->currentLocation);

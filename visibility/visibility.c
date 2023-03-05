@@ -11,27 +11,32 @@
 #include <stdbool.h>
 #include "../grid/grid.h"
 #include "../libcs50/counters.h"
+#include "../support/message.h"
 
 typedef struct point{
   int x;
   int y;
 } point_t;
 
-typedef struct player{
-  char* name;
-  char letter;
-  point_t* location;
-  int player_gold;
-  int recent_gold;
-  counters_t* points_seen;
-} player_t;
+typedef struct player {
+    bool inGame; // if true, the player is in the game, once they quit this becomes false
+    bool isInitalized; // has the player been initialized yet
+    char name[150]; // name of player
+    char letter; // the letter representation on the map
+    addr_t address; // address specific to the client
+    point_t* currentLocation; // point representing the current x and y location of the player
+    char previousPoint; // point that was replaced by the player letter 
+    int playerGold; // total gold in the players purse
+    int recentGold; // most recent gold pickup
+    counters_t* pointsSeen; // 
+}player_t;
 
 char* findVisibility(player_t* player, char* map);
 bool isVisible1(point_t* start, point_t* end, char* map);
 bool isVisible2(point_t* start, point_t* end, char* map);
 float line_func(float slope, int x, int y);
 point_t* point_new(int x, int y);
-player_t* player_new(char* name, char letter, point_t* location);
+// player_t* player_new(char* name, char letter, point_t* location);
 
 /*
  *
@@ -41,60 +46,72 @@ player_t* player_new(char* name, char letter, point_t* location);
 char*
 findVisibility(player_t* player, char* map)
 {
-  point_t* start = player->location;
-  counters_t* points_seen = player->points_seen;
+  point_t* start = player->currentLocation;
+  counters_t* pointsSeen = player->pointsSeen;
   char* new_map = malloc(strlen(map) + 1);
   strcpy(new_map, map);
+  setCharAtPoint(new_map, '@', start);
   for (int i = 1; i < calculateColumns(map); i++) {
     for (int j =1; j <= calculateRows(map); j++) {
       // Separate into quadrants based on i,j vs x,y
       point_t* end = point_new(i, j);
       int x = start->x;
       int y = start->y;
+      // Get location of point in string
       int location = pointToLocation(end, calculateColumns(map));
-      // printf("Location is %d\n", location);
       if (x <= i && y >= j) {
         if (!isVisible1(start, end, map)) {
           // Set character space
-          if (counters_get(points_seen, location) == 0) {
+          if (counters_get(pointsSeen, location) == 0) {
             setCharAtPoint(new_map, ' ', end);
+          // If non-visibile point has been seen before and is gold
           } else if (getCharAtPoint(end, map) == '*') {
+            // set to '.'
             setCharAtPoint(new_map, '.', end);
           }
         }
       } if (x <= i && y <= j) {
         if (!isVisible2(start, end, map)) {
           // Set character space
-          if (counters_get(points_seen, location) == 0) {
+          if (counters_get(pointsSeen, location) == 0) {
             setCharAtPoint(new_map, ' ', end);
+          // If non-visibile point has been seen before and is gold
           } else if (getCharAtPoint(end, map) == '*') {
-            setCharAtPoint(new_map, '*', end);
+            // set to '.'
+            setCharAtPoint(new_map, '.', end);
           }
         }
       } if (x >= i && y <= j) {
         if (!isVisible1(end, start, map)) {
           // Set character space
-          if (counters_get(points_seen, location) == 0) {
+          if (counters_get(pointsSeen, location) == 0) {
             setCharAtPoint(new_map, ' ', end);
+          // If non-visibile point has been seen before and is gold
           } else if (getCharAtPoint(end, map) == '*') {
-            setCharAtPoint(new_map, '*', end);
+            // Set to '.'
+            setCharAtPoint(new_map, '.', end);
           }
         }
       } if (x >= i && y >= j) {
         if (!isVisible2(end, start, map)) {
           // Set character space
-          if (counters_get(points_seen, location) == 0) {
+          if (counters_get(pointsSeen, location) == 0) {
             setCharAtPoint(new_map, ' ', end);
+            // If non-visibile point has been seen before and is gold
           } else if (getCharAtPoint(end, map) == '*') {
-            setCharAtPoint(new_map, '*', end);
+            // Set to '.'
+            setCharAtPoint(new_map, '.', end);
           }
         }
+        // If the point is visible
       } if (getCharAtPoint(end, new_map) != ' ') {
-        counters_add(points_seen, location);
+        // Add to points seen counter
+        counters_add(pointsSeen, location);
       }
       free(end);
     }
   }
+  // Return updated map
   return new_map;
 }
 
@@ -134,49 +151,51 @@ isVisible1(point_t* start, point_t* end, char* map)
 
   float y_val = 0; // variable for storing y-value of line between start and end
 
-  // We are assuming (0,0) is top left corner. This is a little messy, and may change the code below
 
   // Loop through coordinates in between start row and end row
-  // Recall that lower row is higher
-  for (int i = 1; i <= y - end->y; i++) { // SHould it be < or <=?
+  // Recall that lower row is higher visually in map
+  for (int i = 1; i <= y - end->y; i++) {
     // Loop through between start column and end column
     for(int j = 1; j <= end->x - x; j++) {
       
+      // If current point is starting point, continue
       if (y == i && x == j) {
         continue;
+      // If current point is ending point, continue
       } if (end->y == y-i && end->x == x+j) {
         continue;
       }
-      
       y_val = line_func(slope, j, y);
+      // If line between start and end passes directly through a point
       if (y_val == y-i) {
         // Check if wall at (x+j, y-i)
         char wall1 = getCharFromPair(x+j, y-i, map);
         if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
           return false;
         }
-        // If so, return 0
+      // If line travels above point
       } else if(y_val < y-i) {
         // Logic here is that if line from start to end point travels above the testing point
         // then you only need to check if the line passes between the points above and to the left of it
 
         // Check if line travels between point and point to the left
         if (line_func(slope, j-1, y) > y-i && line_func(slope, j, y) < y-i) {
-            // Check if wall at point and point to left
-          // Need to add map string
+          // Check if wall at point to left of current point
           char wall1 = getCharFromPair(x+j-1, y-i, map);
           if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
+            // Check if wall at current point
             char wall2 = getCharFromPair(x+j, y-i, map);
             if (wall2 == '-' || wall2 == '+' || wall2 == '|' || wall2 == '#' || wall2 == ' ') {
               return false;
             }
           }
         }
-        // Check if line travels between point and point above
+        // Check if line travels between current point and point above
         if (line_func(slope, j, y) < y-i && line_func(slope, j, y) > y-i-1) {
-          // Check if wall at point and point above
+          // Check if wall at point above
           char wall1 = getCharFromPair(x+j, y-i-1, map);
           if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
+            // Check if wall at point above
             char wall2 = getCharFromPair(x+j, y-i, map);
             if (wall2 == '-' || wall2 == '+' || wall2 == '|' || wall2 == '#' || wall2 == ' ') {
               return false;
@@ -290,8 +309,9 @@ isVisible2(point_t* start, point_t* end, char* map)
           }
         }
       } else {
+        // y_val < y+i
         // Check points above and to the right of testing point
-        if (line_func(slope, j+1, y) < y+i && line_func(slope, j, y) > y+i) {
+        if (line_func(slope, j+1, y) > y+i && line_func(slope, j, y) < y+i) {
             // Check if wall at point and point to left
           char wall1 = getCharFromPair(x+j-1, y+i, map);
           if (wall1 == '-' || wall1 == '+' || wall1 == '|' || wall1 == '#' || wall1 == ' ') {
@@ -342,16 +362,3 @@ point_new(int x, int y)
   return point;
 }
 
-player_t*
-player_new(char* name, char letter, point_t* location)
-{
-  player_t* player = malloc(sizeof(player_t));
-  player->name = name;
-  player->letter = letter;
-  player->location = location;
-  player->player_gold = 0;
-  player->recent_gold = 0;
-  player->points_seen = counters_new();
-
-  return player;
-}

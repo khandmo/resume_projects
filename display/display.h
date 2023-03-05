@@ -21,6 +21,15 @@
 
 void
 update_info_line(char* message, int NCOLS);
+/***************** addTo_info_line() *****************/
+/* Add current info to the end of the current gold message
+ * Used for error messages
+ * Provide: input message, number of columns
+ * Returns: nothing
+ */
+
+void
+addTo_info_line(char* message, int NCOLS);
 /***************** update_display() *****************/
 /* Replace the current client display screen with input map_string
  * Provide: char* map_string, rows separated by \n, number of rows and columns
@@ -39,4 +48,3 @@ void
 initialize_curses(int NROWS, int NCOLS);
 
 #endif // __DISPLAY_H
-
