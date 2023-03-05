@@ -212,6 +212,8 @@ handleMessage(void *arg, addr_t from, const char *message)
         {
             if (handleKey(wordArray[1], arg, from))
             {
+                free(word);
+                free(wordArray);
                 return true;
             }
         }
@@ -318,6 +320,7 @@ set_t *initializePlayerSet(int maxPlayers)
 static void deletegameStruct()
 {
     counters_delete(game->goldMap);
+    free(game->map);
     free(game);
 }
 
@@ -759,7 +762,6 @@ void updateDisplay(void *playerSet)
         {
             if (player->inGame)
             {
-                findVisibility(player, game->map);
                 char goldMessage[100] = "";
                 strcat(goldMessage, "GOLD ");
                 char gold[30];
@@ -768,8 +770,10 @@ void updateDisplay(void *playerSet)
                 message_send(player->address, goldMessage);
                 char displayMessage[10000] = "";
                 strcat(displayMessage, "DISPLAY\n");
-                strcat(displayMessage, findVisibility(player, game->map)); // concatenate map text with the visible map
+                char* tempMap = findVisibility(player, game->map);
+                strcat(displayMessage, tempMap); // concatenate map text with the visible map
                 message_send(player->address, displayMessage);
+                free(tempMap);
             }
         }
     }
@@ -807,8 +811,12 @@ static void deletePlayerSet(set_t *playerSet)
 static void playerDelete(void *item)
 {
     player_t *player = item;
-    counters_delete(player->pointsSeen);
-    free(player->currentLocation);
+    if (player->isInitalized){
+        if (player->pointsSeen != NULL) {
+            counters_delete(player->pointsSeen);
+        }
+        free(player->currentLocation);
+    }
     free(player);
 }
 /**

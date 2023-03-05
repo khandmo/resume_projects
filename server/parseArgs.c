@@ -42,6 +42,7 @@ parseArgs(int argc, char* argv[])
     printf("This map file either does not exist or cannot be read");
     return 3;  //returns 3 so the program knows to exit nonZero
   }
+  fclose(fp);
   
   if (argc == 3) {
     for (int i=0; i<strlen(argv[2]); i++) {  //loops through the seed and checks each character for isdigit

@@ -248,5 +248,6 @@ int spawnLocation(game_t *game)
     }
     int ncols = calculateColumns(game->map);
     int location = pointToLocation(point, ncols);
+    pointSetDeleter(possiblePoints);
     return location;
 }
