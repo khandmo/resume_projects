@@ -35,7 +35,6 @@ update_display(char* map_string, int NROWS, int NCOLS);
  * Provide: number of rows, number of columns in map
  * Returns: nothing
  */
-
 void
 initialize_curses(int NROWS, int NCOLS);
 
