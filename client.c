@@ -136,7 +136,8 @@ handleMessage(void* arg, const addr_t from, const char* message){
     char* ptr;
     NROWS = (int) strtol(mBody, &ptr, 10); // grab the numbers
     mBody = ptr;
-    NCOLS = (int) strtol(mBody, &ptr, 10);
+    NCOLS = (int) strtol(mBody, &ptr, 10) - 1;
+    // printf("NROWS: %d NCOLS: %d\n", NROWS, NCOLS);
     initialize_curses(NROWS+1, NCOLS+1);
   } else if (strcmp(mType, "GOLD") == 0){ // expect n, p, r amounts
     update_info_line(mBody, NCOLS); // print gold info line (not formatted by client)
