@@ -807,6 +807,7 @@ static void deletePlayerSet(set_t *playerSet)
 static void playerDelete(void *item)
 {
     player_t *player = item;
+    counters_delete(player->pointsSeen);
     free(player->currentLocation);
     free(player);
 }
