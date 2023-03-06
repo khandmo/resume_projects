@@ -23,7 +23,7 @@ grid.o: grid.h
 parseArgs.o: parseArgs.h
 
 test: 
-	./server ../maps/main.txt 
+	./server 2>logOutput/server.log ../maps/main.txt 
 
 valgrind: 
 	valgrind --leak-check=full --show-leak-kinds=all ./server ../maps/main.txt

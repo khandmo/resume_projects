@@ -1,7 +1,7 @@
 /**
  * @file server.c
- * @authors Matthew Givens; Nuggets; Charles Angles
- * @brief server
+ * @authors Nuggets; Charles Angles
+ * @brief this program handles all the server logic to implement the Nuggets game
  *
  * @date 2023-02-28
  * CS 50, Winter 2023
@@ -34,6 +34,9 @@ static const char tunnel = '#';
 static const char corner = '+';
 static const char nugget = '*';
 
+/**
+* game_t - this struct holds important information about the running of the game
+*/
 typedef struct game
 {
     int GoldTotal;       // amount of gold in the game
@@ -41,14 +44,16 @@ typedef struct game
     int GoldMaxNumPiles; // maximum number of gold piles
     char *map;           // current complete map
     int currPlayers;     // amount of current players in the game
-    addr_t spectatorAddress;
+    addr_t spectatorAddress; // address of the spectator if there is one
     counters_t *goldMap; // a counters with gold locations and their gold
 
 } game_t;
 
 // global declaration
 game_t *game;
-
+/**
+* player_t - this struct holds informations unique to each player object
+*/
 typedef struct player
 {
     bool inGame;              // if true, the player is in the game, once they quit this becomes false
@@ -60,15 +65,11 @@ typedef struct player
     char previousPoint;       // point that was replaced by the player letter
     int playerGold;           // total gold in the players purse
     int recentGold;           // most recent gold pickup
-    counters_t *pointsSeen;   //
+    counters_t *pointsSeen;   // counters containing all the locations that have been seen by a player
 } player_t;
-
-typedef struct spectator
-{
-    bool isSpectator;
-    char *id;
-} spectator_t;
-
+/**
+* point - this struct holds an x and y value to represent a specific point on the map
+*/
 typedef struct point
 {
     int x;
@@ -94,7 +95,8 @@ static void Table(void *playerSet);
 static void playerQuit(player_t *player);
 void endGame(void *playerSet);
 bool goldHelper(player_t *player, void *playerSet);
-
+/********************************************************************************/
+/*EXTRA CREDIT PROTOTYPES FOR BOTH PLAYER DROPPING AND STEALING GOLD*/
 //static void dropGold(player_t* player, void* playerSet)
 
 /**
@@ -102,9 +104,9 @@ bool goldHelper(player_t *player, void *playerSet);
  * exits different values based on faulty inputs
  * then calls message loop
  * 
- * @param argc
- * @param argv
- * @return int
+ * @param argc argument count
+ * @param argv array containing passed args
+ * @return int exits non-zero if there is an error in the arguments, 0 if it runs correctly
  */
 int main(const int argc, char *argv[])
 {
@@ -150,14 +152,15 @@ int main(const int argc, char *argv[])
  * from is the address the message was received from
  *  message is the char* message received
  * 
- * @param arg
- * @param from
- * @param message
- * @return bool
+ * @param arg playerSet is passed into the arg
+ * @param from the address from which the message came from
+ * @param message the message from the client
+ * @return bool returns true to end the loop, false otherwise
  */
 static bool
 handleMessage(void *arg, addr_t from, const char *message)
 {
+    // splits the message into an array 
     char *word = malloc(strlen(message) + 1);
     strcpy(word, message);
     char **wordArray = calloc(sizeof(char *), strlen(word) + 1);
@@ -186,10 +189,10 @@ handleMessage(void *arg, addr_t from, const char *message)
             i = i - 1;
         }
     }
-
+    // if the message is PLAY 
     if (message[0] == 'P')
     {
-        //*** if the message is PLAY then we
+        
         char name[1000] = "";
         for (int i = 1; i < count; i++)
         {
@@ -205,6 +208,7 @@ handleMessage(void *arg, addr_t from, const char *message)
             addPlayer(name, from, arg);
         }
     }
+    // if the message is SPECTATE 
     else if (message[0] == 'S')
     {
         if (!message_isAddr(game->spectatorAddress))
@@ -214,15 +218,18 @@ handleMessage(void *arg, addr_t from, const char *message)
         }
         else
         {
+            
             message_send(game->spectatorAddress, "QUIT You have been replaced by a new spectator.");
             game->spectatorAddress = from;
             initializeSpectator();
         }
     }
+    // if the message is a KEY
     else if (message[0] == 'K')
     {
         if (count > 1)
         {
+            // this if statement checks if the gold remaining goes to 0
             if (handleKey(wordArray[1], arg, from))
             {
                 free(word);
@@ -232,13 +239,16 @@ handleMessage(void *arg, addr_t from, const char *message)
         }
         else
         {
-            message_send(from, "ERROR unknown keystroke");
+            //in case client makes a mistake
+            message_send(from, "ERROR unknown keystroke");  
         }
     }
     else
     {
+        //in case client makes a mistake
         message_send(from, "ERROR unknown keystroke");
     }
+    // free to make space for next message
     free(word);
     free(wordArray);
     fflush(stdout);
@@ -250,21 +260,23 @@ handleMessage(void *arg, addr_t from, const char *message)
  *
  *
  *
- * @return true
- * @return false
  */
 void initializeSpectator()
 {
-    // ***the messages need concatenation in the strings before being sent, only one char* can be sent***
+    // concatenate messages before sending to spectator
     char gridMessage[100] = "";
-    strcat(gridMessage, "GRID "); // add GRID to message
+    // add GRID to message
+    strcat(gridMessage, "GRID "); 
     char rowsNCols[10];
-    sprintf(rowsNCols, "%d %d", calculateRows(game->map), calculateColumns(game->map)); // add rows and columns
-    strcat(gridMessage, rowsNCols);                                                     // concatenate with GRID message
+    // add rows and columns
+    sprintf(rowsNCols, "%d %d", calculateRows(game->map), calculateColumns(game->map)); 
+    // concatenate with GRID message
+    strcat(gridMessage, rowsNCols);                                                     
     char goldMessage[100] = "";
     strcat(goldMessage, "GOLD ");
     char gold[20];
-    sprintf(gold, "0 0 %d", game->GoldTotal); // concatenate and add the most recent gold pickup with GOLD message
+    // concatenate and add the most recent gold pickup with GOLD message
+    sprintf(gold, "0 0 %d", game->GoldTotal); 
     strcat(goldMessage, gold);
     char displayMessage[10000] = "";
     strcat(displayMessage, "DISPLAY\n");
@@ -277,7 +289,7 @@ void initializeSpectator()
 /**
  * @brief initializes game structs values
  *
- * @return game_t*
+ * @return game_t*  game struct with filled parameters
  */
 static void initializeGameData(char *filename, int seed)
 {
@@ -306,8 +318,8 @@ static void initializeGameData(char *filename, int seed)
 /**
  * @brief initializes set of player objects
  *
- * @param maxPlayers
- * @return set_t*
+ * @param maxPlayers takes in amount of player objects to create
+ * @return set_t* returns the set of players
  */
 set_t *initializePlayerSet(int maxPlayers)
 {
@@ -340,15 +352,16 @@ static void deletegameStruct()
 /**
  * @brief adds a player to the game, such that it can be used by the client
  *
- * @param name
- * @param address
- * @param playerSet
+ * @param name name of player
+ * @param address address of player
+ * @param playerSet set of players
  */
 static void addPlayer(char *name, addr_t address, void *playerSet)
 {
+    // max players check
     if ((game->currPlayers + 1) >= MaxPlayers)
     {
-        message_send(address, "QUIT Sorry - you must provide player's name.");
+        message_send(address, "QUIT Game is full: no more players can join.");
         return;
     }
     set_t *pSet = playerSet;
@@ -409,27 +422,32 @@ static void addPlayer(char *name, addr_t address, void *playerSet)
 
     message_send(player->address, c);
 
+    // send them game info
     char gridMessage[100] = "";
     strcat(gridMessage, "GRID "); // add GRID to message
     char rowsNCols[10];
-    sprintf(rowsNCols, "%d %d", calculateRows(game->map), calculateColumns(game->map)); // add rows and columns
-    strcat(gridMessage, rowsNCols);                                                     // concatenate with GRID message
+    // add rows and columns
+    sprintf(rowsNCols, "%d %d", calculateRows(game->map), calculateColumns(game->map)); 
+    // concatenate with GRID message
+    strcat(gridMessage, rowsNCols);                                                     
     message_send(player->address, gridMessage);
     updateDisplay(playerSet);
 }
 /**
  * @brief Get the Player object based on the address
  *
- * @param address
- * @param playerSet
- * @return player_t*
+ * @param address address of player we want to get
+ * @param playerSet set of player objects
+ * @return player_t* player with the address we were looking for
  */
 static player_t *getPlayer(addr_t address, void *playerSet)
 {
+    // check the address isnt the spectator address
     if (message_eqAddr(address, game->spectatorAddress))
     {
         return NULL;
     }
+    // loop through player set and look for the address
     playerSet = (set_t *)playerSet;
     int totalPlayers = 26;
     char c[10];
@@ -445,28 +463,38 @@ static player_t *getPlayer(addr_t address, void *playerSet)
             }
         }
     }
-    return NULL; // if for some reason we have not found the address
+    // if for some reason we have not found the address
+    return NULL; 
 }
 
-/* 0 - invalid move
+/**
+ * processMove 
+ * @brief given an x and y as well as a player and the player set, finds the point if the 
+ *      x and y are added to the players location to see where the key would place them. Carries out
+ *      various functions depending on what the character is at that spot
+ *
+ * 0 - invalid move
  * 1 - valid open square
  * 2 - gold
  * 3 - hits a player
  * int x is -1,0,1 -1 left, 0 no move, 1 right
- *  int y is -1,o,1 -1 up, 0 no move, 1 down NOTE THIS IS REVERSED BECAUSE OF HOW THE MAP IS PRINTED
+ * int y is -1,o,1 -1 up, 0 no move, 1 down NOTE THIS IS REVERSED BECAUSE OF HOW THE MAP IS PRINTED
  */
 
 static int
 processMove(player_t *player, void *playerSet, int x, int y)
 {
+    // get the location the player is currently at
     int oldX = getX(player->currentLocation);
     int oldY = getY(player->currentLocation);
     x += getX(player->currentLocation);
     y += getY(player->currentLocation);
+    // if the possible move is a wall
     if (getCharFromPair(x, y, game->map) == side_wall || getCharFromPair(x, y, game->map) == corner || getCharFromPair(x, y, game->map) == vertical_wall || isspace(getCharFromPair(x, y, game->map)))
     {
         return 0;
     }
+    // if the possible move is a valid 
     else if (getCharFromPair(x, y, game->map) == floor || getCharFromPair(x, y, game->map) == tunnel)
     {
         // update players current location
@@ -486,6 +514,7 @@ processMove(player_t *player, void *playerSet, int x, int y)
         player->previousPoint = recentPrevPoint;
         return 1;
     }
+    // if the possible move is a gold
     else if (getCharFromPair(x, y, game->map) == nugget)
     {
         setY(y, player->currentLocation);
@@ -503,6 +532,7 @@ processMove(player_t *player, void *playerSet, int x, int y)
         }
         return 1;
     }
+    // if the possible move is another player
     else if (isalpha(getCharFromPair(x, y, game->map)))
     {
         setY(y, player->currentLocation);
@@ -527,9 +557,12 @@ n move diagonally down and right, if possible*/
  *        for the keystrokes we call process move which takes different
  *        values of x and y to move the player in each direction
  *
- * @param key
- * @param playerSet
- * @param address
+ *        for example: keying 'n' moves down and right, so we would pass x = + 1 y = + 1
+ *        to check the spot down and right
+ *
+ * @param key the key passed by the client
+ * @param playerSet set of players
+ * @param address address the key came from
  */
 static bool handleKey(char *key, void *playerSet, addr_t address)
 {
@@ -563,14 +596,17 @@ static bool handleKey(char *key, void *playerSet, addr_t address)
         // for capital letters call the move until it cannot be called again
         if (strcmp(key, "H") == 0)
         {
+            // checking if it returns 0 means the move was valid, and 2 checks if all gold was gotten
             while ((moveResult = processMove(player, playerSet, -1, 0)) != 0 && moveResult != 2)
             {
+                // update display for all players after each move
                 updateDisplay(playerSet);
             }
         }
         // call the function process move for a lowercase key once
         else if (strcmp(key, "h") == 0)
         {
+            // sets return value of process move to moveresult to check it later
             moveResult = processMove(player, playerSet, -1, 0);
         }
         else if (strcmp(key, "L") == 0)
@@ -653,7 +689,8 @@ static bool handleKey(char *key, void *playerSet, addr_t address)
         // if there was an invalid keystroke
         else
         {
-            message_send(address, "ERROR Invalid Keystroke");
+            message_send(address, "ERROR Unknown Keystroke");
+            return false;
         }
         // if the game ends return true to break out of the message loop
         if (moveResult == 2)
@@ -662,6 +699,7 @@ static bool handleKey(char *key, void *playerSet, addr_t address)
         }
     }
 
+    // update display and loop through again
     updateDisplay(playerSet);
     return false;
 }
@@ -669,8 +707,8 @@ static bool handleKey(char *key, void *playerSet, addr_t address)
 /**
  * @brief calls gold and checks if no gold leftover
  *
- * @param player
- * @param playerSet
+ * @param player player who found gold
+ * @param playerSet set of players
  */
 bool goldHelper(player_t *player, void *playerSet)
 {
@@ -689,7 +727,7 @@ bool goldHelper(player_t *player, void *playerSet)
 /**
  * @brief handles game process if a player collects gold
  *
- * @param player
+ * @param player player who found gold
  */
 void gold(player_t *player)
 {
@@ -697,24 +735,17 @@ void gold(player_t *player)
     int ncols = calculateColumns(game->map);
     int location = pointToLocation(player->currentLocation, ncols);
 
+    //update neccessary values// 
     int g = counters_get(game->goldMap, location);
     counters_set(game->goldMap, location, 0);
     player->playerGold += g;
     player->recentGold = g;
     game->GoldTotal -= g;
-
-    // char goldMessage[100] = "";
-    // strcat(goldMessage, "GOLD ");
-    // char gold[30];
-    // sprintf(gold, "%d %d %d", player->recentGold, player->playerGold, game->GoldTotal); // concatenate and add the most recent gold pickup with GOLD message
-    // strcat(goldMessage, gold);
-    // message_send(player->address, goldMessage);
-    // player->recentGold = 0;
 }
 /**
  * @brief handles process if a player walks into a space where another player is
  *
- * @param oldX
+ x value wa * @param oldX
  * @param oldY
  * @param player
  * @param playerSet
@@ -904,6 +935,19 @@ static void Table(void *playerSet)
 //  * @param playerSet 
 //  */
 // static void dropGold(player_t* player, void* playerSet){
+//     int location = pointToLocation(player->currentLocation, calculateColumns(game->map));
+//     counters_set(game->goldMap, location, player->playerGold);
+
+//     setCharAtPoint(game->map, nugget, player->currentLocation);
+// }
+
+// /**
+//  * @brief ***EXTRA CREDIT*** if a player quits they drop the gold in their last location
+//  * 
+//  * @param player 
+//  * @param playerSet 
+//  */
+// static void stealGold(player_t* player, void* playerSet){
 //     int location = pointToLocation(player->currentLocation, calculateColumns(game->map));
 //     counters_set(game->goldMap, location, player->playerGold);
 
