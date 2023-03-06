@@ -4,6 +4,8 @@
 ## Assumes that you do not crtl+c out and instead you must press 'Q' not 'q'
 ## Assumes that after you resize client screen once it stays at a valid size
 
+# WE USE EXTRA CREDIT IN VISBIILITY AND IN SEREVER
+See readmes in those folders for more info
 
 # Nuggets
 
