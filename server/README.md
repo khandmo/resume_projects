@@ -2,6 +2,7 @@
 ## Winter 2023
 
 ### server
+# THIS SERVER USES THE EXTRA CREDIT FOR DROPPING GOLD ON QUIT AND PLAYER STEAL WHEN HITTING ANOTHER PLAYER
 
 The server runs and initializes the game which players(clients) can join in. The server recieves inputs from 
 

@@ -97,8 +97,8 @@ void endGame(void *playerSet);
 bool goldHelper(player_t *player, void *playerSet);
 /********************************************************************************/
 /*EXTRA CREDIT PROTOTYPES FOR BOTH PLAYER DROPPING AND STEALING GOLD*/
-//static void dropGold(player_t* player, void* playerSet)
-
+static void dropGold(player_t* player);
+void playerSteal(player_t* thief, player_t* victim);
 /**
  * @brief The main function initializes the game data based on whether there was a seed passed in or not 
  * exits different values based on faulty inputs
@@ -580,6 +580,7 @@ static bool handleKey(char *key, void *playerSet, addr_t address)
         else
         {
             playerQuit(player);
+            updateDisplay(playerSet);
             message_send(address, "QUIT Thanks for playing!");
         }
     }
@@ -770,6 +771,7 @@ void playerSwap(int oldX, int oldY, player_t *player, void *playerSet)
                 char tempPrevChar = player->previousPoint;
                 player->previousPoint = otherPlayer->previousPoint; // swaps the previous points that they players were standing on so map can be redrawn when they move
                 otherPlayer->previousPoint = tempPrevChar;
+                playerSteal(player, otherPlayer);
             }
         }
     }
@@ -863,6 +865,7 @@ static void playerQuit(player_t *player)
 {
     player->inGame = false;
     setCharAtPoint(game->map, player->previousPoint, player->currentLocation);
+    dropGold(player);
 }
 
 void endGame(void *playerSet)
@@ -928,29 +931,37 @@ static void Table(void *playerSet)
     }
 }
 
-// /**
-//  * @brief ***EXTRA CREDIT*** if a player quits they drop the gold in their last location
-//  * 
-//  * @param player 
-//  * @param playerSet 
-//  */
-// static void dropGold(player_t* player, void* playerSet){
-//     int location = pointToLocation(player->currentLocation, calculateColumns(game->map));
-//     counters_set(game->goldMap, location, player->playerGold);
+/**
+ * @brief ***EXTRA CREDIT*** if a player quits they drop the gold in their last location
+ * 
+ * @param player 
+ * @param playerSet 
+ */
+static void dropGold(player_t* player){
+    if(player -> playerGold > 0) {
+        int location = pointToLocation(player->currentLocation, calculateColumns(game->map));
+        counters_set(game->goldMap, location, player->playerGold);
+        setCharAtPoint(game->map, nugget, player->currentLocation);
+        game->GoldTotal += player->playerGold;
+        player -> playerGold = 0;
+    }
+}
 
-//     setCharAtPoint(game->map, nugget, player->currentLocation);
-//     updateDisplay();
-// }
-
-// /**
-//  * @brief ***EXTRA CREDIT*** if a player quits they drop the gold in their last location
-//  * 
-//  * @param player 
-//  * @param playerSet 
-//  */
-// static void stealGold(player_t* player, void* playerSet){
-//     int location = pointToLocation(player->currentLocation, calculateColumns(game->map));
-//     counters_set(game->goldMap, location, player->playerGold);
-
-//     setCharAtPoint(game->map, nugget, player->currentLocation);
-// }
+/**
+ * @brief when a player steps on another, they steal a quarter of their gold
+ * 
+ * @param thief person who steps on the other
+ * @param victim person getting stepped on
+ */
+void playerSteal(player_t* thief, player_t* victim){
+    int goldStolen = 0;
+    if (victim->playerGold > 4){
+        goldStolen = victim->playerGold/4;
+    }
+    else{
+        goldStolen = victim->playerGold;
+    }
+    victim->playerGold -= goldStolen;
+    thief->playerGold += goldStolen;
+    thief->recentGold = goldStolen;
+}
