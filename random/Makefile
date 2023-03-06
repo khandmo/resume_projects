@@ -22,7 +22,7 @@ random.o: random.h
 .PHONY: test valgrind clean
 
 test: 
-	./radomtest
+	./randomtest
 
 valgrind: 
 	valgrind --leak-check=full --show-leak-kinds=all ./randomtest
