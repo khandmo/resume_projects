@@ -115,7 +115,7 @@ If any memory allocation errors or invalid keystrokes, the error messages will b
 *Random*, creates random behaviour
 *HandleClientMessages*, constantly runs and accepts and interprets messages from client
 *UpdateDisplay*, based on inputted keystrokes, update display and game info for each player
-*CalculateVisibility*, calculates current visibility of a player
+*findVisibility*, calculates current visibility of a player
 *GameOver*, ends the game for all players
 
 
@@ -139,6 +139,22 @@ If any memory allocation errors or invalid keystrokes, the error messages will b
 						call gameover() end game
 				if message is Quit
 					call removeplayer() to remove player or spectator
+
+#### findVisibility
+
+	get player location
+	get counter for points seen
+	create map copy
+	loop through all points in map
+		set end to be current point in loop
+		if distance from point to end is less than radius
+			check if point is not visible in each quadrant
+				if hasn't been seen before
+					set point to space
+				if has been seen but is gold or player
+					set point to floor
+		if point is not space, add to counter
+	return map
 
 
 ### Major data structures
