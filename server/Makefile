@@ -4,7 +4,7 @@
 
 PROG = server
 LIB = ../libcs50/libcs50-given.a ../support/message.h ../support/log.h
-OBJS = grid.o parseArgs.o ../support/message.o ../support/log.o visibility.o random.o
+OBJS = ../grid/grid.o parseArgs.o ../support/message.o ../support/log.o ../visibility/visibility.o ../random/random.o
 
 CFLAGS = -Wall -pedantic -std=c11 -ggdb -I../libcs50
 CC = gcc
@@ -14,14 +14,13 @@ VALGRIND = valgrind --leak-check=full --show-leak-kinds=all
 
 .PHONY: test valgrind clean
 
+all: server
+
 server: $(PROG).o $(OBJS) $(LIB)
 	$(CC) $(CFLAGS) $(PROG).o $(OBJS) $(LIB) -o server
 
 grid.o: grid.h
-visibility.o: visibility.h
 parseArgs.o: parseArgs.h
-random.o: random.h
-server.o: random.h parseArgs.h visibility.h
 
 test: 
 	./server ../maps/main.txt 

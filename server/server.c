@@ -19,14 +19,20 @@
 #include "../support/message.h"
 #include "../libcs50/mem.h"
 #include "../libcs50/file.h"
-#include "random.h"
+#include "../random/random.h"
 #include "../grid/grid.h"
-#include "visibility.h"
+#include "../visibility/visibility.h"
 
 /**************** global types ****************/
 // Global Constants
 static const int MaxNameLength = 50; // max number of chars in playerName
 static const int MaxPlayers = 26;    // maximum number of players
+static const char floor = '.';
+static const char side_wall = '-';
+static const char vertical_wall = '|';
+static const char tunnel = '#';
+static const char corner = '+';
+static const char nugget = '*';
 
 typedef struct game
 {
@@ -88,6 +94,8 @@ static void Table(void *playerSet);
 static void playerQuit(player_t *player);
 void endGame(void *playerSet);
 bool goldHelper(player_t *player, void *playerSet);
+
+//static void dropGold(player_t* player, void* playerSet)
 
 /**
  * @brief The main function initializes the game data based on whether there was a seed passed in or not 
@@ -290,7 +298,7 @@ static void initializeGameData(char *filename, int seed)
 
     // create counters for the gold and pass it to create random behaviour
     counters_t *goldmap = counters_new();
-    random2(game, goldmap, seed);
+    random(game, goldmap, seed);
     // assign it to the gamestruct
     game->goldMap = goldmap;
 }
@@ -378,8 +386,8 @@ static void addPlayer(char *name, addr_t address, void *playerSet)
     int spawn = spawnLocation(game);
     point_t *point = locationToPoint(spawn, game->map);
     player->currentLocation = point;
-    // setting previous point to a '.' because the spawn can only be on a '.'
-    player->previousPoint = '.';
+    // setting previous point to a floor because the spawn can only be on a floor
+    player->previousPoint = floor;
     // add one to account for the fact current players starts at 0
     int playerNumber = game->currPlayers;
     // increment the letter's ascii by the player number
@@ -455,11 +463,11 @@ processMove(player_t *player, void *playerSet, int x, int y)
     int oldY = getY(player->currentLocation);
     x += getX(player->currentLocation);
     y += getY(player->currentLocation);
-    if (getCharFromPair(x, y, game->map) == '-' || getCharFromPair(x, y, game->map) == '+' || getCharFromPair(x, y, game->map) == '|' || isspace(getCharFromPair(x, y, game->map)))
+    if (getCharFromPair(x, y, game->map) == side_wall || getCharFromPair(x, y, game->map) == corner || getCharFromPair(x, y, game->map) == vertical_wall || isspace(getCharFromPair(x, y, game->map)))
     {
         return 0;
     }
-    else if (getCharFromPair(x, y, game->map) == '.' || getCharFromPair(x, y, game->map) == '#')
+    else if (getCharFromPair(x, y, game->map) == floor || getCharFromPair(x, y, game->map) == tunnel)
     {
         // update players current location
         setY(y, player->currentLocation);
@@ -478,7 +486,7 @@ processMove(player_t *player, void *playerSet, int x, int y)
         player->previousPoint = recentPrevPoint;
         return 1;
     }
-    else if (getCharFromPair(x, y, game->map) == '*')
+    else if (getCharFromPair(x, y, game->map) == nugget)
     {
         setY(y, player->currentLocation);
         setX(x, player->currentLocation);
@@ -488,7 +496,7 @@ processMove(player_t *player, void *playerSet, int x, int y)
         setCharAtPoint(game->map, player->letter, player->currentLocation);
         setCharAtPoint(game->map, player->previousPoint, oldPoint);
         free(oldPoint);
-        player->previousPoint = '.';
+        player->previousPoint = floor;
         if (goldHelper(player, playerSet))
         {
             return 2;
@@ -507,26 +515,12 @@ processMove(player_t *player, void *playerSet, int x, int y)
 
 /*
 h move left, if possible
-
-
 l move right, if possible
-
-
 j move down, if possible
-
-
 k move up , if possible
-
-
 y move diagonally up and left, if possible
-
-
 u move diagonally up and right, if possible
-
-
 b move diagonally down and left, if possible
-
-
 n move diagonally down and right, if possible*/
 /**
  * @brief handles the individual keystrokes for movement and quitting
@@ -902,3 +896,16 @@ static void Table(void *playerSet)
         }
     }
 }
+
+// /**
+//  * @brief ***EXTRA CREDIT*** if a player quits they drop the gold in their last location
+//  * 
+//  * @param player 
+//  * @param playerSet 
+//  */
+// static void dropGold(player_t* player, void* playerSet){
+//     int location = pointToLocation(player->currentLocation, calculateColumns(game->map));
+//     counters_set(game->goldMap, location, player->playerGold);
+
+//     setCharAtPoint(game->map, nugget, player->currentLocation);
+// }
