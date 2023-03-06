@@ -16,9 +16,8 @@ all:
 	make -C display
 	make -C random
 	make -C visibility
-	make -C client
 	make -C server
-	make -C client
+	make -C gameClient
 	
 
 ############### TAGS for emacs users ##########
@@ -29,7 +28,6 @@ TAGS:  Makefile */Makefile */*.c */*.h */*.md */*.sh
 clean:
 	rm -f *~
 	rm -f TAGS
-	make -C client clean
 	make -C display clean
 	make -C grid clean
 	make -C libcs50 clean
@@ -37,4 +35,4 @@ clean:
 	make -C support clean
 	make -C visibility clean
 	make -C server clean
-	make -C client clean
+	make -C gameClient clean
