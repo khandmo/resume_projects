@@ -5,7 +5,10 @@
 
 The `visibility` directory contains `visibility.c` which contains functions for determining
 which points in a given map are visible given a player located in the map. The directory
-also contains a `testvisibility.c` file which runs tests on the visiblity function 
+also contains a `testvisibility.c` file which runs tests on the visiblity function.
+
+Please note the extra credit implementation of a visibility radius, which can be modified by use
+of a named constant.
 
 ### Usage
 
