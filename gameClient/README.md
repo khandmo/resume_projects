@@ -1,100 +1,36 @@
-# support library
+# CS50 Final Project
+## Winter 2023
 
-This library contains two modules useful in support of the CS50 final project.
+### client
 
-## 'log' module
+The `client` directory contains `client.c` which contains functions for determining
+what to do and display in response to the messages sent fromt the server. The client only provides a user interface;
+it has no role in tracking gold, determining visibility, handling moves, or even checking the validity of user's keystrokes. Indeed, the network protocol makes it impossible for the client to be anything other than pass keystrokes to the server and display the maps that come back. The directory
+also contains a makefile creating client.c
 
-This module provides a simple way to log information to an output file.
-See `log.h` for interface details, and `message.c` for some usage examples.
-Each C file that includes `log.h` can call `message_init` with its own file descriptor; thus it is possible to output to different log files, or turn on/off logging independently.
+### Usage
 
-## 'message' module
+`client.c` uses the following functions:
 
-Provides a message-passing abstraction among Internet hosts.
-See `message.h` for interface details, and the `UNIT_TEST` at the bottom of `message.c` for a simple usage example.
-
-> **Note:** the unit test within `message.c` is not typical usage, because it supports a client and the server running the *same code*.
-> More typically, the client and server programs will be separate programs, each with its own handlers.
-> See the top of `message.h` for typical client and server structures.
-
-Messages are sent via UDP and are thus limited to UDP packet size, may be lost, and may be reordered, but require no connection setup or teardown.
-Within the Dartmouth campus network it is unlikely for messages to be lost or reordered; we will use this module as if neither will happen.
-
-## compiling
-
-To compile,
-
-	make support.a
-
-To clean,
-
-	make clean
-
-## using
-
-In a typical use, assume this library is a subdirectory named `support`, within a directory where some main program is located.
-The Makefile of that main directory might then include content like this:
-
-```make
-S = support
-CFLAGS = ... -I$S
-LLIBS = $S/support.a
-LIBS =
-...
-program.o: ... $S/message.h $S/log.h
-program: program.o $(LLIBS)
-	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
-...
-$S/support.a:
-	make -C $S support.a
-
-clean:
-	make -C $S clean
-	...
+```c
+static bool handleInput(void* arg);
+static bool handleMessage(void* arg, const addr_t from, const char* message);
+static char* parseGoldMessage(char* goldMessage);
 ```
 
-This approach allows the main program to be built (or cleaned) while automatically building (cleaning) the support library as needed.
+### Implementation
 
-## testing
+`client` is createdto communicate with a server using the message module. After the player has initiated a play, the client will send each valid line of the stdin as a message to the server and will also print every message received from the server on the standard output.
+There are two modes in which the client can act - the spectator and the player.
 
-The 'message' module has a built-in unit test, enabling it to be compiled stand-alone for testing.
-See the `Makefile` for the compilation.
+## Spectator Mode
+In spectator mode, the program will only receive messages from the server without sending any messages back. To activate spectator mode, run the program with the following command line argument: ./client hostname port
 
-To compile,
+## Player Mode
+In player mode, the program will send keystrokes entered by the player to the server as a message. To activate player mode, run the program with the following command line argument: ./client hostname port player_name
 
-	make messagetest
 
-To run, you need two windows.
-In the first window,
+### Testing
 
-	./messagetest 2>first.log
-
-In the second window,
-
-	./messagetest 2>second.log localhost 12345
-
-where `12345` is the port number printed by the first program.
-
-Then you should be able to type a line in either window and, after pressing Return, see that message printed on the other.
-
-The above example assumes both windows are on the same computer, which is known to itself as `localhost`.
-Each window could be logged into a different computer, in which case the second above should provide the hostname or IP address of the first.
-If the first is on the Thayer server known as "plank", the second would run
-
-	./messagetest 2>second.log plank.thayer.dartmouth.edu 12345
-
-On a private network, such as inside a home, you might only have an IP address of the first:
-
-	./messagetest 2>second.log 10.0.1.13 12345
-
-In all examples above notice we redirect the stderr (file number 2) to a log file, and we use different files for each instance... otherwise, if they are sharing a directory (as they would, on localhost), the log entries will overwrite each other.
-
-## miniclient
-
-The `miniclient` program is an example of the use of the message
-module.  It acts as a client, and thus must be provided with the
-address of a server.  Given the address of a server, this simple
-client sends each line of stdin as a message to the server, and prints
-to stdout every message received from the server; each printed message
-is surrounded by 'quotes'.
+Use `make` to compile the client to be used in unison with server
 
