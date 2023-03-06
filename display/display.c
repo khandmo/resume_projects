@@ -15,28 +15,6 @@
 static char** string_to_array(char* map_string, int NROWS, int NCOLS);
 // transformes map_string to row and column arrays
 
-/***************** initialize_curses() *****************/
-void initialize_curses(int NROWS, int NCOLS){
-  initscr(); // initialize the screen
-
-  int CNROWS; // will hold current terminal size dimensions
-  int CNCOLS;
-  getmaxyx(stdscr, CNROWS, CNCOLS); // get current terminal size
-
-  if (CNROWS < NROWS || CNCOLS < NCOLS){
-    // if current terminal size not large enough for game
-    resizeterm(NROWS+1, NCOLS+1); // resize terminal appropriately
-  }
-
-  cbreak(); // default ncurses atttribute
-  noecho(); // hides characters the user types
-
-  // classic green terminal colors
-  start_color();
-  init_pair(1, COLOR_GREEN, COLOR_BLACK);
-  attron(COLOR_PAIR(1));
-}
-
 /***************** update_info_line() *****************/
 void
 update_info_line(char* message, int NCOLS){
@@ -47,16 +25,48 @@ update_info_line(char* message, int NCOLS){
   refresh(); // update screen
 }
 
+/***************** initialize_curses() *****************/
+void initialize_curses(int NROWS, int NCOLS){
+  initscr(); // initialize the screen
+
+  cbreak(); // default ncurses atttribute
+  noecho(); // hides characters the user types
+
+  // classic green terminal colors
+  start_color();
+  init_pair(1, COLOR_GREEN, COLOR_BLACK);
+  attron(COLOR_PAIR(1));
+
+  int CNROWS; // will hold current terminal size dimensions
+  int CNCOLS;
+  getmaxyx(stdscr, CNROWS, CNCOLS); // get current terminal size
+
+  if (CNROWS < NROWS || CNCOLS < NCOLS){
+    // if current terminal size not large enough for game
+    char* message = "Screen size inadequate, please resize.";
+    update_info_line(message , NCOLS);
+  }
+  bool sizeRight = false;
+  while (sizeRight == false){
+    int key;
+    if ((key = getch()) == KEY_RESIZE && COLS > NCOLS && LINES > NROWS){
+      sizeRight = true;
+    }
+  }
+}
+
 /***************** addTo_info_line() ****************/
 void
 addTo_info_line(char* message, int NCOLS){
-  for(int i=0; i< NCOLS;){
-    move(0, i); // move to the next char
-    if(getch() != '.'){ // if not at the end of the sentence
-      i++; // increment
+  char scrInput; // random initialization
+  for(int i=0; i< NCOLS; ){ // not looping without user input (bad!)
+    scrInput = mvinch(0, i);
+    if(scrInput != '.'){ // if not at the end of the sentence ('.' = 46)
+      i++;
     } else { // if at the end of the sentence
       mvaddnstr(0, i+2, message, strlen(message) + 1); // move to spot and add message
       refresh();
+      break;
     }
   }
 }
@@ -66,16 +76,7 @@ void
 update_display(char* map_string, int NROWS, int NCOLS){
   char** map_array = string_to_array(map_string, NROWS, NCOLS); // make map array
   // clear info line  of other messages not gold
-  /*  for(int i=0; i< NCOLS;){
-    move(0, i); // move to the next char
-    if(getch() != '.'){ // if not at the end of the sentence
-      i++; // increment
-    } else { // end of sentence (main gold)
-      move(0, i+3); // increase for the following space
-      clrtoeol(); // clear the line
-    }
-    }*/
-  // now, for the map itself
+ 
   // first, clear the lines under the info line
   for (int z=0; z < NROWS; z++){
     move(z+1, 0);
