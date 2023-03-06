@@ -235,7 +235,7 @@ int validPointsNoPaths(char* mapstring, set_t* res){
  * See grid.h for implementation details
  * 
  */
-void setCharAtPoint(char* mapstring, char new, point_t* point){
+void setCharAtPoint(char* mapstring, char char_new, point_t* point){
     int columns = calculateColumns(mapstring);
     int location = pointToLocation(point, columns);
     char* copy = mapstring;  //copies in mapstring
@@ -243,7 +243,7 @@ void setCharAtPoint(char* mapstring, char new, point_t* point){
         copy++;
     }
     if (*copy != '\0' && *copy != '\n') {  //when NULL or newline we make a new copy char
-        *copy = new;
+        *copy = char_new;
     }
 }
 /**
@@ -290,5 +290,4 @@ See grid.h for implementation details
 void setX(int x, point_t* point){
     point->x = x;
 }
-
 

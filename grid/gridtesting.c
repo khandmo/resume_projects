@@ -65,7 +65,7 @@ int main()
     printPoints(pointSet);
     printf("\n");
 
-    printf("\n converting (3,2) from location back to a point:\n");
+    printf("converting (3,2) from location back to a point:\n");
 
     point_t *p3 = locationToPoint(p2location, map);
     printf("point: (%d,%d)\n", p3->x, p3->y);
@@ -99,5 +99,19 @@ int main()
     int p5location = pointToLocation(p5, calculateColumns(map));
     printf("from location: %c\n",getCharAtLocation(p5location, map));
     printf("from point: %c\n", getCharAtPoint(p5, map));
+
+
+    printf ("testing the getter and setter functions\n");
+
+    setX(5, p5);
+    setY(3, p5);
+    printf("getX: %d\n", getX(p5));
+    printf("getY: %d\n", getY(p5));
+
+    printf("testing setCharAtPoint function:\n");
+    printf("current point: %c\n", getCharAtPoint(p5, map));
+    setCharAtPoint(map, '*', p5);
+    printf("after setting: %c\n", getCharAtPoint(p5, map)); 
+
     free(map);
 }

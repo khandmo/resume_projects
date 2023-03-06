@@ -32,5 +32,4 @@ clean:
 	rm -f *.o
 	rm -f $(PROG)
 	rm -f core
-	gridtesting
-
+	
