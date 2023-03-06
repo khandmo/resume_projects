@@ -9,7 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <ncurses.h>
-#include "mem.h"
+#include "../libcs50/mem.h"
 
 /***************** local functions *****************/
 static char** string_to_array(char* map_string, int NROWS, int NCOLS);
@@ -45,12 +45,13 @@ void initialize_curses(int NROWS, int NCOLS){
     // if current terminal size not large enough for game
     char* message = "Screen size inadequate, please resize.";
     update_info_line(message , NCOLS);
-  }
-  bool sizeRight = false;
-  while (sizeRight == false){
-    int key;
-    if ((key = getch()) == KEY_RESIZE && COLS > NCOLS && LINES > NROWS){
-      sizeRight = true;
+  
+    bool sizeRight = false;
+    while (sizeRight == false){
+      int key;
+      if ((key = getch()) == KEY_RESIZE && COLS > NCOLS && LINES > NROWS){
+        sizeRight = true;
+      }
     }
   }
 }
