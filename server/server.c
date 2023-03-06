@@ -939,6 +939,7 @@ static void Table(void *playerSet)
 //     counters_set(game->goldMap, location, player->playerGold);
 
 //     setCharAtPoint(game->map, nugget, player->currentLocation);
+//     updateDisplay();
 // }
 
 // /**

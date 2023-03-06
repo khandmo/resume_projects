@@ -1,100 +1,52 @@
-# support library
+# CS50 Final Project
+## Winter 2023
 
-This library contains two modules useful in support of the CS50 final project.
+### server
 
-## 'log' module
+The server runs and initializes the game which players(clients) can join in. The server recieves inputs from 
 
-This module provides a simple way to log information to an output file.
-See `log.h` for interface details, and `message.c` for some usage examples.
-Each C file that includes `log.h` can call `message_init` with its own file descriptor; thus it is possible to output to different log files, or turn on/off logging independently.
 
-## 'message' module
+The `server` directory contains `server.c` which contains functions for determining
+which points in a given map are visible given a player located in the map. The directory
+also contains a `testserver.c` file which runs tests on the visiblity function 
 
-Provides a message-passing abstraction among Internet hosts.
-See `message.h` for interface details, and the `UNIT_TEST` at the bottom of `message.c` for a simple usage example.
+### Usage
 
-> **Note:** the unit test within `message.c` is not typical usage, because it supports a client and the server running the *same code*.
-> More typically, the client and server programs will be separate programs, each with its own handlers.
-> See the top of `message.h` for typical client and server structures.
+to run the server:
+```
+./server map.txt [seed]
+```
+this creates the server and allows new players to join
 
-Messages are sent via UDP and are thus limited to UDP packet size, may be lost, and may be reordered, but require no connection setup or teardown.
-Within the Dartmouth campus network it is unlikely for messages to be lost or reordered; we will use this module as if neither will happen.
+`server.c` uses the following functions:
 
-## compiling
-
-To compile,
-
-	make support.a
-
-To clean,
-
-	make clean
-
-## using
-
-In a typical use, assume this library is a subdirectory named `support`, within a directory where some main program is located.
-The Makefile of that main directory might then include content like this:
-
-```make
-S = support
-CFLAGS = ... -I$S
-LLIBS = $S/support.a
-LIBS =
-...
-program.o: ... $S/message.h $S/log.h
-program: program.o $(LLIBS)
-	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
-...
-$S/support.a:
-	make -C $S support.a
-
-clean:
-	make -C $S clean
-	...
+```c
+static bool handleMessage(void *arg, const addr_t from, const char *message);
+static void initializeGameData(char *filename, int seed);
+static void deletegameStruct();
+static void addPlayer(char *name, addr_t address, void *playerSet);
+static player_t *getPlayer(addr_t address, void *playerSet);
+static int processMove(player_t *player, void *playerSet, int x, int y);
+void gold(player_t *player);
+static bool handleKey(char *key, void *playerSet, addr_t address);
+set_t *initializePlayerSet(int maxPlayers);
+void playerSwap(int oldX, int oldY, player_t *player, void *playerSet);
+static void deletePlayerSet(set_t *playerSet);
+static void playerDelete(void *item);
+void initializeSpectator();
+void updateDisplay(void *playerSet);
+static void Table(void *playerSet);
+static void playerQuit(player_t *player);
+void endGame(void *playerSet);
+bool goldHelper(player_t *player, void *playerSet);
 ```
 
-This approach allows the main program to be built (or cleaned) while automatically building (cleaning) the support library as needed.
+### Implementation
 
-## testing
 
-The 'message' module has a built-in unit test, enabling it to be compiled stand-alone for testing.
-See the `Makefile` for the compilation.
+The server is implemented as a host to host a game which players can join. The `messageloop()` function continually recieves and sends messages to and fro the client. The logic in the server processes, based on the keystrokes given by the player, how the game runs. The server, based on the keystrokes, decides which processes it will allows to go through and how they will go through. For example, when a player tries to move their avatar, the server decides if it is a valid move. The network protocol connects zero or more game clients (players and spectator) with one game server. The server maintains all game state; the clients display the game state to a user, and sends their keystrokes to the server; the server sends back updated displays.
 
-To compile,
+### Testing
 
-	make messagetest
-
-To run, you need two windows.
-In the first window,
-
-	./messagetest 2>first.log
-
-In the second window,
-
-	./messagetest 2>second.log localhost 12345
-
-where `12345` is the port number printed by the first program.
-
-Then you should be able to type a line in either window and, after pressing Return, see that message printed on the other.
-
-The above example assumes both windows are on the same computer, which is known to itself as `localhost`.
-Each window could be logged into a different computer, in which case the second above should provide the hostname or IP address of the first.
-If the first is on the Thayer server known as "plank", the second would run
-
-	./messagetest 2>second.log plank.thayer.dartmouth.edu 12345
-
-On a private network, such as inside a home, you might only have an IP address of the first:
-
-	./messagetest 2>second.log 10.0.1.13 12345
-
-In all examples above notice we redirect the stderr (file number 2) to a log file, and we use different files for each instance... otherwise, if they are sharing a directory (as they would, on localhost), the log entries will overwrite each other.
-
-## miniclient
-
-The `miniclient` program is an example of the use of the message
-module.  It acts as a client, and thus must be provided with the
-address of a server.  Given the address of a server, this simple
-client sends each line of stdin as a message to the server, and prints
-to stdout every message received from the server; each printed message
-is surrounded by 'quotes'.
+The testing of the server follows by compiling the main nuggets-charles-angles/ directory and then running make test.
 
