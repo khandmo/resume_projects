@@ -20,7 +20,7 @@ main(){
   // update_display parameters are not changed accordingly
   
   initialize_curses(22, 80);
-  update_info_line("You're trapped!", 80);
+  update_info_line("You're trapped.", 80);
 
   FILE* fp;
   if ((fp = fopen("../maps/hole.txt", "r")) == NULL){
@@ -30,6 +30,7 @@ main(){
   char* map = file_readFile(fp);
   update_display(map, 21, 79);
 
+  addTo_info_line(".....or not!", 80);
          
   while(1){
     refresh();

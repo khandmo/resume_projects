@@ -1,5 +1,11 @@
-Assumes that a name with spaces is surrounded by quotation marks and that the name does not contain quotation marks
+# ASSUMPTIONS
 
+## Assumes that a name with spaces is surrounded by quotation marks and that the name does not contain quotation marks
+## Assumes that you do not crtl+c out and instead you must press 'Q' not 'q'
+## Assumes that after you resize client screen once it stays at a valid size
+
+# WE USE EXTRA CREDIT IN VISBIILITY AND IN SEREVER
+See readmes in those folders for more info
 
 # Nuggets
 

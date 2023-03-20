@@ -107,7 +107,7 @@ int validPointsNoPaths(char* mapstring, set_t* res);
  * @return true 
  * @return false 
  */
-void setCharAtPoint(char* mapstring, char new, point_t* point);
+void setCharAtPoint(char* mapstring, char new_char, point_t* point);
 /**
  * @brief deletes set and the points inside of it
  * 

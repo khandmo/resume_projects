@@ -1,23 +1,38 @@
-# Makefile for client.c debugging
-# Zion Slaughter
+# Makefile for CS50 Tiny Search Engine
+#
+# David Kotz - April 2016, 2017, 2021
 
-CC = gcc
-CFLAGS = -Wall -pedantic -std=c11 -ggdb -Isupport -Idisplay -Ilibcs50
-
-OBJS = client.o
-LIBS = -lm -lcurses
-LLIBS = support/support.a libcs50/libcs50.a display/display.a
-
+L = libcs50
 .PHONY: all clean
 
-all: client
+############## default: make all libs and programs ##########
+# If libcs50 contains set.c, we build a fresh libcs50.a;
+# otherwise we use the pre-built library provided by instructor.
+all: 
+	(cd $L && if [ -r set.c ]; then make $L.a; else cp $L-given.a $L.a; fi)
+	make -C libcs50
+	make -C support
+	make -C grid
+	make -C display
+	make -C random
+	make -C visibility
+	make -C server
+	make -C gameClient
+	
 
-client: $(OBJS) $(LLIBS)
-	$(CC) $(CFLAGS) $(OBJS) $(LLIBS) $(LIBS) -o client
+############### TAGS for emacs users ##########
+TAGS:  Makefile */Makefile */*.c */*.h */*.md */*.sh
+	etags $^
 
-client.o: support/message.h display/display.h libcs50/mem.h
-
+############## clean  ##########
 clean:
-	rm -f client
-	rm -f *~ *.o
-	rm -rf *.dSYM
+	rm -f *~
+	rm -f TAGS
+	make -C display clean
+	make -C grid clean
+	make -C libcs50 clean
+	make -C random clean
+	make -C support clean
+	make -C visibility clean
+	make -C server clean
+	make -C gameClient clean

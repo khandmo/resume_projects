@@ -31,16 +31,6 @@ typedef struct counters counters_t;
  */
 void random(game_t* game, counters_t* goldMap, int seed);
 /**
- * @brief Takes an empty counters to modify and will return nothing 
- *        splits total gold into random sets
- * 
- * @param game 
- * @param goldMap 
- * @param seed 
- */
-void random2(game_t* game, counters_t* goldMap, int seed);
-
-/**
  * @brief returns the spawn location in the string
  * 
  * @param game 
