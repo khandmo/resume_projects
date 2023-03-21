@@ -14,8 +14,8 @@ MAKE = make
 
 # Build $(LIB) by archiving object files
 # (you will need to drop in copy of set.c, counters.c, hashtable.c)
-$(LIB): $(OBJS)
-	ar cr $(LIB) $(OBJS)
+$(LIB): libcs50-given.a
+	cp libcs50-given.a $(LIB)
 
 # Dependencies: object files depend on header files
 bag.o: bag.h

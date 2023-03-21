@@ -13,6 +13,8 @@ MAKE = make
 all:
 	$(MAKE) -C common
 
+pagedir.o: ../libcs50/webpage.h ../libcs50/mem.h
+
 clean:
 	rm -f common.a
 	rm -f *~ *.o

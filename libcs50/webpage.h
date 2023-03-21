@@ -137,6 +137,8 @@ bool webpage_fetch(webpage_t* page);
 
 char* webpage_getNextWord(webpage_t* page, int* pos);
 
+
+
 /****************** webpage_getNextURL ***********************************/
 /* return the next url from page->html[pos]
  *

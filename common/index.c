@@ -10,10 +10,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "mem.h"
-#include "hashtable.h"
-#include "counters.h"
-#include "file.h"
+#include "../libcs50/mem.h"
+#include "../libcs50/hashtable.h"
+#include "../libcs50/counters.h"
+#include "../libcs50/file.h"
 
 /******************** local function ********************/
 static void indexWrite(void* file, const int docID, const int count);

@@ -116,6 +116,7 @@ main(int argc, char* argv[]){
     if (isatty(fileno(stdin))){ // so that the user can query to infinity
       while (!feof(stdin)){
         printf("Query? ");
+        // break line here for testing?
         char line[60];
         char* origQuery;
         if ((origQuery = fgets(line, 60, stdin)) != NULL){
@@ -204,7 +205,6 @@ queryParse(char* query, index_t* index){
       DCO->modCounter = result;
       counters_iterate(toolC, DCO, setIntersect); // INTERSECT scum and toolC
       scum = result; // return result to scum
-      // throw away temp counter result (now scum) *********************************************************************
       tool = nextTool; // reload while loop
     } else if (toolLit != NULL) { // next toolLit is actually a tool, implied AND literal
 
@@ -214,7 +214,6 @@ queryParse(char* query, index_t* index){
       DCO->modCounter = result;
       counters_iterate(toolC, DCO, setIntersect); // INTERSECT scum and toolC
       scum = result;
-      // throw away temp counter result (now scum) **********************************************************************
       tool = toolLit; // reload while loop
     }
     free(DCO);

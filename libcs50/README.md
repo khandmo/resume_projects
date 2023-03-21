@@ -1,5 +1,10 @@
 # CS50 Tiny Search Engine (TSE) utility library
 
+**
+Zion Slaughter
+This files were created in previous labs in the class and are simple data structure implementations for the tiny search engine.
+**
+
 These modules support the TSE project.  Feel free to drop in your implementation of the data-structure modules, but **do not change any of the other source files in this directory.**
 
 ## Usage

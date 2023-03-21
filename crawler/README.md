@@ -2,21 +2,14 @@ Zion Slaughter
 LAB 4 CS50
 crawler implementation
 
+Crawler utilizes multiple dependcies as appropriated in the Makefile and top level README to crawl dartmouth webpages
+and saves the raw html files to a data folder in the top level. The crawl takes as arguments the following:
+1. The root page URL to crawl for subsequent pages
+2. The route to the data folder in which to save the html of the pages, should start with ../data
+3. The depth to which to crawl, a number hard coded between 0 and 10
+
 Dependencies:
 The pagedir.c module hardcodes the prefix for the directory where pages are saved. That prefix is ../data as indicated
 in the preparing files.
-
-Known Bugs:
-
-Sleep:
-Could not implement sleep function to wait a second before fetching. Even when I set the sleeping parameters to small millisecond amounts
-the code would completely halt. It seemed to compile fine throughout my testing without it, and hopefully it doesn't cuase any significant problems
-to bandwith for the others.
-
-Depth:
-My depth counter has the wrong pointer and I'm so exhausted to even worry about it so the output data as of now does
-not accurately reflect page depth. I'm sure it's an easy fix but I can worry about it later.
-
-Memory Leaks:
-At the very end of going through testing I've discovered there's a great deal of memory leaks which I simply don't have time to
-squash before the deadline. I'll probably work on that tomorrow, I doubt it's a difficult fix.
+Multiple parts of the code relies on not only that the folder which pages are saved to is named "data" but also that it exists
+outside the crawler directory.

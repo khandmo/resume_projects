@@ -10,8 +10,8 @@
 #include <string.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include "webpage.h"
-#include "mem.h"
+#include "../libcs50/webpage.h"
+#include "../libcs50/mem.h"
 
 /********** local functions **********/
 bool pagedir_init(const char* pageDirectory);
@@ -30,17 +30,17 @@ pagedir_init(const char* pageDirectory){
     return false;
   }
   
-  char* dirpath = mem_malloc(sizeof(char) * 40);
+  char* dirpath = mem_malloc(sizeof(char) * 40); // identical to pageDirectory
   if (dirpath == NULL){
     return false;
   }
-  char* initpath = "../data";
-  char* initp1 = ".";
-  char* initp2 = "/";
-  *(dirpath) = *initp1;
-  *(dirpath+1) = *initp1;
-  *(dirpath+2) = *initp2;
-  strcpy((dirpath+3), pageDirectory);
+
+  // necessary that the pageDirectory begins with ../data for the code to operate correctly
+  char* initpath = mem_malloc(sizeof(char) * 8); 
+  strcpy(initpath, pageDirectory);
+  initpath[8] = '\0';
+  strcpy(dirpath, pageDirectory);
+  
   DIR* wowdir = opendir(initpath);  // open preassigned directory "data" to place pages
   if (wowdir == NULL){  // ensure the directory exists before moving forward
     return false;
@@ -80,12 +80,8 @@ pagedir_save(const webpage_t* page, const char* pageDirectory, const int docID){
   if (filepath == NULL){
     return;
   }
-  char* initp1 = ".";
-  char* initp2 = "/";
-  *(filepath) = *initp1;
-  *(filepath+1) = *initp1;
-  *(filepath+2) = *initp2;
-  strcpy((filepath+3), pageDirectory);
+  
+  strcpy(filepath, pageDirectory);
   DIR* wowdir = opendir(filepath); // open directory "data/page/"
   
   char* docstr = mem_malloc(sizeof(int) * 4); // initialize string to hold int docID for pathname addition
