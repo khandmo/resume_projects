@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# simple letters construction
-./crawler http://cs50tse.cs.dartmouth.edu/tse/letters/index.html ../data/letters-3 10
-
+## Erroneous edge cases
 # out of bounds seed case
 ./crawler http://www.google.com/ ../data/google 5
 
@@ -12,9 +10,10 @@
 # out of bounds too low maxDepth (below zero)
 ./crawler http://cs50tse.cs.dartmouth.edu/tse/letters/index.html ../data/letters-3 -4
 
-# valgrind moderate case
+## Valgrind moderate case
 valgrind ./crawler http://cs50tse.cs.dartmouth.edu/tse/toscrape/ ../data/valgrind-mod 1
 
+## Data construction 
 # letters at 0
 ./crawler http://cs50tse.cs.dartmouth.edu/tse/letters/index.html ../data/letters-0 0
 

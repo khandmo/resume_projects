@@ -59,7 +59,10 @@ parseArgs(const int argc, char* argv[],
     }
     *seedURL = seednorm; // sets the mallocd URL back so that it can be freed later
     // for pageDirectory, argv[2]
-    pagedir_init((*pageDirectory));         
+    if (pagedir_init((*pageDirectory)) == false){
+      printf("Could not initialize pageDirectory\n");
+      exit(1);
+    }
 
     // maxDepth, argv[3]
     // check if maxdepth is a number
@@ -157,5 +160,6 @@ pageScan(webpage_t* page, bag_t* pagesToCrawl, hashtable_t* pagesSeen){
       }
     }
     free(nextURL);
+    free(normedNext);
   }
 }
