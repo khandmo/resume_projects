@@ -30,7 +30,7 @@ pagedir_init(const char* pageDirectory){
     return false;
   }
   
-  char* dirpath = mem_malloc(sizeof(char) * 40); // identical to pageDirectory
+  char* dirpath = mem_malloc(sizeof(char) * strlen(pageDirectory) + 1); // identical to pageDirectory
   if (dirpath == NULL){
     return false;
   }
@@ -43,23 +43,34 @@ pagedir_init(const char* pageDirectory){
   
   DIR* wowdir = opendir(initpath);  // open preassigned directory "data" to place pages
   if (wowdir == NULL){  // ensure the directory exists before moving forward
+    free(initpath);
     return false;
   }
+  free(initpath);
+
+  // malloc dirpathWithIndicator****************************************
+  char* indicator = "/.crawler";
+  char* dirpathWithIndicator = dirpath;
+  strcat(dirpathWithIndicator, indicator);
+  FILE* fp;
   
- 
   int check;
   check = mkdir(dirpath, 0777); // creates the pageDirectory in directory "data"
   if (!check){
-    FILE* fp;
-    char* indicator = "/.crawler";
-    strcat(dirpath, indicator); // concatenates to form .crawler file in pageDirectory
-    fp = fopen(dirpath, "w"); // open file .crawler in path
+    fp = fopen(dirpathWithIndicator, "w"); // open file .crawler in path
     if (fp == NULL){
       free(dirpath);
       closedir(wowdir);
       return false; // ensure writable file will open
     }
     fclose(fp); // close file .crawler in path
+    free(dirpath);
+    closedir(wowdir);
+    return true;
+  } else if ((fp = fopen(dirpathWithIndicator, "r"))) {
+    // else if the directory already exists, check if .crawler exists in it
+    // if it does then return true for the program that called this function
+    fclose(fp);
     free(dirpath);
     closedir(wowdir);
     return true;

@@ -159,7 +159,7 @@ pageScan(webpage_t* page, bag_t* pagesToCrawl, hashtable_t* pagesSeen){
         bag_insert(pagesToCrawl, newPage); // insert page into bag
       }
     }
-    free(nextURL);
     free(normedNext);
+    free(nextURL);
   }
 }
