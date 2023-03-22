@@ -37,20 +37,25 @@ pagedir_init(const char* pageDirectory){
 
   // necessary that the pageDirectory begins with ../data for the code to operate correctly
   char* initpath = mem_malloc(sizeof(char) * 8); 
-  strcpy(initpath, pageDirectory);
+  for (int i=0; i < 7; i++){
+    initpath[i] = pageDirectory[i];
+  }
   initpath[8] = '\0';
+  
   strcpy(dirpath, pageDirectory);
   
   DIR* wowdir = opendir(initpath);  // open preassigned directory "data" to place pages
   if (wowdir == NULL){  // ensure the directory exists before moving forward
     free(initpath);
+    closedir(wowdir);
     return false;
   }
   free(initpath);
-
+  
   // malloc dirpathWithIndicator****************************************
   char* indicator = "/.crawler";
-  char* dirpathWithIndicator = dirpath;
+  char* dirpathWithIndicator = mem_malloc(sizeof(char) * strlen(dirpath) + strlen(indicator)+1);
+  strcpy(dirpathWithIndicator, dirpath);
   strcat(dirpathWithIndicator, indicator);
   FILE* fp;
   
@@ -60,11 +65,13 @@ pagedir_init(const char* pageDirectory){
     fp = fopen(dirpathWithIndicator, "w"); // open file .crawler in path
     if (fp == NULL){
       free(dirpath);
+      free(dirpathWithIndicator);
       closedir(wowdir);
       return false; // ensure writable file will open
     }
     fclose(fp); // close file .crawler in path
     free(dirpath);
+    free(dirpathWithIndicator);
     closedir(wowdir);
     return true;
   } else if ((fp = fopen(dirpathWithIndicator, "r"))) {
@@ -72,10 +79,12 @@ pagedir_init(const char* pageDirectory){
     // if it does then return true for the program that called this function
     fclose(fp);
     free(dirpath);
+    free(dirpathWithIndicator);
     closedir(wowdir);
     return true;
   }
   free(dirpath);
+  free(dirpathWithIndicator);
   closedir(wowdir);
   return false;
 }
@@ -172,6 +181,7 @@ pagedir_parse(const char* path){
   FILE* fp = fopen(path, "r");
   if (fp == NULL){
     fprintf(stderr, "Webpage parsing error: \tCould not open file at %s\n", path);
+    fclose(fp);
     exit(1);
   }
   char* URL = mem_malloc(sizeof(char)*100); // must be freed later
@@ -187,8 +197,10 @@ pagedir_parse(const char* path){
   bool fetch = webpage_fetch(page);
   if (fetch == false){
     fprintf(stderr, "Webpage parsing error: \tCould not fetch page at %s\n", path);
+    fclose(fp);
     exit(1);
   }
   // if fetch was successful, page now initialized with URL, depth, and HTML
+  fclose(fp);
   return page;  
 }

@@ -89,7 +89,7 @@ parseArgs(const int argc, char* argv[],
 // crawls 
 static void
 crawl(char* seedURL, char* pageDirectory, const int maxDepth){
-  hashtable_t* ht = hashtable_new(50); // initialize hashtable
+  hashtable_t* ht = hashtable_new(500); // initialize hashtable
   char* dumbitem = "o";
   bool pageGrabbed1 = hashtable_insert(ht, seedURL, dumbitem); // add the seedURL
 
@@ -113,7 +113,7 @@ crawl(char* seedURL, char* pageDirectory, const int maxDepth){
         printf("%i\t Fetched:\t%s\n", webpage_getDepth(somepage), webpage_getURL(somepage)); // prints fetch info
         pagedir_save(somepage, pageDirectory, docID); // save page
         printf("%i\t Saved:   \t%s\n", webpage_getDepth(somepage), webpage_getURL(somepage)); // print save info
-        if (webpage_getDepth(somepage) <= maxDepth){ // if page not at max depth
+        if (webpage_getDepth(somepage) <= maxDepth-1){ // if page not at max depth
           printf("%i\t Scanning:\t%s\n", webpage_getDepth(somepage), webpage_getURL(somepage)); // prints scan info
           pageScan(somepage, mybag, ht); // scan the page
         }
@@ -121,7 +121,7 @@ crawl(char* seedURL, char* pageDirectory, const int maxDepth){
       *bagamt = 0;
       bag_iterate(mybag, bagamt, countfunc);
       printf("%d URL's to check.\n", *bagamt);
-      webpage_delete(somepage); 
+      webpage_delete(somepage);
     }
     hashtable_delete(ht, NULL); // is NULL, may be an issue
     bag_delete(mybag, NULL); // is NULL, may be an issue
@@ -148,18 +148,17 @@ pageScan(webpage_t* page, bag_t* pagesToCrawl, hashtable_t* pagesSeen){
   int pos = 0;
   char* nextURL;
   while ((nextURL = webpage_getNextURL(page, &pos)) != NULL){
-    char* normedNext = normalizeURL(nextURL); // normalize URL
-    printf("%i\t Found:    \t%s\n", whereAreWeGoin, normedNext); // prints found info
-    if (isInternalURL(normedNext) == true){ // if webpage is internal
-      char* rndm = "o";
-      bool hashCheck = hashtable_insert(pagesSeen, normedNext, rndm);  // add to ht 
-      if (hashCheck == true){ // if added to ht
-        printf("%i\t Added:      \t%s\n", whereAreWeGoin, normedNext);
+    char* normedNext = mem_malloc(sizeof(char) * strlen(nextURL) + 1); // normalize URL
+    normedNext = normalizeURL(nextURL);
+    //printf("%i\t Found:    \t%s\n", whereAreWeGoin, normedNext); // prints found info
+    if (isInternalURL(normedNext) == true){ // if webpage is internal 
+      if (hashtable_find(pagesSeen, normedNext) == NULL){ // if never seen before
+        //  printf("%i\t Added:      \t%s\n", whereAreWeGoin, normedNext);
         webpage_t* newPage = webpage_new(normedNext, whereAreWeGoin, NULL); //make new page
         bag_insert(pagesToCrawl, newPage); // insert page into bag
+        hashtable_insert(pagesSeen, normedNext, newPage); // added to ht
       }
     }
-    free(normedNext);
     free(nextURL);
   }
 }
