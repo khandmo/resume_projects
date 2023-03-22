@@ -38,7 +38,7 @@ typedef struct index {
 /********************* index_new() *********************/
 index_t*
 index_new(){
-  int default_array_size = 200;
+  int default_array_size = 1000;
   // initialize the hashtable and index
   index_t* newIndex = mem_malloc(sizeof(index_t));
   hashtable_t* newTable = hashtable_new(default_array_size);

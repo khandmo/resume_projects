@@ -184,7 +184,7 @@ pagedir_parse(const char* path){
     fclose(fp);
     exit(1);
   }
-  char* URL = mem_malloc(sizeof(char)*100); // must be freed later
+  char* URL = mem_malloc(sizeof(char)*200); // must be freed later
   char depth[5];
 
   fscanf(fp, "%s\n%s", URL, depth);
@@ -197,6 +197,7 @@ pagedir_parse(const char* path){
   bool fetch = webpage_fetch(page);
   if (fetch == false){
     fprintf(stderr, "Webpage parsing error: \tCould not fetch page at %s\n", path);
+    free(URL);
     fclose(fp);
     exit(1);
   }
