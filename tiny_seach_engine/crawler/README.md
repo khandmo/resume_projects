@@ -1,6 +1,6 @@
-Zion Slaughter
-LAB 4 CS50
-crawler implementation
+#Zion Slaughter
+##CS50 Tiny Search Engine
+##Crawler implementation
 
 Crawler utilizes multiple dependcies as appropriated in the Makefile and top level README to crawl dartmouth webpages
 and saves the raw html files to a data folder in the top level. The crawl takes as arguments the following:

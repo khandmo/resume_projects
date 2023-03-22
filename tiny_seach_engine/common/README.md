@@ -1,5 +1,5 @@
-Zion Slaughter
-CS50 Tiny Search Engine
+#Zion Slaughter
+##CS50 Tiny Search Engine
 
 Common assembles three core files: index, pagedir, and word.
 
