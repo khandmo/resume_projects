@@ -82,19 +82,7 @@ main(int argc, char* argv[]){
       printf("Parsing Error \tpageDirectory is NULL\n");
       exit(1);
     }
-
-    /*
-    // Check if pageDirectory was made by crawler
-    char* crawlerCheck = pageDirectory;
-    strcat(crawlerCheck, "/.crawler");
-    FILE* crawlerFile;
-    if ((crawlerFile = fopen(crawlerCheck, "r")) == NULL){
-      fprintf(stderr, "Parsing Error \t%s not a crawler made directory\n", pageDirectory);
-      exit(1);
-    }
-    fclose(crawlerFile);
-    */
-    
+   
     //for indexFilename
     char* indexFilename = argv[2];
     if (indexFilename == NULL){
@@ -278,7 +266,10 @@ printResult(counters_t* result, char* pageDirectory){
   scoreCheck_t* scObj = mem_malloc(sizeof(scoreCheck_t));
   scObj->counter = used;
   fprintf(stdout, "|\tscore\t|\tdocID\t|\tURL\t\n");
-  for(int i = 0; i < resultSize; i++){
+  if (resultSize > 10){ // only print top ten results
+    resultSize = 10;
+  }
+  for(int i = 0; i < resultSize ; i++){
     int docIDInt = 0;
     int countInt = 0;
     scObj->docID = &docIDInt;

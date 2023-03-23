@@ -38,7 +38,7 @@ typedef struct index {
 /********************* index_new() *********************/
 index_t*
 index_new(){
-  int default_array_size = 1000;
+  int default_array_size = 1500;
   // initialize the hashtable and index
   index_t* newIndex = mem_malloc(sizeof(index_t));
   hashtable_t* newTable = hashtable_new(default_array_size);
@@ -125,35 +125,6 @@ static void
 indexDeleteHelper(void* counter){
   counters_delete(counter);;
 }
-
-/*************** wordToData() ***************
-char*
-wordToData(index_t* index, char* word){
-  counters_t* dataCounter = hashtable_find(index->hashTable, word);
-  if (dataCounter == NULL){
-    return NULL;    
-  }
-  // dataCounter is loaded up with the docID, count pairs.
-  // Transcript to standard index line format and return
-  char* dataLine = mem_malloc(sizeof(char)*75);
-  dataLine = word;
-  counters_iterate(dataCounter, dataLine, dataHelper);
-  // dataLine should now be full
-  return dataLine;
-}*/
-
-/*************** dataHelper() **************
-static void
-dataHelper(void* dataLine, const int docID, const int count){
-  char docIDn[6];
-  char countn[6];
-  sprintf(docIDn, " %d", docID);
-  sprintf(countn, " %d", count);
-
-  strcat(dataLine, docIDn); // amalgamate docID into dataLine
-  strcat(dataLine, countn); // amalgamate count into dataLine
-}*/
-
 
 #endif // __INDEX_C
 

@@ -2,7 +2,7 @@
 # Zion Slaughter
 
 CC = gcc
-CFLAGS = -Wall -pedantic -std=c11 -ggdb -I../libcs50 -I../common
+CFLAGS = -Wall -g -pedantic -std=c11 -ggdb -O0 -I../libcs50 -I../common
 
 # for indexer
 OBJS = indexer.o ../common/pagedir.o ../common/index.o ../common/word.o

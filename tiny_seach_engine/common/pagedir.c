@@ -184,13 +184,18 @@ pagedir_parse(const char* path){
     fclose(fp);
     exit(1);
   }
-  char* URL = mem_malloc(sizeof(char)*200); // must be freed later
+  char* tempURL = mem_malloc(sizeof(char)*350); // malloc enough for any URL
   char depth[5];
 
-  fscanf(fp, "%s\n%s", URL, depth);
+  fscanf(fp, "%s\n%s", tempURL, depth);
   char* dummyptr;
   long depthn;
   depthn = strtol(depth, &dummyptr, 10); // turn str depth into long int 
+
+  printf("URL has length %ld\n", strlen(tempURL));
+  char* URL = mem_malloc(sizeof(char) * strlen(tempURL) + 1); // malloc just enough for URL
+  strcpy(URL, tempURL); // assign URL to appropriatly sized memory block
+  free(tempURL); // free large malloc'd space
   
   webpage_t* page = webpage_new(URL, (int)(depthn), NULL);
 

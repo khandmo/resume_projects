@@ -19,6 +19,7 @@ normalizeWord(char* word){
   for(int i=0; i<strlen(holdWord); i++){
     (*(holdWord+i)) = tolower(*(holdWord+i));
   }
+  holdWord[strlen(holdWord)] = '\0';
   return holdWord;
 }
 
