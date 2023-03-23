@@ -14,7 +14,7 @@ of queried words.
 
 I took the liberty of indexing the following data folders for query,
 those with asterisks are the largest and therefore will have more words
-available for query:
+available for query:<br>
 letters-1<br>
 letters-2<br>
 toscrape-1<br>

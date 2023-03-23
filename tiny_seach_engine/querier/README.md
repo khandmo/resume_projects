@@ -1,6 +1,6 @@
-#Zion Slaughter
+# Zion Slaughter
 
-##CS50 Tiny Search Engine
+## CS50 Tiny Search Engine
 
 
 Querier allows for functionality such that a user may search the crawled Dartmouth webpages
