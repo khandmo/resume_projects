@@ -192,7 +192,6 @@ pagedir_parse(const char* path){
   long depthn;
   depthn = strtol(depth, &dummyptr, 10); // turn str depth into long int 
 
-  printf("URL has length %ld\n", strlen(tempURL));
   char* URL = mem_malloc(sizeof(char) * strlen(tempURL) + 1); // malloc just enough for URL
   strcpy(URL, tempURL); // assign URL to appropriatly sized memory block
   free(tempURL); // free large malloc'd space
