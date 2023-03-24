@@ -1,5 +1,5 @@
 # PS5 - The Sudi Assistant
-## Hidden Markov Models and Viterbi decoding
+## Hidden Markov Models and Viterbi decoding - SudiLearn.java
 
 The program is the basis of voice assistants and is fed a set of training
 sentences and a set of each word's respective tags, creating a hidden Markov

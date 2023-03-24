@@ -31,6 +31,38 @@ public class GraphLib<V, E> {
 		return tree;
 	}
 
+	public static <V,E> Set<V> missingVertices(Graph<V,E> graph, Graph<V,E> subgraph){
+		Set<V> disconnected = new HashSet<V>();
+		graph.vertices().forEach(disconnected::add);
+		subgraph.vertices().forEach(disconnected::remove);
+		return disconnected;
+	}
+
+	public static <V,E> double averageSeparation(Graph<String, String> tree, Set<String> missingVertices, V root){
+		Map<String, Integer> pathSet = new HashMap<String, Integer>();
+		// create map of string actor to pathSize so we know if we've visited before
+		pathSet = recursiveAvgSepHelp(tree, root, root, pathSet, missingVertices); // call recursive function on root
+		int pathSum = 0;
+		for (String actor : pathSet.keySet()){ // for each actor
+			pathSum += pathSet.get(actor); // enumerate path Sum
+		}
+		return pathSum/pathSet.size();
+	}
+
+	public static <V, E> Map<String, Integer> recursiveAvgSepHelp(Graph<String, String> tree, V root, V prevNode,
+																  Map<String, Integer> pathSet, Set<String> missingVertices){
+		for (String nextNode : tree.outNeighbors((String) prevNode)) { // for each child
+			if (!pathSet.containsKey(nextNode) && !missingVertices.contains(nextNode)) {
+				// if we've never seen an actor, and they have a path to our root
+				Graph<String, String> BFS = bfs(tree, nextNode); // run BFS
+				List<String> path = getPath(BFS, (String) root); // path from current node (nextNode) to root actor
+				pathSet.put(nextNode, path.size()); // add to pathSet
+				pathSet = recursiveAvgSepHelp(tree, root, nextNode, pathSet, missingVertices); // recurse
+			}
+		}
+		return pathSet;
+	}
+
 	public static <V,E> List<V> getPath(Graph<V,E> tree, V v){
 		if (!tree.hasVertex(v)){
 			System.out.println("\nNo Path Found");
@@ -100,9 +132,13 @@ public class GraphLib<V, E> {
 		String secondaryActorName;
 		actorName = userInput.nextLine(); // get user input
 		Graph<String, String> BFS = bfs(tree, actorName); // create BFS tree for actor
-		int numConnections = BFS.numVertices() - 1; // retrieve number of connections
-		System.out.println(actorName + " (with " + numConnections + "/" + tree.numVertices() + " connections) is " +
-				"now the center of the universe. \nWho would you like to connect them with?");
+		System.out.println(actorName + " (with " + (tree.numVertices() - missingVertices(tree, BFS).size()) +
+				"/" + tree.numVertices() + " connections" +
+
+				// ******************* COMMENT OUT THE BELOW LINE TO ELIMINATE AVERAGE SEPARATION **********************
+				" and average separation " + averageSeparation(tree, missingVertices(tree, BFS), actorName) +
+
+				") is\n" + "now the center of the universe. Who would you like to connect them with?");
 		secondaryActorName = userInput.nextLine(); // get user input for next actor
 
 		// LOOP TO LIST PATHS (SEARCH CONTINUOUSLY FOR SECOND ACTORS TO PAIR)
@@ -111,9 +147,10 @@ public class GraphLib<V, E> {
 				System.out.println("Name your new center of the universe below: ");
 				actorName = userInput.nextLine();
 				BFS = bfs(tree, actorName);
-				numConnections = BFS.numVertices() - 1;
-				System.out.println(actorName + " (with " + numConnections + "/" + tree.numVertices() +
-						" connections) is now the center of the universe. \nWho would you like to connect them with?");
+				//numConnections = BFS.numVertices() - 1;
+				System.out.println(actorName + " (with " + (tree.numVertices() - missingVertices(tree, BFS).size()) +
+						"/" + tree.numVertices() + " connections) is now the center of the universe. " +
+						"\nWho would you like to connect them with?");
 				secondaryActorName = userInput.nextLine();
 			}
 			// determine path from main actor to secondary actor
@@ -129,7 +166,7 @@ public class GraphLib<V, E> {
 					}
 				}
 				System.out.println("\nWould you like to try another secondary actor? If so, type their name now.");
-				System.out.println("If you would like a new center of the universe, type 'new'.");
+				System.out.println("If you would like a new center of the universe, type 'new' (will take time).");
 				System.out.println("If you would like to end the game, type 'done'.");
 				secondaryActorName = userInput.nextLine();
 			}
