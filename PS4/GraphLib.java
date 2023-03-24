@@ -50,9 +50,9 @@ public class GraphLib<V, E> {
 	public static void main(String[] args) throws IOException {
 		AdjacencyMapGraph<String, String> tree = new AdjacencyMapGraph<>();
 
-		BufferedReader actorsLines = new BufferedReader(new FileReader("day16/actors.txt"));
-		BufferedReader moviesLines = new BufferedReader(new FileReader("day16/movies.txt"));
-		BufferedReader connectorLines = new BufferedReader(new FileReader("day16/movie-actors.txt"));
+		BufferedReader actorsLines = new BufferedReader(new FileReader("PS4/actors.txt"));
+		BufferedReader moviesLines = new BufferedReader(new FileReader("PS4/movies.txt"));
+		BufferedReader connectorLines = new BufferedReader(new FileReader("PS4/movie-actors.txt"));
 
 		Map<String, String> actorsMap = new HashMap<>(); //initializes the complete map with key actorID and value actor name
 		Map<String, String> moviesMap = new HashMap<>(); // initializes the complete map with key movieID and value movie name

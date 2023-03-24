@@ -209,8 +209,8 @@ public class SudiLearn {
     }
 
     public static void main(String[] args) throws IOException {
-        BufferedReader sentences = new BufferedReader(new FileReader("day20/simple-train-sentences.txt"));
-        BufferedReader tagList = new BufferedReader(new FileReader("day20/simple-train-tags.txt"));
+        BufferedReader sentences = new BufferedReader(new FileReader("PS5/simple-train-sentences.txt"));
+        BufferedReader tagList = new BufferedReader(new FileReader("PS5/simple-train-tags.txt"));
         SudiLearn sudi = new SudiLearn();
 
         //Trainer
@@ -229,8 +229,8 @@ public class SudiLearn {
         sudi.logNormalize();
 
         //Input Trained data into Viterbi decoder
-        BufferedReader tester = new BufferedReader(new FileReader("day20/simple-test-sentences.txt"));
-        File outputFile = new File("day20/output.txt"); // create output file for accuracy measurement
+        BufferedReader tester = new BufferedReader(new FileReader("PS5/simple-test-sentences.txt"));
+        File outputFile = new File("PS5/output.txt"); // create output file for accuracy measurement
         BufferedWriter outputFileWrite = new BufferedWriter(new FileWriter(outputFile));
         while (tester.ready()){
             String[] testerLine = tester.readLine().split(" ");
@@ -242,8 +242,8 @@ public class SudiLearn {
         outputFileWrite.close();
 
         // Compare output to provided correct tag file
-        BufferedReader providedTags = new BufferedReader(new FileReader("day20/simple-test-tags.txt"));
-        BufferedReader ourTags = new BufferedReader(new FileReader("day20/output.txt"));
+        BufferedReader providedTags = new BufferedReader(new FileReader("PS5/simple-test-tags.txt"));
+        BufferedReader ourTags = new BufferedReader(new FileReader("PS5/output.txt"));
         accuracyCalculator(providedTags, ourTags);
         providedTags.close();
         ourTags.close();
