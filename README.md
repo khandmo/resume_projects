@@ -5,8 +5,8 @@
 The Nuggets game was a group project which required the students to create a playable game
 in which the user quests to collect as much "gold" (labeled as asterisks) in a given
 initialized map. The game is multiplayer and accepts up to 24 players and one spectator,
-with the winner of game having collected the most gold. I personally implemented the gameClient
-and display folders in the game files.
+with the winner of game having collected the most gold. **I personally implemented the gameClient
+and display folders of code in the game files.**
 
 ## Tiny Search Engine (C)
 
