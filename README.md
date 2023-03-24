@@ -14,3 +14,20 @@ The Tiny Search Engine is a collection of multiple labs: crawler, indexer, and q
 work in tandom to crawl Dartmouth webpages and index the word frequency in each page so that
 a user can query a word or combination of words using "and" and/or "or" to give a tier list
 of pages with the most frequent uses of the queried words.
+
+## PS4
+
+### The Kevin Bacon Game
+
+The Kevin Bacon Game utilizes a breadth first search algorithm to find the closest "path" 
+on a graph of movies associated between two actors, and both are input from the user.
+
+## PS5
+
+### The Sudi Assistant
+
+The imaginary Sudi Assitant will need a way to discern speak patterns. The program trains a
+map based on observations from input sentences and each word's associated part of speech (noun,
+verb, adjective, etc.). It then takes more input sentences without associated tags and uses
+Viterbi decoding to infer and print a best guess of tags to associate. The program is then 
+fed the correct tags and matches each tag to print the accuracy of the program.
