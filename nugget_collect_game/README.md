@@ -9,6 +9,13 @@ Each player is randomly dropped into a room when joining the game.
 Players move about, collecting nuggets when they move onto a pile.
 When all gold nuggets are collected, the game ends and a summary is printed.
 
+### Video
+
+Included for ease is the file **nugget-gameplay.mkv** which is a recording of myself beginning the game server, spectator,
+and playing two players to demonstrate game features including a circular visibility to mimic a character with a torch in a dark
+passageway, sprinting by input shift + direction, diagonal moves, and the ability to steal nuggets from other players 
+by walking over them. 
+
 ### ASSUMPTIONS
 
 #### Assumes that a name with spaces is surrounded by quotation marks and that the name does not contain quotation marks
