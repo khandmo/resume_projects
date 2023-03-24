@@ -26,8 +26,8 @@ on a graph of movies associated between two actors, and both are input from the 
 
 ### The Sudi Assistant
 
-The imaginary Sudi Assitant will need a way to discern speak patterns. The program trains a
+The imaginary Sudi Assitant will need a way to discern speech patterns. The program trains a
 map based on observations from input sentences and each word's associated part of speech (noun,
 verb, adjective, etc.). It then takes more input sentences without associated tags and uses
-Viterbi decoding to infer and print a best guess of tags to associate. The program is then 
-fed the correct tags and matches each tag to print the accuracy of the program.
+Viterbi decoding to infer and print a best guess of associated tags. The program is then 
+fed the correct tags and matches each tag to print the overall accuracy of the program.
