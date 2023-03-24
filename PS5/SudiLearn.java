@@ -222,7 +222,7 @@ public class SudiLearn {
         sentences.close();
         tagList.close();
 
-        //add # as initializer with the entire start library (first words)
+        //add # as the initializer with the entire start library (first words)
         sudi.transitions.put("#", sudi.starts);
 
         //Normalize weights ( trainer has trained )
@@ -243,9 +243,9 @@ public class SudiLearn {
 
         // Compare output to provided correct tag file
         BufferedReader providedTags = new BufferedReader(new FileReader("PS5/simple-test-tags.txt"));
-        BufferedReader ourTags = new BufferedReader(new FileReader("PS5/output.txt"));
-        accuracyCalculator(providedTags, ourTags);
+        BufferedReader guessedTags = new BufferedReader(new FileReader("PS5/output.txt"));
+        accuracyCalculator(providedTags, guessedTags);
         providedTags.close();
-        ourTags.close();
+        guessedTags.close();
     }
 }

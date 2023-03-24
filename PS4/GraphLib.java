@@ -40,7 +40,7 @@ public class GraphLib<V, E> {
 
 	public static <V,E> double averageSeparation(Graph<String, String> tree, Set<String> missingVertices, V root){
 		Map<String, Integer> pathSet = new HashMap<String, Integer>();
-		// create map of string actor to pathSize so we know if we've visited before
+		// create map of string actor to pathSize, so we know if we've visited before
 		pathSet = recursiveAvgSepHelp(tree, root, root, pathSet, missingVertices); // call recursive function on root
 		int pathSum = 0;
 		for (String actor : pathSet.keySet()){ // for each actor
@@ -147,7 +147,6 @@ public class GraphLib<V, E> {
 				System.out.println("Name your new center of the universe below: ");
 				actorName = userInput.nextLine();
 				BFS = bfs(tree, actorName);
-				//numConnections = BFS.numVertices() - 1;
 				System.out.println(actorName + " (with " + (tree.numVertices() - missingVertices(tree, BFS).size()) +
 						"/" + tree.numVertices() + " connections) is now the center of the universe. " +
 						"\nWho would you like to connect them with?");
